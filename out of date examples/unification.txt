@@ -1,0 +1,196 @@
+Pattern: p(ABBC)
+Term: p(d(2)s(1)s(1)s(1)2)
+--------------
+A :  value()
+B :  value()
+C :  d(2) s(1) s(1) s(1) value(2)
+--------------
+A :  value()
+B :  s(1) value()
+C :  d(2) s(1) value(2)
+--------------
+A :  s(1) value()
+B :  value()
+C :  d(2) s(1) s(1) value(2)
+--------------
+A :  s(1) value()
+B :  s(1) value()
+C :  d(2) value(2)
+--------------
+A :  s(1) s(1) value()
+B :  value()
+C :  d(2) s(1) value(2)
+--------------
+A :  s(1) s(1) s(1) value()
+B :  value()
+C :  d(2) value(2)
+--------------
+A :  d(2) value()
+B :  value()
+C :  s(1) s(1) s(1) value(2)
+--------------
+A :  d(2) value()
+B :  s(1) value()
+C :  s(1) value(2)
+--------------
+A :  d(2) s(1) value()
+B :  value()
+C :  s(1) s(1) value(2)
+--------------
+A :  d(2) s(1) value()
+B :  s(1) value()
+C :  value(2)
+--------------
+A :  d(2) s(1) s(1) value()
+B :  value()
+C :  s(1) value(2)
+--------------
+A :  d(2) s(1) s(1) s(1) value()
+B :  value()
+C :  value(2)
+--------------
+A :  value()
+B :  value(1)
+C :  d(2) s(1) s(1) s(1) value()
+--------------
+A :  value()
+B :  s(1) value(1)
+C :  d(2) s(1) value()
+--------------
+A :  s(1) value()
+B :  value(1)
+C :  d(2) s(1) s(1) value()
+--------------
+A :  s(1) value()
+B :  s(1) value(1)
+C :  d(2) value()
+--------------
+A :  s(1) s(1) value()
+B :  value(1)
+C :  d(2) s(1) value()
+--------------
+A :  s(1) s(1) s(1) value()
+B :  value(1)
+C :  d(2) value()
+--------------
+A :  d(2) value()
+B :  value(1)
+C :  s(1) s(1) s(1) value()
+--------------
+A :  d(2) value()
+B :  s(1) value(1)
+C :  s(1) value()
+--------------
+A :  d(2) s(1) value()
+B :  value(1)
+C :  s(1) s(1) value()
+--------------
+A :  d(2) s(1) value()
+B :  s(1) value(1)
+C :  value()
+--------------
+A :  d(2) s(1) s(1) value()
+B :  value(1)
+C :  s(1) value()
+--------------
+A :  d(2) s(1) s(1) s(1) value()
+B :  value(1)
+C :  value()
+--------------
+A :  value(1)
+B :  value()
+C :  d(2) s(1) s(1) s(1) value(1)
+--------------
+A :  value(1)
+B :  s(1) value()
+C :  d(2) s(1) value(1)
+--------------
+A :  s(1) value(1)
+B :  value()
+C :  d(2) s(1) s(1) value(1)
+--------------
+A :  s(1) value(1)
+B :  s(1) value()
+C :  d(2) value(1)
+--------------
+A :  s(1) s(1) value(1)
+B :  value()
+C :  d(2) s(1) value(1)
+--------------
+A :  s(1) s(1) s(1) value(1)
+B :  value()
+C :  d(2) value(1)
+--------------
+A :  d(2) value(1)
+B :  value()
+C :  s(1) s(1) s(1) value(1)
+--------------
+A :  d(2) value(1)
+B :  s(1) value()
+C :  s(1) value(1)
+--------------
+A :  d(2) s(1) value(1)
+B :  value()
+C :  s(1) s(1) value(1)
+--------------
+A :  d(2) s(1) value(1)
+B :  s(1) value()
+C :  value(1)
+--------------
+A :  d(2) s(1) s(1) value(1)
+B :  value()
+C :  s(1) value(1)
+--------------
+A :  d(2) s(1) s(1) s(1) value(1)
+B :  value()
+C :  value(1)
+--------------
+A :  value(2)
+B :  value()
+C :  d(2) s(1) s(1) s(1) value()
+--------------
+A :  value(2)
+B :  s(1) value()
+C :  d(2) s(1) value()
+--------------
+A :  s(1) value(2)
+B :  value()
+C :  d(2) s(1) s(1) value()
+--------------
+A :  s(1) value(2)
+B :  s(1) value()
+C :  d(2) value()
+--------------
+A :  s(1) s(1) value(2)
+B :  value()
+C :  d(2) s(1) value()
+--------------
+A :  s(1) s(1) s(1) value(2)
+B :  value()
+C :  d(2) value()
+--------------
+A :  d(2) value(2)
+B :  value()
+C :  s(1) s(1) s(1) value()
+--------------
+A :  d(2) value(2)
+B :  s(1) value()
+C :  s(1) value()
+--------------
+A :  d(2) s(1) value(2)
+B :  value()
+C :  s(1) s(1) value()
+--------------
+A :  d(2) s(1) value(2)
+B :  s(1) value()
+C :  value()
+--------------
+A :  d(2) s(1) s(1) value(2)
+B :  value()
+C :  s(1) value()
+--------------
+A :  d(2) s(1) s(1) s(1) value(2)
+B :  value()
+C :  value()
+--------------
+Number of bindings:  48
