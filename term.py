@@ -134,8 +134,6 @@ class Term: #compound term
     #------------------------------------------------------------------------------
     def ToString(self):
         temp_str = self.label + '('
-        if self.Number() > 0: #number
-            temp_str += str(self.atoms['1'])
         for var1 in self.variables: #variables
             for _ in range(self.variables[var1]): #multiplicity
                 temp_str += var1

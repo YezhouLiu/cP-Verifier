@@ -60,9 +60,8 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                         dict1[item2] = mg[item2] / mv[item] #dict1[a] = 4 / 2 = 2, X -> aa
                 S1 = deepcopy(S)
                 S1[item] = dict1 # X -> dict1
-                G_temp = working_G[1:]
                 G_new = []
-                for equation in G_temp:
+                for equation in working_G:
                     lhs = equation[0] #mv
                     rhs = equation[1] #mg
                     lhs_new = ApplyBindingMultiset(lhs, S1)
@@ -87,15 +86,18 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
             if isinstance(item, Term):
                 mv_temp.pop(item)
                 for item2 in mg: #f(X)g(Y) = f(a)f(b)g(c)
-                    if isinstance(item2, Term) and item.Label() == item2.Label() and mv[item] == mg[item2]:
+                    if isinstance(item2, Term) and item.Label() == item2.Label() and mv[item] <= mg[item2]:
                         mg_temp = deepcopy(mg)
-                        mg_temp.pop(item2)
+                        mg_temp[item2] = mg[item2] - mv[item]
+                        if mg_temp[item2] == 0:
+                            mg_temp.pop(item2)
                         G1 = [(item.CellContent(), item2.CellContent())] + working_G[1:]
                         G1.append((mv_temp, mg_temp))
                         LNMU(G1, S, SS)
                         succ = True #successfully applied FUNCTOR
                 break #only deal with one compound term a time
         return succ
+
     else: #mv contains no functor, no atom, but only variables, XXY = f(a)bbccccc
         for item in mv: #only deal with the first variable, let's call it X here
             if isinstance(item, Term): #which won't happen
@@ -128,7 +130,7 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                         rhs = equation[1] #mg
                         lhs_new = ApplyBindingMultiset(lhs, S1)
                         G_new.append((lhs_new, rhs))
-                        LNMU(G_new, S1, SS)
+                    LNMU(G_new, S1, SS)
 
 
 def ExpandCombinations(all_combinations, CC, EC): #EC: expanded combinations, CC: current/working dict
@@ -150,6 +152,8 @@ def FAIL1(mv: OrderedDict, mg: OrderedDict): #true: fail, false: succeed
         if t1 not in mg:
             if isinstance(t1, Term) and t1.IsGround(): #t1 a is ground term
                 return True
+            elif isinstance(t1, Term): #t1 is a variable term
+                continue
             elif t1 < 'A' or t1 > 'Z': #t1 is ground/ not a var
                 return True
     return False
@@ -260,8 +264,8 @@ def BindingEqual(bd1: OrderedDict, bd2: OrderedDict): #bd1 =? bd2
 def MultisetUnion(ms1: OrderedDict, ms2: OrderedDict): #Multiset = OrderedDict, ms1 \cup ms2
     ms = deepcopy(ms1)
     for key in ms2:
-        if key in ms:
-            ms[key] += ms2[key]
+        if key in ms1:
+            ms[key] = ms1[key] + ms2[key]
         else:
             ms[key] = ms2[key]
     return ms
