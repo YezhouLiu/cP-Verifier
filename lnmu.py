@@ -132,7 +132,6 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                         G_new.append((lhs_new, rhs))
                     LNMU(G_new, S1, SS)
 
-
 def ExpandCombinations(all_combinations, CC, EC): #EC: expanded combinations, CC: current/working dict
     if len(all_combinations) == 0:
         EC.append(CC)

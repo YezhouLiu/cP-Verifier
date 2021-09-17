@@ -2,32 +2,120 @@
 
 from copy import deepcopy
 from term import Term
-from toolbox import UnifyCompound
-from toolbox import PrintUnifyCompound
-from toolbox import ReplaceCompound
-from toolbox import ReplaceCompoundDict
-from toolbox import SelectPrint
 import random as rd
 import time
+from cpsystemsupport import ValidSystemTerm
 
 #MODULE cP
 class CPSystem:
-    def __init__(self, state = ''):
-        self.rules = [] #use list/array: rules' have weak priority order
-        self.state = state #string state 's0' 's1' 's2' ...
-        self.terms = {} #a map... a(1)a(1)a(1)a(2)a(3) -- a(1):3, a(2):1, a(3):1
-        self.products = {} #product membrane
-        self.next_state = ''
+    def __init__(self, state = 's0'):
+        self.rules = [] #rules follow a weak-priority order
+        self.state = state #'s0' 's1' 's2' ...
+        self.terms = {} #system terms, must be ground, atom or term, no need to sort them
+        self.products = {} #virtual product membrane
+        self.committed_state = 's0'
+        self.show_detail = False
 
+#STATE
+#------------------------------------------------------------------------------
     def State(self):
         return self.state
 
     def SetState(self, state):
         self.state = state
-        return True
 
-    def Terms(self):
+#SHOW DETAIL
+#------------------------------------------------------------------------------
+    def DetailOn(self):
+        self.show_detail = True
+
+    def DetailOff(self):
+        self.show_detail = False
+
+#SYSTEM TERM
+#------------------------------------------------------------------------------
+    def SystemTerms(self):
         return self.terms
+
+    def AddSystemTerm(self, t1, count = 1):
+        if ValidSystemTerm(t1):
+            if t1 in self.terms:
+                self.terms[t1] += count
+            else: 
+                self.terms[t1] = count
+        elif self.show_detail:
+            print('Invalid system term, please check!')
+
+    def ConsumeTerm(self, t1, count = 1):
+        if count < 1:
+            return False
+        if t1 not in self.terms:
+            if self.show_detail:
+                if isinstance(t1, Term):
+                    print('There is no ' + t1.ToString() + ' in the cP system!')
+                elif t1 >= 'a' and t1 <= 'z':
+                    print('There is no ' + t1 + ' in the cP system!')
+                else:
+                    print('Invalid system term, which cannot be consumed!')
+            return False
+        elif self.terms[t1] >= count: 
+            self.terms[t1] -= count
+            if self.terms[t1] == 0:
+                self.terms.pop(t1)
+            if self.show_detail:
+                if count == 1:
+                    print('1 copy of ' + t1.ToString() + ' is consumed! ')
+                else:
+                    print(str(count) + ' copies of ' + t1.ToString() + ' are consumed!')
+            return True
+        else:
+            if self.show_detail:
+                print('Insufficient terms in the system!')
+            return False
+
+    def ConsumeMultiset(self, m1):
+        for t1 in m1:
+            mult = m1[t1] #multiplicity
+            self.ConsumeTerm(t1, mult)
+
+#PRODUCT MEMBRANE
+#------------------------------------------------------------------------------
+    def ProduceTerm(self, t1, count = 1):
+        if count < 1:
+            return False
+        if ValidSystemTerm(t1):
+            if t1 in self.products:
+                self.products[t1] += count
+            else: 
+                self.products[t1] = count
+            if self.show_detail:
+                if count == 1:
+                    print('1 copy of ' + t1.ToString() + ' is produced! ')
+                else:
+                    print(str(count) + ' copies of ' + t1.ToString() + ' are produced!')
+            return True
+        elif self.show_detail:
+            print('Invalid product, please check!')
+        return False
+
+    def ProduceMultiset(self, m1):
+        for t1 in m1:
+            mult = m1[t1]
+            self.ProduceTerm(t1, mult)
+
+
+#RULE
+#------------------------------------------------------------------------------
+    def AddRule(self, r1):
+        if r1.Valid():
+            self.rules.append(r1)
+            if self.show_detail:
+                print('The rule: ' + r1.ToString() + ' is added to the cP system!')
+            return True
+        elif self.show_detail:
+            print('Invalid rule!')
+        return False
+
 
 
     def NextStep(self): #move to the next step, activate terms in product membrane
@@ -40,69 +128,9 @@ class CPSystem:
                 self.terms[x] = self.products[x]
         self.products = {}
 
-    def SetState(self, state):
-        self.state = state
-        return True
 
-    def AddTerm(self, term):
-        if term in self.terms:
-            self.terms[term] += 1
-        else: 
-            self.terms[term] = 1
-        return True
 
-    def AddProduct(self, term):
-        if term in self.products:
-            self.products[term] += 1
-        else: 
-            self.products[term] = 1
-        self.total_term_generated += 1
-        SelectPrint('Product ' + term.ToString() + ' is generated!')
-        return True
-
-    def AddProducts(self, term_dict):
-        for term in term_dict:
-            if term not in self.products:
-                self.products[term] = term_dict[term]
-            else:
-                self.products[term] += term_dict[term]
-            self.total_term_generated += 1
-            SelectPrint('Product ' + term.ToString() + ' is generated!')
-        return True
-
-    def ConsumeTerm(self, term):
-        if term not in self.terms:
-            return False
-        elif self.terms[term] > 1: 
-            self.terms[term] -= 1
-        else:
-            self.terms.pop(term)
-        SelectPrint('1 copy of term ' + term.ToString() + ' is consumed! ')
-        return  True
-
-    def ConsumeTerms(self, term_dict):
-        if len(term_dict) == 0:
-            return True
-        #pre-check
-        for term in term_dict:
-            if not term.IsGround(): #cannot consume term with variables
-                SelectPrint('The system only consume ground terms!')
-                return False
-            if term not in self.terms:
-                SelectPrint('Term ' + term.ToString() + ' does not exist in the system!')
-                return False
-            elif term_dict[term] > self.terms[term]:
-                SelectPrint('Insufficient terms to consume!')
-                return False
-        #consume
-        for term in term_dict:
-            diff = self.terms[term] - term_dict[term]
-            if diff > 0: 
-                self.terms[term] = diff
-            else:
-                self.terms.pop(term)
-            SelectPrint(str(term_dict[term]) + ' copy(copies) of term ' + term.ToString() + ' is(are) consumed! ')
-        return  True    
+   
  
     def AddRule(self, rule):
         if rule.IsValid():

@@ -11,6 +11,28 @@ class Rule:
         self.pmt = {} #promoter terms
         self.model = model # '1' exact-once, '+' max-parallel
 
+#OPERATION
+#------------------------------------------------------------------------------
+    def AddL(self, t1, count = 1): #add an L term
+        if t1 in self.lhs:
+            self.lhs[t1] += count
+        else:
+            self.lhs[t1] = count
+
+    def AddR(self, t1, count = 1): #add a R term
+        if t1 in self.rhs:
+            self.rhs[t1] += count
+        else:
+            self.rhs[t1] = count
+
+    def AddPMT(self, t1, count = 1): #add a promoter
+        if t1 in self.pmt:
+            self.pmt[t1] += count
+        else:
+            self.pmt[t1] = count
+
+#CHECKING
+#------------------------------------------------------------------------------
     def IsGround(self): #rule consists of grounded terms only
         term_str = self.ToString()
         for i in range(len(term_str)):
@@ -18,62 +40,40 @@ class Rule:
                 return False
         return True
 
+    def IsValid(self): #variables that appear in a rule's rhs, must appear in its lhs or promoters
+        variables = set()
+        lp_str = ''
+        for t1 in self.lhs:
+            lp_str += t1.ToString()
+        for t2 in self.pmt:
+            lp_str += t2.ToString()
+        for i in range(len(lp_str)):
+            if lp_str[i] >= 'A' and lp_str[i] <= 'Z':
+                variables.add(lp_str[i])
+        r_str = ''
+        for t3 in self.rhs:
+            r_str += t3.ToString()
+        for i in range(len(r_str)):
+            if r_str[i] >= 'A' and r_str[i] <= 'Z':
+                if not r_str[i] in variables:
+                    return False
+        return True
+
+#DISPLAY
+#------------------------------------------------------------------------------
     def ToString(self):
         temp_str = self.l_state + ' '
         for x in self.lhs:
-            x_count = self.lhs[x]
-            for _ in range(0, x_count):
-                temp_str += x.ToString() + ' '
+            x_mult = self.lhs[x]
+            temp_str += (x.ToString() + ' ') * x_mult
         temp_str += '->' + self.model + ' '
         temp_str += self.r_state + ' '
         for y in self.rhs:
-            y_count = self.rhs[y]
-            for _ in range(0, y_count):
-                temp_str += y.ToString() + ' '
+            y_mult = self.rhs[y]
+            temp_str += (y.ToString() + ' ') * y_mult
         if len(self.pmt) > 0:
             temp_str += '| '
             for z in self.pmt:
-                z_count = self.pmt[z]
-                for _ in range(0, z_count):
-                    temp_str += z.ToString() + ' '
+                z_mult = self.pmt[z]
+                temp_str += (z.ToString() + ' ') * z_mult
         return temp_str
-
-    def AddL(self, term): #add an L term
-        if term in self.lhs:
-            self.lhs[term] += 1
-        else:
-            self.lhs[term] = 1
-        return True
-
-    def AddR(self, term): #add a R term
-        if term in self.rhs:
-            self.rhs[term] += 1
-        else:
-            self.rhs[term] = 1
-        return True
-
-    def AddPM(self, term): #add a promoter
-        if term in self.pmt:
-            self.pmt[term] += 1
-        else:
-            self.pmt[term] = 1
-        return True
-
-    def IsValid(self): #to avoid invalid rules like: a(1) ->1 a(X) -- a variable appears in rhs, must appear in lhs first (or in promoters)
-        variables_set = {''}
-        lp_str = ''
-        for term in self.lhs:
-            lp_str += term.ToString()
-        for term in self.pmt:
-            lp_str += term.ToString()
-        for i in range(len(lp_str)):
-            if lp_str[i] >= 'A' and lp_str[i] <= 'Z':
-                variables_set.add(lp_str[i])
-        r_str = ''
-        for term in self.rhs:
-            r_str += term.ToString()
-        for i in range(len(r_str)):
-            if r_str[i] >= 'A' and r_str[i] <= 'Z':
-                if not r_str[i] in variables_set:
-                    return False
-        return True
