@@ -29,6 +29,7 @@ def CPSubsetSum(original_set, target_number): #{1,2,3,4}, 10
     sys.AddRule(rule5)
     sys.AddSystemTerm(t)
     sys.AddSystemTerm(m)
+    sys.DetailOn()
 
     #Initial state of the cP system
     sys.Snapshot()

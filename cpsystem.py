@@ -56,7 +56,7 @@ class CPSystem:
     def ConsumeTerm(self, t1, count = 1):
         if count < 1:
             return False
-        if t1 not in self.terms:
+        if not t1 in self.terms:
             if self.show_detail:
                 if isinstance(t1, Term):
                     print('There is no ' + t1.ToString() + ' in the cP system!')
@@ -127,10 +127,14 @@ class CPSystem:
 
 #RULE APPLICATION
 #------------------------------------------------------------------------------
-    def ApplyARule(self, r1: Rule): 
+    def ApplyARule(self, r1: Rule, committed_state_confirmed = False): 
         if self.show_detail:
             print('Applying the rule: ' + r1.ToString())
         if r1.LState() != self.state:
+            if self.show_detail:
+                print('State unmatched, the rule is not applicable!')
+            return False
+        elif committed_state_confirmed and r1.RState() != self.committed_state:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
             return False
@@ -147,7 +151,7 @@ class CPSystem:
                 if self.show_detail:
                     print('Insufficient terms, the rule is not applicable!')
                 return False
-        else: #a rule with variables
+        elif (not committed_state_confirmed) or (committed_state_confirmed and r1.RState() == self.committed_state): #a rule with variables
             ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
             G = []
             G.append((ms_to_process, self.terms, 'in')) #items in a rule's LHS and PMT are included in the system
@@ -159,6 +163,8 @@ class CPSystem:
                     print('Insufficient terms, the rule is not applicable!')
                 return False
             else:
+                for s in SS:
+                    lnmu.PrintBinding(s)
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
                     num_g_rules = len(SS)
                     rd_rule = rd.randint(0, num_g_rules - 1)
@@ -170,7 +176,10 @@ class CPSystem:
                     r2.SetLHS(lhs2)
                     r2.SetRHS(rhs2)
                     r2.SetPMT(pmt2)
-                    return self.ApplyARule(r2)
+                    if r2.IsGround():
+                        return self.ApplyARule(r2)
+                    else:
+                        return False
                 elif r1.Model() == '+': #max-parallel model
                     rd.shuffle(SS) #no need to keep original SS
                     ruleset = []
@@ -182,7 +191,8 @@ class CPSystem:
                         r2.SetLHS(lhs2)
                         r2.SetRHS(rhs2)
                         r2.SetPMT(pmt2)
-                        ruleset.append(r2)
+                        if r2.IsGround():
+                            ruleset.append(r2)
                     return self.ApplyGRules(ruleset)
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     return False
@@ -198,16 +208,18 @@ class CPSystem:
         self.committed_state = self.state
         first_commit = True
         for r1 in ruleset:
+            r1.Print()
             if first_commit and self.ApplyARule(r1):
                 first_commit = False
                 self.committed_state = r1.RState()
-            elif first_commit:
-                continue
-            elif r1.LState() == self.state and r1.RState() == self.committed_state:
-                self.ApplyARule(r1)
-            else:
-                continue
+            elif not first_commit:
+                self.ApplyARule(r1, True)
         self.StepOver()
+        self.Snapshot()
+        if first_commit: #no rule was applied
+            return False
+        else:
+            return True
 
     def StepOver (self): #move to the next step, activate terms in product membrane
         self.state = self.committed_state
@@ -218,14 +230,15 @@ class CPSystem:
                 self.terms[item1] = self.products[item1]
         self.products = {}
 
-    def Run(self):
-        self.ApplyARuleset(self.rules)
-        self.Snapshot()
+    def Run(self, steps = 100):
+        i = 0
+        while (self.ApplyARuleset(self.rules) and i < steps):
+            i += 1
 
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------
     def Snapshot(self): 
-        print('\n\n------------------------------------------------------------------------------------------')
+        print('\n\n--------------------------------------------------------')
         print('System state: ', self.state)
         print('Terms in the system:')
         for item in self.terms:
@@ -233,4 +246,4 @@ class CPSystem:
                 print(item.ToString() + ': ' + str(self.terms[item]))
             else:
                 print(item+ ': ' + str(self.terms[item]))
-        print('------------------------------------------------------------------------------------------\n\n')
+        print('--------------------------------------------------------\n\n')

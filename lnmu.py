@@ -26,6 +26,7 @@ def UnifyTerms(tv: Term, tg: Term): #tv: variable term, tg: ground term, return 
 def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: current subtitution
     #process current G - one branch
     working_G = []
+    #PrintG(G)
     for equation in G:
         mv_temp = equation[0] #lhs, mv
         mg_temp = equation[1] #rhs, mg
@@ -50,7 +51,7 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
         if not exist1:
             SS.append(S)
         return True
-
+    #PrintG(working_G)
     (mv, mg, e_or_i) = working_G[0] #deal with the first equation
     if ContainsCompoundTerms(mv): #mv contains functors (compound terms), apply FUNCTOR
         mv_temp = deepcopy(mv)
@@ -98,13 +99,16 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                     S1 = deepcopy(S)
                     S1[item] = binding1
                     G_new = []
+                    succ = False
                     for equation in working_G:
                         lhs = equation[0] #mv
                         rhs = equation[1] #mg
                         eoi = equation[2]
                         lhs_new = ApplyBindingMultiset(lhs, S1)
                         G_new.append((lhs_new, rhs, eoi))
-                    LNMU(G_new, S1, SS)
+                    if (LNMU(G_new, S1, SS)):
+                        succ = True
+                return succ
 
 def ExpandCombinations(all_combinations, CC, EC): #EC: expanded combinations, CC: current/working dict
     if len(all_combinations) == 0:
@@ -186,25 +190,22 @@ def ApplyBindingTerm(t1: Term, bd1: OrderedDict): #binding: map, from variables 
     return t2
 
 def ApplyBindingMultiset(ms1: OrderedDict, bd1: OrderedDict): #apply bindings to a nested multiset
-    new_ms = deepcopy(ms1)
+    new_ms = OrderedDict()
     for item in ms1:
         mult = ms1[item]
         if isinstance(item, Term):
-            new_ms.pop(item)
             new_ms[ApplyBindingTerm(item, bd1)] = mult
         elif item >= 'a' and item <= 'z':
-            continue
+            new_ms[item] = ms1[item]
         elif item == '1':
-            continue
+            new_ms[item] = ms1[item]
         elif item >= 'A' and item <= 'Z':
             if item in bd1:
-                new_ms.pop(item)
                 for item2 in bd1[item]:
                     mult2 = bd1[item][item2]
-                    if item2 in new_ms:
-                        new_ms[item2] += mult * mult2
-                    else:
-                        new_ms[item2] = mult * mult2
+                    new_ms[item2] = mult * mult2
+            else:
+                new_ms[item] = ms1[item]
         else:
             continue
     return new_ms
@@ -235,12 +236,17 @@ def BindingEqual(bd1: OrderedDict, bd2: OrderedDict): #bd1 =? bd2
 #MULTISET OPERATIONS
 #------------------------------------------------------------------------------
 def MultisetUnion(ms1: OrderedDict, ms2: OrderedDict): #Multiset = OrderedDict, ms1 \cup ms2
-    ms = deepcopy(ms1)
-    for key in ms2:
-        if key in ms1:
-            ms[key] = ms1[key] + ms2[key]
+    ms = OrderedDict()
+    for x in ms1:
+        if x in ms:
+            ms[x] += ms1[x]
         else:
-            ms[key] = ms2[key]
+            ms[x] = ms1[x]
+    for y in ms2:
+        if y in ms:
+            ms[y] += ms2[y]
+        else:
+            ms[y] = ms2[y]
     return ms
 
 def MultisetInclusion(ms1: OrderedDict, ms2: OrderedDict): #return if ms1 includes ms2
@@ -258,10 +264,10 @@ def MultisetMinus(ms1: OrderedDict, ms2: OrderedDict): #ms1 \ ms2
     ms = deepcopy(ms1)
     if MultisetIn(ms2, ms): #otherwise no computation will be done
         for key in ms2:
-            if ms[key] == ms2[key]:
+            if ms1[key] > ms2[key]:
+                ms[key] = ms1[key] - ms2[key]
+            elif ms1[key] == ms2[key]:
                 ms.pop(key)
-            else:
-                ms[key] -= ms2[key]
     return ms
 
 def MultisetEqual(ms1: OrderedDict, ms2: OrderedDict): #ms1 =? ms2
@@ -284,11 +290,6 @@ def MultisetIntersection(ms1: OrderedDict, ms2: OrderedDict): #ms1 \cap ms2
 def MultisetEmpty(ms: OrderedDict):
     return len(ms) == 0
 
-def MultisetPop(ms1: OrderedDict, key1): #it returns a new deep copy
-    ms = deepcopy(ms1)
-    ms.pop(key1)
-    return ms
-
 def PrintMultiset(ms1: OrderedDict):
     for item in ms1:
         mult = ms1[item]
@@ -297,3 +298,16 @@ def PrintMultiset(ms1: OrderedDict):
         else:
             print(item + ':' + str(mult), end = ' ')
     print()
+
+def PrintG(G):
+    print('\nStartG:')
+    for equation in G:
+        print('LHS: ************************')
+        PrintMultiset(equation[0])
+        print('LHS: ************************')
+        print(equation[2])
+        print('RHS: ************************')
+        PrintMultiset(equation[1])
+        print('RHS: ************************')
+        print('\n')
+    print('EndG \n')

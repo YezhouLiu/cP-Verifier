@@ -10,6 +10,7 @@ class Term: #compound term
         self.atoms = OrderedDict()
         self.variables = OrderedDict() #I can use isupper() to check it, while I'm thinking if I should introduce something else as variables in the future..., thus I will use ch <= 'Z' and ch >= 'A' here
         self.subterms = OrderedDict() #subcompoundterms
+        self.str = self.ToString() #for debug use
 
     #HASH
     #------------------------------------------------------------------------------
@@ -30,6 +31,7 @@ class Term: #compound term
         self.atoms = OrderedDict(sorted(self.atoms.items()))
         self.variables = OrderedDict(sorted(self.variables.items()))
         self.subterms = OrderedDict(sorted(self.subterms.items()))
+        self.str = self.ToString() #for debug use
 
     #LABEL
     #------------------------------------------------------------------------------

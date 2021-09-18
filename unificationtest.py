@@ -1,31 +1,12 @@
 import lnmu
 from term import Term
+from cpparser import ParseTerm
 
-a1 = Term('a')
-a1.AddAtoms('1a')
-a1.AddVariables('XXY')
-a1k = Term('c')
-a1k.AddVariables('XZ')
-a1.AddSubterm(a1k, 2)
-
-a2 = Term('a')
-a2.AddAtoms('aagpp1p')
-a1p = Term('b')
-a1p.AddAtoms('11')
-a1q = Term('c')
-a1q.AddAtoms('pa11')
-a2.AddSubterm(a1q, 2)
-a2.AddSubterm(a1p, 3)
-
-uni1 = lnmu.UnifyTerms(a1, a2)
-a1.Print()
-a2.Print()
-if len(uni1) > 0:
-  for x in uni1:
+tv1 = ParseTerm('p(u(X)n(Zm(Y))s(S))')
+tg1 = ParseTerm('p(n(m(1)m(2)m(3))s()u())')
+uni2 = lnmu.UnifyTerms(tv1, tg1)
+tv1.Print()
+tg1.Print()
+if len(uni2) > 0:
+  for x in uni2:
     lnmu.PrintBinding(x)
-
-
-
-
-
-
