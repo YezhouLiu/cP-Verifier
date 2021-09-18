@@ -11,6 +11,46 @@ class Rule:
         self.pmt = {} #promoter terms
         self.model = model # '1' exact-once, '+' max-parallel
 
+#GETTERS
+#------------------------------------------------------------------------------
+    def LState(self):
+        return self.l_state
+
+    def RState(self):
+        return self.r_state
+
+    def LHS(self):
+        return self.lhs
+
+    def RHS(self):
+        return self.rhs
+
+    def PMT(self):
+        return self.pmt
+
+    def Model(self):
+        return self.model
+
+#SETTERS
+#------------------------------------------------------------------------------
+    def SetLState(self, ls):
+        self.l_state = ls
+
+    def SetRState(self, rs):
+        self.r_state = rs
+
+    def SetLHS(self, lhs):
+        self.lhs = lhs
+
+    def SetRHS(self, rhs):
+        self.rhs = rhs
+
+    def SetPMT(self, pmt):
+        self.pmt = pmt
+
+    def SetModel(self, model):
+        self.model = model
+
 #OPERATION
 #------------------------------------------------------------------------------
     def AddL(self, t1, count = 1): #add an L term

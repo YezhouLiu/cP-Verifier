@@ -17,7 +17,7 @@ def UnifyTerms(tv: Term, tg: Term): #tv: variable term, tg: ground term, return 
     if tv.Label() != tg.Label(): #label mismatching, not unifiable
         return {}, False
     G = [] #equations
-    G.append((tv.CellContent(), tg.CellContent())) #an equation is a pair (lhs, rhs)
+    G.append((tv.CellContent(), tg.CellContent(), 'eq')) #an equation (lhs, rhs, = or \in)
     SS = [] #the set of unifiers
     S = {} #current substitution
     LNMU(G, S, SS)
@@ -29,15 +29,18 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
     for equation in G:
         mv_temp = equation[0] #lhs, mv
         mg_temp = equation[1] #rhs, mg
+        eq_or_in = equation[2] #lhs = rhs OR lhs /in rhs
         mv, mg = GROUND(mv_temp, mg_temp) #apply ground
         if FAIL1(mv, mg) or FAIL2(mv, mg):
             return False
         if can_be_DELETED(mv, mg): #the equation is lambda = lambda
             continue
-        elif len(mv) == 0: #fail when lambda = non-empty multiset
+        elif len(mv) == 0 and eq_or_in == 'eq': #fail when lambda = non-empty multiset
             return False
+        elif len(mv) == 0: #eq_or_in == 'in'
+            continue
         else:
-            working_G.append((mv, mg))
+            working_G.append((mv, mg, eq_or_in))
     if len(working_G) == 0: #success, all the equations are solved
         exist1 = False
         for s1 in SS:
@@ -48,38 +51,8 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
             SS.append(S)
         return True
 
-    (mv, mg) = working_G[0] #deal with the first equation
-    if len(mv) == 1: #lhs only contains one kind of variable or variable term, apply VARIABLE
-        for item in mv:
-            if item >= 'A' and item <= 'Z': #item is a variable
-                dict1 = OrderedDict()
-                for item2 in mg:
-                    if mg[item2] % mv[item] != 0: #fail, XX = f(a)f(a)f(a)
-                        return False 
-                    else: #XX = aaaa
-                        dict1[item2] = mg[item2] / mv[item] #dict1[a] = 4 / 2 = 2, X -> aa
-                S1 = deepcopy(S)
-                S1[item] = dict1 # X -> dict1
-                G_new = []
-                for equation in working_G:
-                    lhs = equation[0] #mv
-                    rhs = equation[1] #mg
-                    lhs_new = ApplyBindingMultiset(lhs, S1)
-                    G_new.append((lhs_new, rhs))
-                LNMU(G_new, S1, SS)
-            elif isinstance(item, Term): #item is a variable term
-                if len(mg) > 1: #fail, f(X) = f(a)g(b)
-                    return False 
-                for item2 in mg: #the only term in mg, f(XY) = f(abc)
-                    if isinstance(item2, Term) and item.Label() == item2.Label() and mv[item] == mg[item2]: #same label and multiplicity
-                        G1 = [(item.CellContent(), item2.CellContent())] + working_G[1:] #get rid of functors, XY = abc
-                        return LNMU(G1, S, SS)
-                    else: #fail, f(X) = g(ab), or f(X)f(X) = f(abc)f(abc)f(abc)
-                        return False
-            else: #which should not happen
-                return False
-
-    elif ContainsCompoundTerms(mv): #mv contains functors (compound terms), apply FUNCTOR
+    (mv, mg, e_or_i) = working_G[0] #deal with the first equation
+    if ContainsCompoundTerms(mv): #mv contains functors (compound terms), apply FUNCTOR
         mv_temp = deepcopy(mv)
         succ = False
         for item in mv:
@@ -91,8 +64,8 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                         mg_temp[item2] = mg[item2] - mv[item]
                         if mg_temp[item2] == 0:
                             mg_temp.pop(item2)
-                        G1 = [(item.CellContent(), item2.CellContent())] + working_G[1:]
-                        G1.append((mv_temp, mg_temp))
+                        G1 = [(item.CellContent(), item2.CellContent(), 'eq')] + working_G[1:]
+                        G1.append((mv_temp, mg_temp, e_or_i))
                         LNMU(G1, S, SS)
                         succ = True #successfully applied FUNCTOR
                 break #only deal with one compound term a time
@@ -128,8 +101,9 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                     for equation in working_G:
                         lhs = equation[0] #mv
                         rhs = equation[1] #mg
+                        eoi = equation[2]
                         lhs_new = ApplyBindingMultiset(lhs, S1)
-                        G_new.append((lhs_new, rhs))
+                        G_new.append((lhs_new, rhs, eoi))
                     LNMU(G_new, S1, SS)
 
 def ExpandCombinations(all_combinations, CC, EC): #EC: expanded combinations, CC: current/working dict
