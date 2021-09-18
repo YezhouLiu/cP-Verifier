@@ -8,7 +8,7 @@ class Term: #compound term
     def __init__(self, label: str):
         self.label = label #label of a cell/subcell/term
         self.atoms = OrderedDict()
-        self.variables = OrderedDict()
+        self.variables = OrderedDict() #I can use isupper() to check it, while I'm thinking if I should introduce something else as variables in the future..., thus I will use ch <= 'Z' and ch >= 'A' here
         self.subterms = OrderedDict() #subcompoundterms
 
     #HASH
@@ -56,6 +56,9 @@ class Term: #compound term
         if '1' in self.atoms:
             return self.atoms['1']
         return 0
+
+    def SetNumber(self, val: int):
+        self.atoms['1'] = val
 
     #ATOM
     #------------------------------------------------------------------------------
@@ -138,8 +141,11 @@ class Term: #compound term
             for _ in range(self.variables[var1]): #multiplicity
                 temp_str += var1
         for atom1 in self.atoms: #atoms
-            for _ in range(self.atoms[atom1]):
-                temp_str += atom1
+            if atom1 == '1':
+                temp_str += str(self.atoms[atom1])
+            else:
+                for _ in range(self.atoms[atom1]):
+                    temp_str += atom1
         for term1 in self.subterms: #subterms
             for _ in range(self.subterms[term1]): 
                 temp_str += term1.ToString()

@@ -105,15 +105,33 @@ class Rule:
         temp_str = self.l_state + ' '
         for x in self.lhs:
             x_mult = self.lhs[x]
-            temp_str += (x.ToString() + ' ') * x_mult
+            if isinstance(x, Term):
+                temp_str += (x.ToString() + ' ') * x_mult
+            elif x == '1':
+                temp_str += str(x_mult) + ' '
+            else:
+                temp_str += (x + ' ') * x_mult
         temp_str += '->' + self.model + ' '
         temp_str += self.r_state + ' '
         for y in self.rhs:
             y_mult = self.rhs[y]
-            temp_str += (y.ToString() + ' ') * y_mult
+            if isinstance(y, Term):
+                  temp_str += (y.ToString() + ' ') * y_mult
+            elif y == '1':
+                temp_str += str(y_mult) + ' '
+            else:
+                temp_str += (y + ' ') * y_mult
         if len(self.pmt) > 0:
             temp_str += '| '
             for z in self.pmt:
                 z_mult = self.pmt[z]
-                temp_str += (z.ToString() + ' ') * z_mult
+                if isinstance(z, Term):
+                  temp_str += (z.ToString() + ' ') * z_mult
+                elif z == '1':
+                    temp_str += str(z_mult) + ' '
+                else:
+                    temp_str += (z + ' ') * z_mult
         return temp_str
+
+    def Print(self):
+        print(self.ToString())

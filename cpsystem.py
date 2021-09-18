@@ -218,6 +218,10 @@ class CPSystem:
                 self.terms[item1] = self.products[item1]
         self.products = {}
 
+    def Run(self):
+        self.ApplyARuleset(self.rules)
+        self.Snapshot()
+
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------
     def Snapshot(self): 
@@ -226,7 +230,7 @@ class CPSystem:
         print('Terms in the system:')
         for item in self.terms:
             if isinstance(item, Term):
-                print(item.ToString() + ': ' + self.terms[item])
+                print(item.ToString() + ': ' + str(self.terms[item]))
             else:
-                print(item+ ': ' + self.terms[item])
+                print(item+ ': ' + str(self.terms[item]))
         print('------------------------------------------------------------------------------------------\n\n')

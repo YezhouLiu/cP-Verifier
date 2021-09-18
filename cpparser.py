@@ -1,55 +1,69 @@
-from compoundterm import CPTerm
-from compoundrule import CPRule
+from term import Term
+from rule import Rule
 
 # Term parser
 def ParseTerm(str_term):
-    #print(str_term)
-    if str_term == '' or str_term.isnumeric() or str_term[0].isupper():
-        return -1
-    name = str_term[0]
-    subterm = str_term[2:-1]
-    t = CPTerm(name)
-    jump = -1
-    for i in range(len(subterm)):
-        if i < jump:
-             continue
-        c = subterm[i]
-        if c.isnumeric():
-            x = '' + c
-            ck = True
-            while i < len(subterm)-1:
-                i += 1
-                if subterm[i].isnumeric():
-                    x += subterm[i]
-                else:
-                    jump = i
-                    ck = False
-                    break
-            t.SetValue(int(x))
-            if ck:
-                break
-        elif c.isupper():
-            t.AddVar(c)
-        elif c.islower():
-            x = '' + c
-            if i < len(subterm)-1 and subterm[i+1] == '(':
-                bcount = 1
-                x += '('
-                for j in range(i+2,len(subterm)):
-                    sj = subterm[j]
-                    x += sj
-                    if sj == '(':
-                        bcount += 1
-                    elif sj == ')':
-                        bcount -= 1
-                    if bcount == 0:
-                        jump = j + 1
-                        break
-                t.AddSubterm(ParseTerm(x))
-    return t
+    if len(str_term) <= 1: #no need to parse '' or simple terms: atom, variable or number
+        return str_term
+    elif str_term.isnumeric():
+        return str_term
+    elif len(str_term) < 3: #a(, bc, ()... invalid term
+        return ''
+    elif str_term[1] != '(' or str_term[len(str_term)-1] != ')':#invalid compound term
+        return ''
+    #compound terms
+    t1 = Term(str_term[0])
+    str_cell_content = str_term[2:len(str_term)-1]
+    cell_content = []
+    i = 0
+    temp_str = ''
+    bracket_count = 0
+    while i < len(str_cell_content):
+        ch = str_cell_content[i]
+        if ch.isnumeric(): #number
+            temp_str += ch
+            if i < len(str_cell_content) - 1 and str_cell_content[i+1].isnumeric():
+                pass
+            else:
+                cell_content.append(temp_str) #[123]
+                temp_str = ''
+        elif ch >= 'A' and ch <= 'Z': #variable
+            cell_content.append(ch)
+        elif ch >= 'a' and ch <= 'z': #atom or label
+            if i < len(str_cell_content) - 2 and str_cell_content[i+1] == '(': #label
+                j = i + 2
+                bracket_count = 1
+                while(bracket_count > 0 and j < len(str_cell_content)):
+                    if str_cell_content[j] == '(':
+                        bracket_count += 1
+                    elif str_cell_content[j] == ')':
+                        bracket_count -= 1
+                    j += 1
+                cell_content.append(str_cell_content[i:j]) #a compound term
+                i = j
+                continue
+            else: #atom
+                cell_content.append(ch)
+        else: #other characters, ' ', @, $... which will be ignored
+            pass
+        i += 1  
+    for s1 in cell_content:
+        pt1 = ParseTerm(s1)
+        if isinstance(pt1, Term):
+            t1.AddSubterm(pt1)
+        elif pt1.isnumeric():
+            t1.AddNumber(int(pt1))
+        elif pt1 >= 'A' and pt1 <= 'Z':
+            t1.AddVariable(pt1)
+        elif pt1 >= 'a' and pt1 <= 'z':
+            t1.AddAtom(pt1)
+        else: #blank space, wrong characters... 
+            continue
+    return t1
 
 def ParseRule(str_rule): # lstate lterm1 lterm2... ->1/+ rstate rterm1 rterm2... | pmt1, pmt2...
-    contents = str_rule.split(' ')
+    #terms need to be splitted by spaces
+    rule = str_rule.split(' ')
     element_type = 'left_state'
     lstate = ''
     rstate = ''
@@ -57,38 +71,36 @@ def ParseRule(str_rule): # lstate lterm1 lterm2... ->1/+ rstate rterm1 rterm2...
     r_terms = []
     pmt_terms = []
     app_model = ''
-    for content in contents:
-        if content[:2] == '->':
-            app_model = content[-1:]
+    for item in rule:
+        if item[:2] == '->':
+            app_model = item[-1:]
             element_type = 'right_state'
             continue
-        if content == '|':
+        if item == '|':
             element_type = 'promoter'
-            continue
-        
+            continue 
         if element_type == 'left_state':
-            lstate = content
+            lstate = item
             element_type = 'left_term'
             continue
         if element_type == 'right_state':
-            rstate = content
+            rstate = item
             element_type = 'right_term'
             continue
-
         if element_type == 'left_term':
-            l_terms.append(content)
+            l_terms.append(item)
             continue
         if element_type == 'right_term':
-            r_terms.append(content)
+            r_terms.append(item)
             continue
         if element_type == 'promoter':
-            pmt_terms.append(content)
+            pmt_terms.append(item)
             continue 
-    rule = CPRule(lstate, rstate, app_model)
+    rule = Rule(lstate, rstate, app_model)
     for x in l_terms:
         rule.AddL(ParseTerm(x))
     for y in r_terms:
         rule.AddR(ParseTerm(y))
     for z in pmt_terms:
-        rule.AddPM(ParseTerm(z))
+        rule.AddPMT(ParseTerm(z))
     return rule
