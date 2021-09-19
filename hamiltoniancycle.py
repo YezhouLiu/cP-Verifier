@@ -31,6 +31,8 @@ for i in range(1,size):
 #sys.stdout = open('5.txt', 'w')
 #sys.stdout = open('6.txt', 'w')
 
+sys1.DetailOn()
+
 sys1.AddSystemTerm(ParseTerm('v(v(1)v(2)v(3)v(4))'))
 #sys1.AddSystemTerm(ParseTerm('v(v(1)v(2)v(3)v(4)v(5))'))
 #sys1.AddSystemTerm(ParseTerm('v(v(1)v(2)v(3)v(4)v(5)v(6))'))

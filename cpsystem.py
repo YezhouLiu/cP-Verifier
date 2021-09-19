@@ -128,8 +128,8 @@ class CPSystem:
 #RULE APPLICATION
 #------------------------------------------------------------------------------
     def ApplyARule(self, r1: Rule, committed_state_confirmed = False): 
-        if self.show_detail:
-            print('Applying the rule: ' + r1.ToString())
+        if self.show_detail and not r1.IsGround():
+            print('Trying the rule: ' + r1.ToString())
         if r1.LState() != self.state:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
@@ -164,9 +164,9 @@ class CPSystem:
                         print('Insufficient terms, the rule is not applicable!')
                     return False
                 else:
-                    for i in range(mult):
-                        self.ConsumeMultiset(r1.LHS())
-                        self.ProduceMultiset(r1.RHS())
+                    mult -= 1
+                    self.ConsumeMultiset(lnmu.MultisetTimes(r1.LHS(), mult))
+                    self.ProduceMultiset(lnmu.MultisetTimes(r1.RHS(), mult))
                     return True
         elif (not committed_state_confirmed) or (committed_state_confirmed and r1.RState() == self.committed_state): #a rule with variables
             ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
@@ -223,7 +223,6 @@ class CPSystem:
         self.committed_state = self.state
         first_commit = True
         for r1 in ruleset:
-            r1.Print()
             if first_commit and self.ApplyARule(r1):
                 first_commit = False
                 self.committed_state = r1.RState()

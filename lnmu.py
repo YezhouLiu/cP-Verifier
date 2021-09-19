@@ -288,10 +288,10 @@ def MultisetIntersection(ms1: OrderedDict, ms2: OrderedDict): #ms1 \cap ms2
             ms[key] = min(ms1[key], ms2[key])
     return ms
 
-def MultisetTimes(ms1: OrderedDict, times): #ms1 * 7
+def MultisetTimes(ms1: OrderedDict, times = 1): #ms1 * 7
     ms = OrderedDict()
     for key in ms1:
-        ms[key] = ms1[key] * 7
+        ms[key] = ms1[key] * times
     return ms
 
 def MultisetEmpty(ms: OrderedDict):

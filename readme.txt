@@ -1,4 +1,6 @@
-About the term parser:
+Commas (,) are temporary allowed in the term or rule parsers.
+
+bout the term parser:
 spaces are allowed, for example:
 'p(u(Xm(Y)) n(Z)s(SY ))' can be correctly parsed to a Term object by calling 
 t1 = ParseTerm('p(u(Xm(Y)) n(Z)s(SY ))')
