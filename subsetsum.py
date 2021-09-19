@@ -36,7 +36,7 @@ def CPSubsetSum(original_set, target_number): #{1,2,3,4}, 10
     sys.Run()
 
 #sys.stdout = open('subsetsum.txt', 'w')
-CPSubsetSum({1,2,3},6)
+CPSubsetSum({1,2,3,4},10)
 #CPSubsetSum({1,2,3,4},10)
 #CPSubsetSum({1,2,3,4},11)
 #sys.stdout = open('6.txt', 'w')
