@@ -1,11 +1,16 @@
 Commas (,) are temporary allowed in the term or rule parsers.
 
-bout the term parser:
+About ParseTerm():
 spaces are allowed, for example:
 'p(u(Xm(Y)) n(Z)s(SY ))' can be correctly parsed to a Term object by calling 
 t1 = ParseTerm('p(u(Xm(Y)) n(Z)s(SY ))')
 
-About the rule parser:
+About ParseTerms():
+string terms are splitted with spaces ' '
+for example, ParseTerms('f(a) b c g(Xt(y)h) c') will return a dictionary, which is: 
+{f(a):1, b:1, c:2, g(Xt(y)h):1}
+
+About ParseRule():
 As an early implementation, I used blank space ' ' to separate each object in a rule,
 such as l_state, r_state, ->+, | and each first-level term
 

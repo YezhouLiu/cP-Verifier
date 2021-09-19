@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from term import Term
 from rule import Rule
 
@@ -60,6 +61,18 @@ def ParseTerm(str_term):
         else: #blank space, wrong characters... 
             continue
     return t1
+
+def ParseTerms(str_terms): #parse a string of terms splitted by blank spaces, returns a dictionary
+    terms = str_terms.split(' ')
+    term_dict = OrderedDict()
+    for t1 in terms:
+        t2 = ParseTerm(t1)
+        if t2 in term_dict:
+            term_dict[t2] += 1
+        else:
+            term_dict[t2] = 1
+    return term_dict
+    
 
 def ParseRule(str_rule): # lstate lterm1 lterm2... ->1/+ rstate rterm1 rterm2... | pmt1, pmt2...
     #terms need to be splitted by spaces

@@ -1,7 +1,7 @@
 from term import Term
 from rule import Rule
 from cpsystem import CPSystem
-from cpparser import ParseTerm
+from cpparser import ParseTerm, ParseTerms
 from cpparser import ParseRule
 import sys
 #sys.stdout = open('out.txt', 'w')
@@ -19,24 +19,15 @@ sys1.AddRule(rule3)
 sys1.AddRule(rule4)
 sys1.AddRule(rule5)
 
-size = 5
-#size = 6
-#size = 7
-for i in range(1,size):
-    for j in range(1,size):
-        temp_term = ParseTerm('e(f(' + str(i) + ')t(' + str(j) + '))')
-        sys1.AddSystemTerm(temp_term)
-
-#sys.stdout = open('4.txt', 'w')
-#sys.stdout = open('5.txt', 'w')
-#sys.stdout = open('6.txt', 'w')
+size = 6
+sys1.AddSystemMultiset(ParseTerms('e(f(1)t(2)) e(f(2)t(5)) e(f(5)t(4)) e(f(3)t(4)) e(f(4)t(3)) e(f(3)t(6)) e(f(6)t(1)) v(v(1)v(2)v(3)v(4)v(5)v(6))'))
+#The example graph, 6 vertices:
+#1->2 2->5 5->4 3->4 4->3 3->6 6->1
 
 sys1.DetailOn()
-
-sys1.AddSystemTerm(ParseTerm('v(v(1)v(2)v(3)v(4))'))
-#sys1.AddSystemTerm(ParseTerm('v(v(1)v(2)v(3)v(4)v(5))'))
-#sys1.AddSystemTerm(ParseTerm('v(v(1)v(2)v(3)v(4)v(5)v(6))'))
 
 sys1.Snapshot()
 sys1.Run()
 #sys1.RunProfile()
+
+
