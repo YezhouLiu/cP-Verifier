@@ -124,6 +124,10 @@ class CPSystem:
         elif self.show_detail:
             print('Invalid rule!')
         return False
+    
+    def AddRules(self, list_of_rules):
+        for r1 in list_of_rules:
+            self.AddRule(r1)
 
 #RULE APPLICATION
 #------------------------------------------------------------------------------
