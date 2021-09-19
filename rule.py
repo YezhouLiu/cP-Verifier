@@ -84,15 +84,24 @@ class Rule:
         variables = set()
         lp_str = ''
         for t1 in self.lhs:
-            lp_str += t1.ToString()
+            if isinstance(t1, Term):
+                lp_str += t1.ToString()
+            else:
+                lp_str += t1
         for t2 in self.pmt:
-            lp_str += t2.ToString()
+            if isinstance(t2, Term):
+                lp_str += t2.ToString()
+            else:
+                lp_str += t2
         for i in range(len(lp_str)):
             if lp_str[i] >= 'A' and lp_str[i] <= 'Z':
                 variables.add(lp_str[i])
         r_str = ''
         for t3 in self.rhs:
-            r_str += t3.ToString()
+            if isinstance(t3, Term):
+                lp_str += t3.ToString()
+            else:
+                lp_str += t3
         for i in range(len(r_str)):
             if r_str[i] >= 'A' and r_str[i] <= 'Z':
                 if not r_str[i] in variables:

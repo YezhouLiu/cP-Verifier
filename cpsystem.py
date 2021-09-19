@@ -70,10 +70,16 @@ class CPSystem:
             if self.terms[t1] == 0:
                 self.terms.pop(t1)
             if self.show_detail:
-                if count == 1:
-                    print('1 copy of ' + t1.ToString() + ' is consumed! ')
+                if isinstance(t1, Term):
+                    if count == 1:
+                        print('1 copy of ' + t1.ToString() + ' is consumed! ')
+                    else:
+                        print(str(count) + ' copies of ' + t1.ToString() + ' are consumed!')
                 else:
-                    print(str(count) + ' copies of ' + t1.ToString() + ' are consumed!')
+                    if count == 1:
+                        print('1 copy of ' + t1 + ' is consumed! ')
+                    else:
+                        print(str(count) + ' copies of ' + t1 + ' are consumed!')
             return True
         else:
             if self.show_detail:
@@ -96,10 +102,16 @@ class CPSystem:
             else: 
                 self.products[t1] = count
             if self.show_detail:
-                if count == 1:
-                    print('1 copy of ' + t1.ToString() + ' is produced! ')
+                if isinstance(t1, Term):
+                    if count == 1:
+                        print('1 copy of ' + t1.ToString() + ' is produced! ')
+                    else:
+                        print(str(count) + ' copies of ' + t1.ToString() + ' are produced!')
                 else:
-                    print(str(count) + ' copies of ' + t1.ToString() + ' are produced!')
+                    if count == 1:
+                        print('1 copy of ' + t1 + ' is produced! ')
+                    else:
+                        print(str(count) + ' copies of ' + t1 + ' are produced!')
             return True
         elif self.show_detail:
             print('Invalid product, please check!')
