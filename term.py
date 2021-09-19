@@ -10,7 +10,6 @@ class Term: #compound term
         self.atoms = OrderedDict()
         self.variables = OrderedDict() #I can use isupper() to check it, while I'm thinking if I should introduce something else as variables in the future..., thus I will use ch <= 'Z' and ch >= 'A' here
         self.subterms = OrderedDict() #subcompoundterms
-        self.str = self.ToString() #for debug use
 
     #HASH
     #------------------------------------------------------------------------------
@@ -31,7 +30,6 @@ class Term: #compound term
         self.atoms = OrderedDict(sorted(self.atoms.items()))
         self.variables = OrderedDict(sorted(self.variables.items()))
         self.subterms = OrderedDict(sorted(self.subterms.items()))
-        self.str = self.ToString() #for debug use
 
     #LABEL
     #------------------------------------------------------------------------------
@@ -65,6 +63,8 @@ class Term: #compound term
     #ATOM
     #------------------------------------------------------------------------------
     def AddAtom(self, atom: str, count = 1): #atom: 'a'
+        if count < 1:
+            return
         if atom in self.atoms:
             self.atoms[atom] += count
         else:
@@ -91,6 +91,8 @@ class Term: #compound term
     #VARIABLE
     #------------------------------------------------------------------------------
     def AddVariable(self, var: str, count = 1): #var: 'X'
+        if count < 1:
+            return
         if var in self.variables:
             self.variables[var] += count
         else:
@@ -114,7 +116,7 @@ class Term: #compound term
     #SUBTERM
     #------------------------------------------------------------------------------
     def AddSubterm(self, term, count = 1): #add a subterm / subterms
-        if not isinstance(term, Term):
+        if not isinstance(term, Term) or count < 1:
             return
         if term in self.subterms: #dictionary: key:Term value:nat
             self.subterms[term] += count
@@ -163,4 +165,3 @@ class Term: #compound term
 
     def Print(self):
         print (self.ToString())
-

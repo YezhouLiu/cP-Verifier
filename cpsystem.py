@@ -142,15 +142,32 @@ class CPSystem:
             self.ProduceMultiset(r1.RHS())
             return True
         elif r1.IsGround(): #no need to unify
-            ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
-            if lnmu.MultisetIn(ms_to_check, self.terms):
-                self.ConsumeMultiset(r1.LHS())
-                self.ProduceMultiset(r1.RHS())
-                return True
-            else:
-                if self.show_detail:
-                    print('Insufficient terms, the rule is not applicable!')
-                return False
+            if r1.Model() == '1':
+                ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
+                if lnmu.MultisetIn(ms_to_check, self.terms):
+                    self.ConsumeMultiset(r1.LHS())
+                    self.ProduceMultiset(r1.RHS())
+                    return True
+                else:
+                    if self.show_detail:
+                        print('Insufficient terms, the rule is not applicable!')
+                    return False
+            else: #model = '+'
+                ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
+                ms_to_check_2 = deepcopy(ms_to_check)
+                mult = 1
+                while lnmu.MultisetIn(ms_to_check_2, self.terms):
+                    mult += 1
+                    ms_to_check_2 = lnmu.MultisetTimes(ms_to_check, mult)
+                if mult == 1:
+                    if self.show_detail:
+                        print('Insufficient terms, the rule is not applicable!')
+                    return False
+                else:
+                    for i in range(mult):
+                        self.ConsumeMultiset(r1.LHS())
+                        self.ProduceMultiset(r1.RHS())
+                    return True
         elif (not committed_state_confirmed) or (committed_state_confirmed and r1.RState() == self.committed_state): #a rule with variables
             ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
             G = []
@@ -163,8 +180,6 @@ class CPSystem:
                     print('Insufficient terms, the rule is not applicable!')
                 return False
             else:
-                for s in SS:
-                    lnmu.PrintBinding(s)
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
                     num_g_rules = len(SS)
                     rd_rule = rd.randint(0, num_g_rules - 1)
@@ -187,7 +202,7 @@ class CPSystem:
                         lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
                         rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
                         pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
-                        r2 = Rule(r1.LState(), r1.RState(), '1') #a unified, ground rule
+                        r2 = Rule(r1.LState(), r1.RState(), '+') #a unified, ground rule
                         r2.SetLHS(lhs2)
                         r2.SetRHS(rhs2)
                         r2.SetPMT(pmt2)
@@ -230,7 +245,7 @@ class CPSystem:
                 self.terms[item1] = self.products[item1]
         self.products = {}
 
-    def Run(self, steps = 100):
+    def Run(self, steps = 20):
         i = 0
         while (self.ApplyARuleset(self.rules) and i < steps):
             i += 1

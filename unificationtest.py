@@ -1,3 +1,4 @@
+from typing import OrderedDict
 import lnmu
 from term import Term
 from cpparser import ParseTerm
@@ -10,3 +11,20 @@ tg1.Print()
 if len(uni2) > 0:
   for x in uni2:
     lnmu.PrintBinding(x)
+    
+    
+t1 = ParseTerm('p(n(Z)s(SY)u(Xm(Y)))')
+
+unifier = OrderedDict()
+d1 = OrderedDict()
+d1['1'] = 1
+unifier['Y'] = d1
+unifier['S'] = OrderedDict()
+unifier['X'] = OrderedDict()
+m1 = ParseTerm('m(2)')
+d2 = OrderedDict()
+d2[m1] = 1
+unifier['Z'] = d2
+
+t3 = lnmu.ApplyBindingMultiset(t1.Subterms(), unifier)
+lnmu.PrintMultiset(t3)

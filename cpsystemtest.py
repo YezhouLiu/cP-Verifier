@@ -15,7 +15,7 @@ def CPSubsetSum(original_set, target_number):
         string_m += 'm(' + str(i) + ')'
     string_m += ')'
     m = ParseTerm(string_m)
-    p = ParseTerm('p(n(m(1)m(2)m(3))s()u())')
+    p = ParseTerm('p(n(m(1)m(2))s()u())')
 
     sys = CPSystem('s1')
     sys.AddRule(rule4)
@@ -29,7 +29,7 @@ def CPSubsetSum(original_set, target_number):
     sys.Run()
 
 #sys.stdout = open('subsetsum.txt', 'w')
-CPSubsetSum({1,2,3},6)
+CPSubsetSum({1,2},3)
 #CPSubsetSum({1,2,3,4},10)
 #CPSubsetSum({1,2,3,4},11)
 #sys.stdout = open('6.txt', 'w')

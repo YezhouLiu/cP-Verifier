@@ -165,7 +165,8 @@ def ContainsCompoundTerms(mv: OrderedDict):
 #------------------------------------------------------------------------------
 
 #no occurs check here, one-way unification, X -> f(a g(X)) will not happen
-def ApplyBindingTerm(t1: Term, bd1: OrderedDict): #binding: map, from variables to multisets
+def ApplyBindingTerm(t0: Term, bd1: OrderedDict): #binding: map, from variables to multisets
+    t1 = deepcopy(t0)
     t2 = Term(t1.Label())
     t2.SetAtoms(t1.Atoms())
     for v in t1.Variables():
@@ -190,25 +191,25 @@ def ApplyBindingTerm(t1: Term, bd1: OrderedDict): #binding: map, from variables 
     return t2
 
 def ApplyBindingMultiset(ms1: OrderedDict, bd1: OrderedDict): #apply bindings to a nested multiset
-    new_ms = OrderedDict()
+    ms = OrderedDict()
     for item in ms1:
         mult = ms1[item]
         if isinstance(item, Term):
-            new_ms[ApplyBindingTerm(item, bd1)] = mult
+            ms[ApplyBindingTerm(item, bd1)] = mult
         elif item >= 'a' and item <= 'z':
-            new_ms[item] = ms1[item]
+            ms[item] = ms1[item]
         elif item == '1':
-            new_ms[item] = ms1[item]
+            ms[item] = ms1[item]
         elif item >= 'A' and item <= 'Z':
             if item in bd1:
                 for item2 in bd1[item]:
                     mult2 = bd1[item][item2]
-                    new_ms[item2] = mult * mult2
+                    ms[item2] = mult * mult2
             else:
-                new_ms[item] = ms1[item]
+                ms[item] = ms1[item]
         else:
             continue
-    return new_ms
+    return ms
 
 def PrintBinding(bd1: OrderedDict): #binding: X -> multiset
     for var in bd1:
@@ -285,6 +286,12 @@ def MultisetIntersection(ms1: OrderedDict, ms2: OrderedDict): #ms1 \cap ms2
     for key in ms2:
         if key in ms1:
             ms[key] = min(ms1[key], ms2[key])
+    return ms
+
+def MultisetTimes(ms1: OrderedDict, times): #ms1 * 7
+    ms = OrderedDict()
+    for key in ms1:
+        ms[key] = ms1[key] * 7
     return ms
 
 def MultisetEmpty(ms: OrderedDict):
