@@ -1,12 +1,10 @@
-from term import Term
-from rule import Rule
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from cpsystem import CPSystem
 from cpparser import ParseTerm
 from cpparser import ParseRule
-import sys
-#sys.stdout = open('out.txt', 'w')
 
-def CPSubsetSum(original_set, target_number): #{1,2,3,4}, 10
+def CPSubsetSum(original_set, target_number):
     rule1 = ParseRule('s0 ->1 s1 p(u()n(M)s()) | m(M)')
     rule2 = ParseRule('s1 ->1 s2 o(X) | p(u(X)s(T)A)) t(T)')
     rule3 = ParseRule('s1 ->1 s3 o() | p(n()A)')
@@ -35,14 +33,4 @@ def CPSubsetSum(original_set, target_number): #{1,2,3,4}, 10
     sys.Snapshot()
     sys.Run()
 
-#sys.stdout = open('subsetsum.txt', 'w')
 CPSubsetSum({1,2,3,4},7)
-#CPSubsetSum({1,2,3,4},10)
-#CPSubsetSum({1,2,3,4},11)
-#sys.stdout = open('6.txt', 'w')
-#CPSubsetSum({1,2,3,4,5,6},21)
-#CPSubsetSum({1,2,3,4,5,6},22)
-#sys.stdout = open('8.txt', 'w')
-#CPSubsetSum({1,2,3,4,5,6,7,8},36)
-#sys.stdout = open('10.txt', 'w')
-#CPSubsetSum({1,2,3,4,5,6,7,8,9,10},55)

@@ -1,10 +1,9 @@
-from term import Term
-from rule import Rule
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from cpsystem import CPSystem
-from cpparser import ParseTerm, ParseTerms
+from cpparser import ParseTerms
 from cpparser import ParseRule
 import sys
-#sys.stdout = open('out.txt', 'w')
 
 rule1 = ParseRule('s1 v(v(R)Y) ->1 s2 s(r(R)u(Y)p(h(R)p()))')
 rule2 = ParseRule('s2 s(r(R)u()p(h(F)p(P))) ->+ s3 z(p(h(R)p(h(F)p(P)))) | e(f(F)t(R))')
@@ -13,7 +12,7 @@ rule4 = ParseRule('s2 s(A) ->+ s2')
 rule5 = ParseRule('s3 ->1 s4 q(P) | z(p(P))')
 
 sys1 = CPSystem('s1')
-sys1.AddRules([rule1, rule2, rule3, rule4, rule5])
+sys1.AddRuleset([rule1, rule2, rule3, rule4, rule5])
 
 sys1.AddSystemMultiset(ParseTerms('e(f(1)t(2)) e(f(2)t(5)) e(f(5)t(4)) e(f(3)t(4)) e(f(4)t(3)) e(f(3)t(6)) e(f(6)t(1)) v(v(1)v(2)v(3)v(4)v(5)v(6))'))
 #The example graph, 6 vertices:

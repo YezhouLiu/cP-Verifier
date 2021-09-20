@@ -1,10 +1,11 @@
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from term import Term
 from rule import Rule
 from cpsystem import CPSystem
 from cpparser import ParseTerms
 from cpparser import ParseRule
 import sys
-#sys.stdout = open('out.txt', 'w')
  
 r1 = ParseRule('s1 f(a(b)) f(X) b ->1 s1 c g(X) d')
 sys1 = CPSystem('s1')

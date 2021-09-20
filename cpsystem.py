@@ -137,7 +137,7 @@ class CPSystem:
             print('Invalid rule!')
         return False
     
-    def AddRules(self, list_of_rules):
+    def AddRuleset(self, list_of_rules):
         for r1 in list_of_rules:
             self.AddRule(r1)
 
@@ -148,7 +148,7 @@ class CPSystem:
             if not r1.IsGround():
                 print('Trying the rule: ' + r1.ToString())
             else:
-                print('Applying the ground rule: ' + r1.ToString())
+                print('Ground (unified) rule: ' + r1.ToString())
         if r1.LState() != self.state:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
