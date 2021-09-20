@@ -1,4 +1,4 @@
-#cP rules - Yezhou
+#cP rules
 
 from term import Term
 

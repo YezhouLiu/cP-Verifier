@@ -144,8 +144,11 @@ class CPSystem:
 #RULE APPLICATION
 #------------------------------------------------------------------------------
     def ApplyARule(self, r1: Rule, committed_state_confirmed = False): 
-        if self.show_detail and not r1.IsGround():
-            print('Trying the rule: ' + r1.ToString())
+        if self.show_detail:
+            if not r1.IsGround():
+                print('Trying the rule: ' + r1.ToString())
+            else:
+                print('Applying the ground rule: ' + r1.ToString())
         if r1.LState() != self.state:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
