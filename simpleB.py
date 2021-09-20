@@ -1,6 +1,7 @@
 from cpparser import ParseRule
 import lnmu
 import sys
+import subprocess
 
 #only for ground, atom cp rules
 def cPtoB(str_ruleset, system_terms, system_state, system_name):
@@ -15,8 +16,7 @@ def cPtoB(str_ruleset, system_terms, system_state, system_name):
             atoms.add(a2)
         for a3 in rule.PMT():
             atoms.add(a3)
-    B_file = ''
-    B_file += 'MACHINE ' + system_name
+    B_file = 'MACHINE ' + system_name
     B_file += '\nVARIABLES state'
     for ch in atoms:
         B_file += ',' + ch
@@ -51,3 +51,25 @@ def cPtoB(str_ruleset, system_terms, system_state, system_name):
 def CreateBFile(str_ruleset, system_terms, system_state, system_name):
     sys.stdout = open(system_name + '.mch', 'w')
     print(cPtoB(str_ruleset, system_terms, system_state, system_name))
+    
+def ProBHelp():
+    result = subprocess.run(['probcli', '--help'], stdout=subprocess.PIPE)
+    result_len = len(str(result))
+    i = 0
+    while i < result_len:
+        if i < result_len - 5 and str(result)[i] == '\\' and str(result)[i+1] == 'r':
+            print()
+            i += 4
+        else:
+            print(str(result)[i], end = '')
+            i += 1
+    
+def ProBMC(str_ruleset, system_terms, system_state, system_name, deadlock = False):
+    CreateBFile(str_ruleset, system_terms, system_state, system_name)
+    file_path = system_name + '.mch'
+    if deadlock:
+        result = subprocess.run(['probcli', file_path], stdout=subprocess.PIPE)
+        return result
+    else:
+        result = subprocess.run(['probcli', file_path, '-nodead'], stdout=subprocess.PIPE)
+        return result
