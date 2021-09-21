@@ -11,6 +11,7 @@ system_name = 'simplecp'
 Bfile = cPtoB(ruleset, system_terms, system_state, system_name)
 print(Bfile)
 
-ProBHelp()
+#ProBHelp()
 
-ProBMC(ruleset, system_terms, system_state, system_name)
+res = ProBMC(ruleset, system_terms, system_state, system_name, True)
+print(res)

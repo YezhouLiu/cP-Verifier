@@ -6,3 +6,4 @@ OPERATIONS
 r1 = PRE state = 1 & a >= 2 THEN a := a - 2; b := b + 1; state := 1 END;
 r2 = PRE state = 1 & b >= 2 THEN b := b - 2; c := c + 1; d := d + 2; state := 1 END
 END
+CompletedProcess(args=['probcli', 'simplecp.mch'], returncode=0, stdout=b'\r\n')

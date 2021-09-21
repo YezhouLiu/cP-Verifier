@@ -51,9 +51,25 @@ def cPtoB(str_ruleset, system_terms, system_state, system_name):
 def CreateBFile(str_ruleset, system_terms, system_state, system_name):
     sys.stdout = open(system_name + '.mch', 'w')
     print(cPtoB(str_ruleset, system_terms, system_state, system_name))
+    sys.stdout = sys.__stdout__
     
 def ProBHelp():
     result = subprocess.run(['probcli', '--help'], stdout=subprocess.PIPE)
+    PrintProBRes(str(result))
+    
+def ProBMC(str_ruleset, system_terms, system_state, system_name, deadlock = False):
+    CreateBFile(str_ruleset, system_terms, system_state, system_name)
+    file_path = system_name + '.mch'
+    result_str = ''
+    if deadlock:
+        result = subprocess.run(['probcli', file_path], stdout=subprocess.PIPE)
+        result_str = str(result)
+    else:
+        result = subprocess.run(['probcli', file_path, '-nodead'], stdout=subprocess.PIPE)
+        result_str = str(result)
+    PrintProBRes(result_str)
+
+def PrintProBRes(result):
     result_len = len(str(result))
     i = 0
     while i < result_len:
@@ -63,13 +79,3 @@ def ProBHelp():
         else:
             print(str(result)[i], end = '')
             i += 1
-    
-def ProBMC(str_ruleset, system_terms, system_state, system_name, deadlock = False):
-    CreateBFile(str_ruleset, system_terms, system_state, system_name)
-    file_path = system_name + '.mch'
-    if deadlock:
-        result = subprocess.run(['probcli', file_path], stdout=subprocess.PIPE)
-        return result
-    else:
-        result = subprocess.run(['probcli', file_path, '-nodead'], stdout=subprocess.PIPE)
-        return result
