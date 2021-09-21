@@ -57,17 +57,11 @@ def ProBHelp():
     result = subprocess.run(['probcli', '--help'], stdout=subprocess.PIPE)
     PrintProBRes(str(result))
     
-def ProBMC(str_ruleset, system_terms, system_state, system_name, deadlock = False):
+def ProBMC(str_ruleset, system_terms, system_state, system_name):
     CreateBFile(str_ruleset, system_terms, system_state, system_name)
     file_path = system_name + '.mch'
-    result_str = ''
-    if deadlock:
-        result = subprocess.run(['probcli', file_path], stdout=subprocess.PIPE)
-        result_str = str(result)
-    else:
-        result = subprocess.run(['probcli', file_path, '-nodead'], stdout=subprocess.PIPE)
-        result_str = str(result)
-    PrintProBRes(result_str)
+    result = subprocess.run(['probcli', file_path], stdout=subprocess.PIPE)
+    PrintProBRes(str(result))
     
 def ProBMCCustom(str_ruleset, system_terms, system_state, system_name, str_commands):
     CreateBFile(str_ruleset, system_terms, system_state, system_name)
@@ -79,6 +73,15 @@ def ProBMCCustom(str_ruleset, system_terms, system_state, system_name, str_comma
     result = subprocess.run(prob_commands, stdout=subprocess.PIPE)
     PrintProBRes(str(result))
 
+def ProBMCBreathFirst(str_ruleset, system_terms, system_state, system_name):
+    ProBMCCustom(str_ruleset, system_terms, system_state, system_name, '-bf -mc 1000')
+    
+def ProBMCTimeout(str_ruleset, system_terms, system_state, system_name, time_limit):
+    mode = '-timeout ' + str(time_limit)
+    ProBMCCustom(str_ruleset, system_terms, system_state, system_name, mode)
+        
+
+
 def PrintProBRes(result):
     result_len = len(str(result))
     i = 0
@@ -89,3 +92,4 @@ def PrintProBRes(result):
         else:
             print(str(result)[i], end = '')
             i += 1
+            
