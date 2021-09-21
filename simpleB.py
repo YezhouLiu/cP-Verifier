@@ -68,12 +68,22 @@ def ProBMC(str_ruleset, system_terms, system_state, system_name, deadlock = Fals
         result = subprocess.run(['probcli', file_path, '-nodead'], stdout=subprocess.PIPE)
         result_str = str(result)
     PrintProBRes(result_str)
+    
+def ProBMCCustom(str_ruleset, system_terms, system_state, system_name, str_commands):
+    CreateBFile(str_ruleset, system_terms, system_state, system_name)
+    file_path = system_name + '.mch'
+    commands = str_commands.split()
+    prob_commands = ['probcli', file_path]
+    for cmd in commands:
+        prob_commands.append(cmd)
+    result = subprocess.run(prob_commands, stdout=subprocess.PIPE)
+    PrintProBRes(str(result))
 
 def PrintProBRes(result):
     result_len = len(str(result))
     i = 0
     while i < result_len:
-        if i < result_len - 5 and str(result)[i] == '\\' and str(result)[i+1] == 'r':
+        if i < result_len - 5 and str(result)[i: i+4] == '\\r\\n':
             print()
             i += 4
         else:
