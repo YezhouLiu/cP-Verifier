@@ -11,10 +11,5 @@ system_name = 'simplecp2'
 Bfile = simpleB.cPtoB(ruleset, system_terms, system_state, system_name)
 print(Bfile)
 
-simpleB.ProBHelp()
-
-simpleB.ProBMC(ruleset, system_terms, system_state, system_name)
-simpleB.ProBMCCustom(ruleset, system_terms, system_state, system_name, '-bf -mc -nodead 10000')
-
-simpleB.ProBMCBreathFirst(ruleset, system_terms, system_state, system_name)
+simpleB.ProBMCBreathFirst(ruleset, system_terms, system_state, system_name, 5000)
 simpleB.ProBMCTimeout(ruleset, system_terms, system_state, system_name, 10000)

@@ -73,8 +73,8 @@ def ProBMCCustom(str_ruleset, system_terms, system_state, system_name, str_comma
     result = subprocess.run(prob_commands, stdout=subprocess.PIPE)
     PrintProBRes(str(result))
 
-def ProBMCBreathFirst(str_ruleset, system_terms, system_state, system_name):
-    ProBMCCustom(str_ruleset, system_terms, system_state, system_name, '-bf -mc 1000')
+def ProBMCBreathFirst(str_ruleset, system_terms, system_state, system_name, nodes_limit = 1000):
+    ProBMCCustom(str_ruleset, system_terms, system_state, system_name, '-bf -mc ' + str(nodes_limit))
     
 def ProBMCTimeout(str_ruleset, system_terms, system_state, system_name, time_limit):
     mode = '-timeout ' + str(time_limit)
