@@ -3,7 +3,7 @@ import lnmu
 import sys
 import subprocess
 
-#only for ground, atom cp rules
+#only for ground, atomic cp rules, without promoters
 def cPtoB(str_ruleset, system_terms, system_state, system_name):
     atoms = set()
     ruleset = []
@@ -14,8 +14,8 @@ def cPtoB(str_ruleset, system_terms, system_state, system_name):
             atoms.add(a1)
         for a2 in rule.RHS():
             atoms.add(a2)
-        for a3 in rule.PMT():
-            atoms.add(a3)
+        #for a3 in rule.PMT():
+        #    atoms.add(a3)
     B_file = 'MACHINE ' + system_name
     B_file += '\nVARIABLES state'
     for ch in atoms:
@@ -78,9 +78,7 @@ def ProBMCBreathFirst(str_ruleset, system_terms, system_state, system_name, node
     
 def ProBMCTimeout(str_ruleset, system_terms, system_state, system_name, time_limit):
     mode = '-timeout ' + str(time_limit)
-    ProBMCCustom(str_ruleset, system_terms, system_state, system_name, mode)
-        
-
+    ProBMCCustom(str_ruleset, system_terms, system_state, system_name, mode)     
 
 def PrintProBRes(result):
     result_len = len(str(result))

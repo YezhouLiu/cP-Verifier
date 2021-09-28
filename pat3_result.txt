@@ -1,0 +1,72 @@
+=======================================================
+Assertion: S0() nonterminating
+********Verification Result********
+The Assertion (S0() nonterminating) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:7
+Total Transitions:7
+Time Used:0.0214519s
+Estimated Memory Used:8560.856KB
+
+
+=======================================================
+Assertion: S0() deadlockfree
+********Verification Result********
+The Assertion (S0() deadlockfree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:7
+Total Transitions:7
+Time Used:0.0002559s
+Estimated Memory Used:8552.664KB
+
+
+=======================================================
+Assertion: S0() divergencefree
+********Verification Result********
+The Assertion (S0() divergencefree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:7
+Total Transitions:7
+Time Used:0.0063598s
+Estimated Memory Used:8569KB
+
+
+=======================================================
+Assertion: S0() deterministic
+********Verification Result********
+The Assertion (S0() deterministic) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:7
+Total Transitions:7
+Time Used:0.0020418s
+Estimated Memory Used:8552.664KB
+
+
