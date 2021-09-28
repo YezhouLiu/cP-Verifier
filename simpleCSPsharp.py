@@ -64,6 +64,19 @@ def PAT3MC(str_ruleset, system_terms, system_state, system_name):
     output_path = cwd + '\\pat3_result.txt'
     result = subprocess.run(['PAT3.Console.exe', '-csp', '-v', file_path, output_path], stdout=subprocess.PIPE)
     PrintPAT3Res(str(result))
+    
+def PAT3MCCustom(str_ruleset, system_terms, system_state, system_name, list_of_properties):
+    CSP_file = cPtoCSP(str_ruleset, system_terms, system_state, system_name)
+    for prop in list_of_properties:
+        CSP_file += prop + ';\n'
+    sys.stdout = open(system_name + '.csp', 'w')
+    print(CSP_file)
+    sys.stdout = sys.__stdout__
+    cwd = os.getcwd()
+    file_path = cwd + '\\' + system_name + '.csp'
+    output_path = cwd + '\\pat3_result.txt'
+    result = subprocess.run(['PAT3.Console.exe', '-csp', '-v', file_path, output_path], stdout=subprocess.PIPE)
+    PrintPAT3Res(str(result))
             
 def PrintPAT3Res(result):
     result_len = len(str(result))
