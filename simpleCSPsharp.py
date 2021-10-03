@@ -38,6 +38,7 @@ def cPtoCSP(str_ruleset, system_terms, system_state, system_name):
             CSP_file += atom + ' = ' + atom + ' - ' + str(rule.LHS()[atom]) + ';\n'
         for atom in rule.RHS():
             CSP_file += atom + ' = ' + atom + ' + ' + str(rule.RHS()[atom]) + ';\n'
+        CSP_file += 'state = ' + rule.RState()[1:] + ';\n'
         if i < len(ruleset) - 1:
             CSP_file += '}\n}-> S' + str(i + 1) + '();\n'
         else:
