@@ -3,6 +3,17 @@ from typing import OrderedDict
 from term import Term
 from rule import Rule
 from cpsystem import CPSystem
+import json
+
+def ParsecPVJSON(file_path):
+    f = open(file_path, 'r')
+    cPV_json = json.loads(f.read())
+    ruleset = cPV_json['ruleset']
+    system_terms = cPV_json['terms']
+    system_state = cPV_json['state']
+    system_name = cPV_json['name']
+    return ParseSystem(ruleset, system_terms, system_state, system_name)
+    
 
 def ParseSystem(str_ruleset, system_terms, system_state, system_name = 'sys1'):
     sys1 = CPSystem(system_state)
