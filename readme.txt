@@ -34,3 +34,5 @@ About calling the ProB model checker, see Bexample.py:
 ProBMCCustom(ruleset, system_terms, system_state, system_name, '-bf -mc 1000')
 As an experimental functionality, only rules with atoms are supported, cP systems do not have virtual product membranes, all the rules will run in exact-once model.
 To use the ProB model checking functionality, users need to install the latest version of ProB, and properly configure probcli.
+
+Similarly, to use PAT3 automated verification, users need to install PAT3 software and configure corresponding environment variables.

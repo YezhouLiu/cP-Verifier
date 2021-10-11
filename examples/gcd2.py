@@ -13,5 +13,7 @@ ms1 = {'a': 144, 'b': 88}
 sys1.AddSystemMultiset(ms1)
 sys1.DetailOn()
 
+print(sys1.ToString())
+
 sys1.Snapshot()
 sys1.Run()

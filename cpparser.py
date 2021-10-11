@@ -1,6 +1,16 @@
+from cpsystem import CPSystem
 from typing import OrderedDict
 from term import Term
 from rule import Rule
+from cpsystem import CPSystem
+
+def ParseSystem(str_ruleset, system_terms, system_state, system_name = 'sys1'):
+    sys1 = CPSystem(system_state)
+    for rule in str_ruleset:
+        sys1.AddRule(ParseRule(rule))
+    for term in system_terms:
+        sys1.AddSystemTerm(ParseTerm(term), system_terms[term])
+    return sys1
 
 # Term parser
 def ParseTerm(str_term):

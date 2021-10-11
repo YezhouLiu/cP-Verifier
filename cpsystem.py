@@ -16,6 +16,7 @@ class CPSystem:
         self.terms = {} #system terms, must be ground, atom or term, no need to sort them
         self.products = {} #a virtual product membrane
         self.committed_state = state
+        self.is_committed = False
         self.show_detail = False
 
 #STATE
@@ -25,6 +26,18 @@ class CPSystem:
 
     def SetState(self, state):
         self.state = state
+        
+    def CommittedState(self):
+        return self.committed_state
+    
+    def SetCommittedState(self, state):
+        self.committed_state = state
+        
+    def IsCommitted(self):
+        return self.is_committed
+    
+    def SetIsCommitted(self, b1):
+        self.is_committed = b1
 
 #SHOW DETAIL
 #------------------------------------------------------------------------------
@@ -140,10 +153,13 @@ class CPSystem:
     def AddRuleset(self, list_of_rules):
         for r1 in list_of_rules:
             self.AddRule(r1)
+            
+    def Rules(self):
+        return self.rules
 
 #RULE APPLICATION
 #------------------------------------------------------------------------------
-    def ApplyARule(self, r1: Rule, committed_state_confirmed = False): 
+    def ApplyARule(self, r1: Rule, is_committed = False): 
         if self.show_detail:
             if not r1.IsGround():
                 print('Trying the rule: ' + r1.ToString())
@@ -153,7 +169,7 @@ class CPSystem:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
             return False
-        elif committed_state_confirmed and r1.RState() != self.committed_state:
+        elif is_committed and r1.RState() != self.committed_state:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
             return False
@@ -187,7 +203,7 @@ class CPSystem:
                     self.ConsumeMultiset(lnmu.MultisetTimes(r1.LHS(), mult))
                     self.ProduceMultiset(lnmu.MultisetTimes(r1.RHS(), mult))
                     return True
-        elif (not committed_state_confirmed) or (committed_state_confirmed and r1.RState() == self.committed_state): #a rule with variables
+        elif (not is_committed) or (is_committed and r1.RState() == self.committed_state): #a rule with variables
             ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
             G = []
             G.append((ms_to_process, self.terms, 'in')) #items in a rule's LHS and PMT are included in the system
@@ -240,19 +256,19 @@ class CPSystem:
 
     def ApplyARuleset(self, ruleset):
         self.committed_state = self.state
-        first_commit = True
+        self.is_committed = False
         for r1 in ruleset:
-            if first_commit and self.ApplyARule(r1):
-                first_commit = False
+            if (not self.is_committed) and self.ApplyARule(r1):
+                self.is_committed = True
                 self.committed_state = r1.RState()
-            elif not first_commit:
+            elif self.is_committed:
                 self.ApplyARule(r1, True)
         self.StepOver()
         self.Snapshot()
-        if first_commit: #no rule was applied
-            return False
-        else:
+        if self.is_committed:
             return True
+        else: #no rule was applied
+            return False
 
     def StepOver (self): #move to the next step, activate terms in product membrane
         self.state = self.committed_state
@@ -280,3 +296,24 @@ class CPSystem:
             else:
                 print(item+ ': ' + str(self.terms[item]))
         print('--------------------------------------------------------\n\n')
+
+    def ToString(self):
+        str_system = ''
+        for rule in self.rules:
+            str_system += rule.ToString() + '\n'
+        str_system += 'State: ' + self.state + '\n'
+        str_system += 'Commited to: ' + self.committed_state + '\n'
+        str_system += 'Terms:\n'
+        for item in self.terms:
+            if isinstance(item, Term):
+                str_system += item.ToString() + ": " + str(self.terms[item]) + '\n'
+            else:
+                str_system += item + ": " + str(self.terms[item]) + '\n'
+        if len(self.products) > 0:
+            str_system += 'Virtual products:\n'
+            for item in self.products:
+                if isinstance(item, Term):
+                    str_system += item.ToString() + ": " + str(self.products[item]) + '\n'
+                else:
+                    str_system += item + ": " + str(self.products[item]) + '\n'
+        return str_system
