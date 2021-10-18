@@ -10,7 +10,8 @@ import lnmu
 
 #MODULE cP
 class CPSystem:
-    def __init__(self, state = 's0'):
+    def __init__(self, state = 's0', name = 'cP system'):
+        self.sys_name = name
         self.rules = [] #rules follow a weak-priority order
         self.state = state #'s0' 's1' 's2' ...
         self.terms = {} #system terms, must be ground, atom or term, no need to sort them
@@ -18,6 +19,14 @@ class CPSystem:
         self.committed_state = state
         self.is_committed = False
         self.show_detail = False
+        
+#SYSTEM NAME
+#------------------------------------------------------------------------------
+    def SystemName(self):
+        return self.sys_name
+
+    def SetSystemName(self, name: str):
+        self.sys_name = name
 
 #STATE
 #------------------------------------------------------------------------------
@@ -298,7 +307,7 @@ class CPSystem:
         print('--------------------------------------------------------\n\n')
 
     def ToString(self):
-        str_system = ''
+        str_system = self.sys_name + '\nRules:\n'
         for rule in self.rules:
             str_system += rule.ToString() + '\n'
         str_system += 'State: ' + self.state + '\n'

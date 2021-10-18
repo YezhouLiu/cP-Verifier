@@ -32,5 +32,6 @@ def CPSubsetSum(original_set, target_number):
     #Initial state of the cP syst em
     sys.Snapshot()
     sys.Run()
+    print(sys.ToString())
 
 CPSubsetSum({1,2,3,4},7)

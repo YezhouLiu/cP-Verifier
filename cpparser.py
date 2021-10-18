@@ -15,8 +15,8 @@ def ParsecPVJSON(file_path):
     return ParseSystem(ruleset, system_terms, system_state, system_name)
     
 
-def ParseSystem(str_ruleset, system_terms, system_state, system_name = 'sys1'):
-    sys1 = CPSystem(system_state)
+def ParseSystem(str_ruleset, system_terms, system_state, system_name):
+    sys1 = CPSystem(system_state, system_name)
     for rule in str_ruleset:
         sys1.AddRule(ParseRule(rule))
     for term in system_terms:

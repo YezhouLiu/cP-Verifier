@@ -18,7 +18,7 @@ system_name = 'HCP' #optional
 #The example graph, 6 vertices:
 #1->2 2->5 5->4 3->4 4->3 3->6 6->1
 
-sys1 = ParseSystem(ruleset, system_terms, system_state)
+sys1 = ParseSystem(ruleset, system_terms, system_state, system_name)
 sys1.DetailOn()
 sys1.Snapshot()
 sys1.Run()
