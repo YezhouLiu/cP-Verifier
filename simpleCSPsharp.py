@@ -14,7 +14,7 @@ def cPtoCSP(str_ruleset, system_terms, system_state, system_name):
             atoms.add(a1)
         for a2 in rule.RHS():
             atoms.add(a2)
-    CSP_file = '//' + system_name + '\n'
+    CSP_file = '//' + system_name + '\nvar applied = false; \n'
     for ch in atoms:
         CSP_file += 'var ' + ch + ';\n'
     CSP_file += 'var state = ' + system_state[1:] + ';\n\n'
@@ -34,16 +34,21 @@ def cPtoCSP(str_ruleset, system_terms, system_state, system_name):
         for atom in rule.LHS():
             CSP_file += ' && ' + atom + ' > 0'
         CSP_file += '){\n'
+        CSP_file += 'applied = true;\n'
         for atom in rule.LHS():
             CSP_file += atom + ' = ' + atom + ' - ' + str(rule.LHS()[atom]) + ';\n'
         for atom in rule.RHS():
             CSP_file += atom + ' = ' + atom + ' + ' + str(rule.RHS()[atom]) + ';\n'
         CSP_file += 'state = ' + rule.RState()[1:] + ';\n'
-        if i < len(ruleset) - 1:
+        if i < len(ruleset):
             CSP_file += '}\n}-> S' + str(i + 1) + '();\n'
         else:
-            CSP_file += '}\n}-> S1();\n'
-        i += 1        
+            CSP_file += '}\n}-> S_CHECK();\n'
+        i += 1
+    
+    CSP_file += 'S_CHECK() = if(applied == true){S_NEXT()} else {Skip};\n'
+    CSP_file += 'S_NEXT() = {applied = false;}-> S1();\n'
+            
     return CSP_file
     
 def CreateCSPFile(str_ruleset, system_terms, system_state, system_name):

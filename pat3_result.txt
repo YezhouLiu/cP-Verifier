@@ -1,38 +1,74 @@
 =======================================================
-Assertion: S0() |= F r1
+Assertion: S0() nonterminating
 ********Verification Result********
-The Assertion (S0() |= F r1) is VALID.
+The Assertion (S0() nonterminating) is NOT valid.
+The following trace leads to a terminating situation.
+<init -> cp_init -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if!((applied == true))] -> terminate>
 
 ********Verification Setting********
 Admissible Behavior: All
-Search Engine: Loop Existence Checking - The negation of the LTL formula is a safety property!
+Search Engine: First Witness Trace using Depth First Search
 System Abstraction: False
 
 
 ********Verification Statistics********
-Visited States:2
-Total Transitions:2
-Time Used:0.0376988s
-Estimated Memory Used:8544.424KB
+Visited States:25
+Total Transitions:25
+Time Used:0.0221854s
+Estimated Memory Used:8585.432KB
 
 
 =======================================================
-Assertion: S0() |= G r2
+Assertion: S0() deadlockfree
 ********Verification Result********
-The Assertion (S0() |= G r2) is NOT valid.
-A counterexample is presented as follows.
-<init>
+The Assertion (S0() deadlockfree) is VALID.
 
 ********Verification Setting********
 Admissible Behavior: All
-Method: Refinement Based Safety Analysis using DFS - The LTL formula is a safety property!
+Search Engine: First Witness Trace using Depth First Search
 System Abstraction: False
 
 
 ********Verification Statistics********
-Visited States:0
-Total Transitions:0
-Time Used:0.0023587s
-Estimated Memory Used:8536.232KB
+Visited States:25
+Total Transitions:25
+Time Used:0.0002875s
+Estimated Memory Used:8569.048KB
+
+
+=======================================================
+Assertion: S0() divergencefree
+********Verification Result********
+The Assertion (S0() divergencefree) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: Strongly Connected Component Based Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:26
+Total Transitions:25
+Time Used:0.0067654s
+Estimated Memory Used:8626.344KB
+
+
+=======================================================
+Assertion: S0() deterministic
+********Verification Result********
+The Assertion (S0() deterministic) is VALID.
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: First Witness Trace using Depth First Search
+System Abstraction: False
+
+
+********Verification Statistics********
+Visited States:26
+Total Transitions:25
+Time Used:0.0022375s
+Estimated Memory Used:8577.24KB
 
 

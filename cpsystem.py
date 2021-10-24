@@ -288,10 +288,12 @@ class CPSystem:
                 self.terms[item1] = self.products[item1]
         self.products = {}
 
-    def Run(self, steps = 20):
+    def Run(self, steps = 100):
         i = 0
         while (self.ApplyARuleset(self.rules) and i < steps):
             i += 1
+        if i == steps:
+            print("The step limit is reached, which is " + str(steps) + '.')
 
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------
@@ -311,7 +313,8 @@ class CPSystem:
         for rule in self.rules:
             str_system += rule.ToString() + '\n'
         str_system += 'State: ' + self.state + '\n'
-        str_system += 'Commited to: ' + self.committed_state + '\n'
+        if self.is_committed:
+            str_system += 'Commited to: ' + self.committed_state + '\n'
         str_system += 'Terms:\n'
         for item in self.terms:
             if isinstance(item, Term):

@@ -1,31 +1,38 @@
 //simplecp
-var a;
-var b;
-var d;
+var applied = false; 
 var c;
+var b;
+var a;
+var d;
 var state = 1;
 
 S0() = cp_init{
-a = 10;
-b = 0;
-d = 0;
 c = 0;
+b = 0;
+a = 10;
+d = 0;
 }-> S1();
 S1() = r1{
 if (state == 1 && a > 0){
+applied = true;
 a = a - 2;
 b = b + 1;
 state = 1;
 }
-}-> S1();
+}-> S2();
 S2() = r2{
 if (state == 1 && b > 0){
+applied = true;
 b = b - 2;
 c = c + 1;
 d = d + 2;
 state = 1;
 }
-}-> S1();
-#assert S0() |= F r1;
-#assert S0() |= G r2;
+}-> S_CHECK();
+S_CHECK() = if(applied == true){S_NEXT()} else {Skip};
+S_NEXT() = {applied = false;}-> S1();
+#assert S0() nonterminating;
+#assert S0() deadlockfree;
+#assert S0() divergencefree;
+#assert S0() deterministic;
 
