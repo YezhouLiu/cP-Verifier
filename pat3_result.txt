@@ -1,7 +1,7 @@
 =======================================================
-Assertion: S0() nonterminating
+Assertion: P0() nonterminating
 ********Verification Result********
-The Assertion (S0() nonterminating) is NOT valid.
+The Assertion (P0() nonterminating) is NOT valid.
 The following trace leads to a terminating situation.
 <init -> cp_init -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if!((applied == true))] -> terminate>
 
@@ -14,14 +14,14 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:25
 Total Transitions:25
-Time Used:0.0221854s
+Time Used:0.0913905s
 Estimated Memory Used:8585.432KB
 
 
 =======================================================
-Assertion: S0() deadlockfree
+Assertion: P0() deadlockfree
 ********Verification Result********
-The Assertion (S0() deadlockfree) is VALID.
+The Assertion (P0() deadlockfree) is VALID.
 
 ********Verification Setting********
 Admissible Behavior: All
@@ -32,14 +32,14 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:25
 Total Transitions:25
-Time Used:0.0002875s
+Time Used:0.0007853s
 Estimated Memory Used:8569.048KB
 
 
 =======================================================
-Assertion: S0() divergencefree
+Assertion: P0() divergencefree
 ********Verification Result********
-The Assertion (S0() divergencefree) is VALID.
+The Assertion (P0() divergencefree) is VALID.
 
 ********Verification Setting********
 Admissible Behavior: All
@@ -50,14 +50,14 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:26
 Total Transitions:25
-Time Used:0.0067654s
+Time Used:0.0240873s
 Estimated Memory Used:8626.344KB
 
 
 =======================================================
-Assertion: S0() deterministic
+Assertion: P0() deterministic
 ********Verification Result********
-The Assertion (S0() deterministic) is VALID.
+The Assertion (P0() deterministic) is VALID.
 
 ********Verification Setting********
 Admissible Behavior: All
@@ -68,7 +68,7 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:26
 Total Transitions:25
-Time Used:0.0022375s
+Time Used:0.0056142s
 Estimated Memory Used:8577.24KB
 
 

@@ -18,18 +18,18 @@ def cPtoCSP(str_ruleset, system_terms, system_state, system_name):
     for ch in atoms:
         CSP_file += 'var ' + ch + ';\n'
     CSP_file += 'var state = ' + system_state[1:] + ';\n\n'
-    CSP_file += 'S0() = cp_init{\n'
+    CSP_file += 'P0() = cp_init{\n'
     for ch in atoms:
         if ch in system_terms:
             CSP_file += ch + ' = ' + str(system_terms[ch]) + ';\n'
         else:
             CSP_file += ch + ' = 0;\n'
-    CSP_file += '}-> S1();\n'
+    CSP_file += '}-> P1();\n'
     
     i = 1
     for rule in ruleset:
         pn = str(i)
-        CSP_file += 'S' + pn + '() = r' + pn + '{\n'
+        CSP_file += 'P' + pn + '() = r' + pn + '{\n'
         CSP_file += 'if (state == ' + rule.LState()[1:]
         for atom in rule.LHS():
             CSP_file += ' && ' + atom + ' > 0'
@@ -41,13 +41,13 @@ def cPtoCSP(str_ruleset, system_terms, system_state, system_name):
             CSP_file += atom + ' = ' + atom + ' + ' + str(rule.RHS()[atom]) + ';\n'
         CSP_file += 'state = ' + rule.RState()[1:] + ';\n'
         if i < len(ruleset):
-            CSP_file += '}\n}-> S' + str(i + 1) + '();\n'
+            CSP_file += '}\n}-> P' + str(i + 1) + '();\n'
         else:
-            CSP_file += '}\n}-> S_CHECK();\n'
+            CSP_file += '}\n}-> P_CHECK();\n'
         i += 1
     
-    CSP_file += 'S_CHECK() = if(applied == true){S_NEXT()} else {Skip};\n'
-    CSP_file += 'S_NEXT() = {applied = false;}-> S1();\n'
+    CSP_file += 'P_CHECK() = if(applied == true){P_NEXT()} else {Skip};\n'
+    CSP_file += 'P_NEXT() = {applied = false;}-> P1();\n'
             
     return CSP_file
     
@@ -58,10 +58,10 @@ def CreateCSPFile(str_ruleset, system_terms, system_state, system_name):
     
 def PAT3MC(str_ruleset, system_terms, system_state, system_name):
     CSP_file = cPtoCSP(str_ruleset, system_terms, system_state, system_name)
-    CSP_file += '#assert S0() nonterminating;\n'
-    CSP_file += '#assert S0() deadlockfree;\n'
-    CSP_file += '#assert S0() divergencefree;\n'
-    CSP_file += '#assert S0() deterministic;\n'
+    CSP_file += '#assert P0() nonterminating;\n'
+    CSP_file += '#assert P0() deadlockfree;\n'
+    CSP_file += '#assert P0() divergencefree;\n'
+    CSP_file += '#assert P0() deterministic;\n'
     sys.stdout = open(system_name + '.csp', 'w')
     print(CSP_file)
     sys.stdout = sys.__stdout__

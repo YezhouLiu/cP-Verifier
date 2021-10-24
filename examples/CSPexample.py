@@ -13,5 +13,5 @@ print(CSPfile)
 simpleCSPsharp.PAT3MC(ruleset, system_terms, system_state, system_name)
 
 
-#custom_properties = ['#assert S0() |= F r1', '#assert S0() |= G r2']
+#custom_properties = ['#assert P0() |= F r1', '#assert P0() |= G r2']
 #simpleCSPsharp.PAT3MCCustom(ruleset, system_terms, system_state, system_name, custom_properties)
