@@ -7,6 +7,7 @@ from term import Term
 import random as rd
 import lnmu
 from cpsystemsupport import ValidSystemTerm
+import itertools
 
 class CPNode:
     def __init__(self):
@@ -29,7 +30,26 @@ class CPNode:
         self.committed_state = committed_state
         self.is_committed = is_committed
         self.next_rule_index = next_rule_index
-
+        
+    def ToString(self):
+        str_node = 'State: ' + self.state + '\n'
+        if self.is_committed:
+            str_node += 'Commited to: ' + self.committed_state + '\n'
+        str_node += 'Terms:\n'
+        for item in self.terms:
+            if isinstance(item, Term):
+                str_node += item.ToString() + ": " + str(self.terms[item]) + '\n'
+            else:
+                str_node += item + ": " + str(self.terms[item]) + '\n'
+        if len(self.products) > 0:
+            str_node += 'Virtual products:\n'
+            for item in self.products:
+                if isinstance(item, Term):
+                    str_node += item.ToString() + ": " + str(self.products[item]) + '\n'
+                else:
+                    str_node += item + ": " + str(self.products[item]) + '\n'
+        return str_node
+    
 class CPVerifier:
     def __init__(self, sys1: CPSystem):
         node = CPNode()
@@ -50,7 +70,7 @@ class CPVerifier:
             return False
         new_limit = limit - 1
         new_rules_skipped = rules_skipped
-        if rules_skipped == len(self.rules): #node terminated, all rules are skipped (not applicable)
+        if rules_skipped >= len(self.rules): #node terminated, all rules are skipped (not applicable)
             self.node_list.pop()
             new_rules_skipped = 0
             new_limit -= 1
@@ -59,6 +79,7 @@ class CPVerifier:
             return False
         
         conf1 = self.node_list[nodes_left-1] #depth-first: deal with the last node
+        print('Expanding node: \n' + conf1.ToString())
 
         terms = conf1.terms
         products = conf1.products
@@ -71,7 +92,7 @@ class CPVerifier:
         
         self.node_list.pop()
         
-        if (r1.LState() != self.state) or (is_committed and r1.RState() != self.committed_state): #rule is not applicable, go to next rule
+        if (r1.LState() != state) or (is_committed and r1.RState() != committed_state): #rule is not applicable, go to next rule
             if self.show_detail:
                 print('State unmatched, the rule ' + r1.ToString() + ' is not applicable!')
             new_node = CPNode()
@@ -125,137 +146,91 @@ class CPVerifier:
         elif (not is_committed) or (is_committed and r1.RState() == committed_state): #a rule with variables
             ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
             G = []
-            G.append((ms_to_process, self.terms, 'in')) #items in a rule's LHS and PMT are included in the system
+            G.append((ms_to_process, terms, 'in')) #items in a rule's LHS and PMT are included in terms
             SS = [] #the set of unifiers
             S = {}
-            lnmu.LNMU(G, S, SS)
+            lnmu.LNMU(G, S, SS) #unification failed
             if len(SS) == 0:
-                if self.show_detail:
-                    print('Insufficient terms, the rule is not applicable!')
-                return False
+                new_node = CPNode()
+                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
+                self.node_list.append(new_node)
+                self.Next(new_rules_skipped+1, new_limit)
             else:
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
-                    num_g_rules = len(SS)
-                    rd_rule = rd.randint(0, num_g_rules - 1)
-                    unifier = SS[rd_rule]
-                    lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
-                    rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
-                    pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
-                    r2 = Rule(r1.LState(), r1.RState(), '1') #a unified, ground rule
-                    r2.SetLHS(lhs2)
-                    r2.SetRHS(rhs2)
-                    r2.SetPMT(pmt2)
-                    if r2.IsGround():
-                        return self.ApplyARule(r2)
-                    else:
-                        return False
-                elif r1.Model() == '+': #max-parallel model
-                    rd.shuffle(SS) #no need to keep original SS
-                    ruleset = []
                     for unifier in SS:
                         lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
                         rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
                         pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
-                        r2 = Rule(r1.LState(), r1.RState(), '+') #a unified, ground rule
+                        r2 = Rule(r1.LState(), r1.RState(), '1') #a unified, ground rule
                         r2.SetLHS(lhs2)
                         r2.SetRHS(rhs2)
                         r2.SetPMT(pmt2)
                         if r2.IsGround():
-                            ruleset.append(r2)
-                    return self.ApplyGRules(ruleset)
+                            terms2 = deepcopy(terms)
+                            products2 = deepcopy(products)
+                            ms_to_check = lnmu.MultisetUnion(r2.PMT(), r2.LHS())
+                            rule_applied = False
+                            if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
+                                self.VConsumeMultiset(terms2, r1.LHS())
+                                self.VProduceMultiset(products2, r1.RHS())
+                                rule_applied = True
+                            if rule_applied:
+                                new_node = CPNode()
+                                new_node.ReadContent(terms2, products2, state, committed_state, is_committed, next_rule_index)
+                                self.node_list.append(new_node)
+                                self.Next(0, new_limit)
+                            else:
+                                new_node = CPNode()
+                                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
+                                self.node_list.append(new_node)
+                                self.Next(new_rules_skipped+1, new_limit)
+                        else:
+                            new_node = CPNode()
+                            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
+                            self.node_list.append(new_node)
+                            self.Next(new_rules_skipped+1, new_limit)
+                        
+                elif r1.Model() == '+': #max-parallel model
+                    p_SS = list(itertools.permutations(SS))
+                    success = False
+                    for s_SS in p_SS:
+                        ruleset = []
+                        for unifier in s_SS:
+                            lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
+                            rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
+                            pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
+                            r2 = Rule(r1.LState(), r1.RState(), '+') #a unified, ground rule
+                            r2.SetLHS(lhs2)
+                            r2.SetRHS(rhs2)
+                            r2.SetPMT(pmt2)
+                            if r2.IsGround():
+                                ruleset.append(r2)
+                        terms2 = deepcopy(terms)
+                        products2 = deepcopy(products)
+                        rule_applied = False
+                        for r3 in ruleset:
+                            ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
+                            if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
+                                self.VConsumeMultiset(terms2, r1.LHS())
+                                self.VProduceMultiset(products2, r1.RHS())
+                                rule_applied = True
+                                success = True
+                        if rule_applied:
+                            new_node = CPNode()
+                            new_node.ReadContent(terms2, products2, state, committed_state, is_committed, next_rule_index)
+                            self.node_list.append(new_node)
+                    if success:
+                        self.Next(0, new_limit)
+                    else:
+                        new_node = CPNode()
+                        new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
+                        self.node_list.append(new_node)
+                        self.Next(new_rules_skipped+1, new_limit)          
                 else: #currently cP systems only have 2 major models, '1' and '+'
+                    print('Incorrect application model!')
                     return False
-        
         return True
-        
-        if r1.LState() != self.state:
-            if self.show_detail:
-                print('State unmatched, the rule is not applicable!')
-            return False
-        elif is_committed and r1.RState() != self.committed_state:
-            if self.show_detail:
-                print('State unmatched, the rule is not applicable!')
-            return False
-        elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, directly generate products
-            self.ProduceMultiset(r1.RHS())
-            return True
-        elif r1.IsGround(): #no need to unify
-            if r1.Model() == '1':
-                ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
-                if lnmu.MultisetIn(ms_to_check, self.terms):
-                    self.ConsumeMultiset(r1.LHS())
-                    self.ProduceMultiset(r1.RHS())
-                    return True
-                else:
-                    if self.show_detail:
-                        print('Insufficient terms, the rule is not applicable!')
-                    return False
-            else: #model = '+'
-                ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
-                ms_to_check_2 = deepcopy(ms_to_check)
-                mult = 1
-                while lnmu.MultisetIn(ms_to_check_2, self.terms):
-                    mult += 1
-                    ms_to_check_2 = lnmu.MultisetTimes(ms_to_check, mult)
-                if mult == 1:
-                    if self.show_detail:
-                        print('Insufficient terms, the rule is not applicable!')
-                    return False
-                else:
-                    mult -= 1
-                    self.ConsumeMultiset(lnmu.MultisetTimes(r1.LHS(), mult))
-                    self.ProduceMultiset(lnmu.MultisetTimes(r1.RHS(), mult))
-                    return True
-        elif (not is_committed) or (is_committed and r1.RState() == self.committed_state): #a rule with variables
-            ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
-            G = []
-            G.append((ms_to_process, self.terms, 'in')) #items in a rule's LHS and PMT are included in the system
-            SS = [] #the set of unifiers
-            S = {}
-            lnmu.LNMU(G, S, SS)
-            if len(SS) == 0:
-                if self.show_detail:
-                    print('Insufficient terms, the rule is not applicable!')
-                return False
-            else:
-                if r1.Model() == '1': #exact-once model, non-deterministically apply it once
-                    num_g_rules = len(SS)
-                    rd_rule = rd.randint(0, num_g_rules - 1)
-                    unifier = SS[rd_rule]
-                    lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
-                    rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
-                    pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
-                    r2 = Rule(r1.LState(), r1.RState(), '1') #a unified, ground rule
-                    r2.SetLHS(lhs2)
-                    r2.SetRHS(rhs2)
-                    r2.SetPMT(pmt2)
-                    if r2.IsGround():
-                        return self.ApplyARule(r2)
-                    else:
-                        return False
-                elif r1.Model() == '+': #max-parallel model
-                    rd.shuffle(SS) #no need to keep original SS
-                    ruleset = []
-                    for unifier in SS:
-                        lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
-                        rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
-                        pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
-                        r2 = Rule(r1.LState(), r1.RState(), '+') #a unified, ground rule
-                        r2.SetLHS(lhs2)
-                        r2.SetRHS(rhs2)
-                        r2.SetPMT(pmt2)
-                        if r2.IsGround():
-                            ruleset.append(r2)
-                    return self.ApplyGRules(ruleset)
-                else: #currently cP systems only have 2 major models, '1' and '+'
-                    return False
-
-    def VerifyGRules(self, ruleset): #stateless
-        succ = False
-        for r1 in ruleset:
-            if self.ApplyARule(r1):
-                succ = True
-        return succ
+    
 
     def VerifyARuleset(self, ruleset):
         self.committed_state = self.state
