@@ -92,36 +92,81 @@ class CPVerifier:
         
         self.node_list.pop()
         
+        #1
         if (r1.LState() != state) or (is_committed and r1.RState() != committed_state): #rule is not applicable, go to next rule
-            if self.show_detail:
-                print('State unmatched, the rule ' + r1.ToString() + ' is not applicable!')
+            if next_rule_index == 0:
+                is_committed = False
+                state = committed_state
+                for item1 in products:
+                    if item1 in terms:
+                        terms[item1] += products[item1]
+                    else:
+                        terms[item1] = products[item1]
+                products = {}    
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
             self.node_list.append(new_node)
             self.Next(new_rules_skipped+1, new_limit)
         
+        #2
         elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, no diff between 1 and +
             self.VProduceMultiset(products, r1.RHS())
+            if not is_committed:
+                is_committed = True
+                committed_state = r1.RState()
+            if next_rule_index == 0:
+                is_committed = False
+                state = committed_state
+                for item1 in products:
+                    if item1 in terms:
+                        terms[item1] += products[item1]
+                    else:
+                        terms[item1] = products[item1]
+                products = {}
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
             self.node_list.append(new_node)
             self.Next(0, new_limit)
         
+        #3
         elif r1.IsGround(): #no need to unify
             if r1.Model() == '1':
                 ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
                 if lnmu.MultisetIn(ms_to_check, terms): #rule applicable
                     self.VConsumeMultiset(terms, r1.LHS())
                     self.VProduceMultiset(products, r1.RHS())
+                    if not is_committed:
+                        is_committed = True
+                        committed_state = r1.RState()
+                    if next_rule_index == 0:
+                        is_committed = False
+                        state = committed_state
+                        for item1 in products:
+                            if item1 in terms:
+                                terms[item1] += products[item1]
+                            else:
+                                terms[item1] = products[item1]
+                        products = {}
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
                     self.Next(0, new_limit)
+                    
                 else: #rule not applicable
+                    if next_rule_index == 0:
+                        is_committed = False
+                        state = committed_state
+                        for item1 in products:
+                            if item1 in terms:
+                                terms[item1] += products[item1]
+                            else:
+                                terms[item1] = products[item1]
+                        products = {} 
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
                     self.Next(new_rules_skipped+1, new_limit)
+                    
             else: #model = '+'
                 ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
                 ms_to_check_2 = deepcopy(ms_to_check)
@@ -130,6 +175,15 @@ class CPVerifier:
                     mult += 1
                     ms_to_check_2 = lnmu.MultisetTimes(ms_to_check, mult)
                 if mult == 1: #insufficient terms, rule not applicable
+                    if next_rule_index == 0:
+                        is_committed = False
+                        state = committed_state
+                        for item1 in products:
+                            if item1 in terms:
+                                terms[item1] += products[item1]
+                            else:
+                                terms[item1] = products[item1]
+                        products = {} 
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
@@ -138,23 +192,47 @@ class CPVerifier:
                     mult -= 1
                     self.VConsumeMultiset(terms, lnmu.MultisetTimes(r1.LHS(), mult))
                     self.VProduceMultiset(products, lnmu.MultisetTimes(r1.RHS(), mult))
+                    if not is_committed:
+                        is_committed = True
+                        committed_state = r1.RState()
+                    if next_rule_index == 0:
+                        is_committed = False
+                        state = committed_state
+                        for item1 in products:
+                            if item1 in terms:
+                                terms[item1] += products[item1]
+                            else:
+                                terms[item1] = products[item1]
+                        products = {} 
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
                     self.Next(0, new_limit)
-                    
+        
+        #4           
         elif (not is_committed) or (is_committed and r1.RState() == committed_state): #a rule with variables
             ms_to_process = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
             G = []
             G.append((ms_to_process, terms, 'in')) #items in a rule's LHS and PMT are included in terms
             SS = [] #the set of unifiers
             S = {}
-            lnmu.LNMU(G, S, SS) #unification failed
-            if len(SS) == 0:
+            lnmu.LNMU(G, S, SS)
+            
+            if len(SS) == 0: #unification failed
+                if next_rule_index == 0:
+                    is_committed = False
+                    state = committed_state
+                    for item1 in products:
+                        if item1 in terms:
+                            terms[item1] += products[item1]
+                        else:
+                            terms[item1] = products[item1]
+                    products = {} 
                 new_node = CPNode()
                 new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                 self.node_list.append(new_node)
                 self.Next(new_rules_skipped+1, new_limit)
+                
             else:
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
                     for unifier in SS:
@@ -170,21 +248,35 @@ class CPVerifier:
                             products2 = deepcopy(products)
                             ms_to_check = lnmu.MultisetUnion(r2.PMT(), r2.LHS())
                             rule_applied = False
+                            is_committed2 = is_committed
+                            committed_state2 = committed_state
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
                                 self.VConsumeMultiset(terms2, r1.LHS())
                                 self.VProduceMultiset(products2, r1.RHS())
-                                rule_applied = True
+                                rule_applied = True      
                             if rule_applied:
+                                if not is_committed2:
+                                    is_committed2 = True
+                                    committed_state2 = r2.RState()
+                                if next_rule_index == 0:
+                                    is_committed2 = False
+                                    state2 = committed_state2
+                                    for item1 in products2:
+                                        if item1 in terms2:
+                                            terms2[item1] += products2[item1]
+                                        else:
+                                            terms2[item1] = products2[item1]
+                                    products2 = {}
+                                new_node = CPNode()
+                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index)
+                                self.node_list.append(new_node)
+                                self.Next(0, new_limit)
+                            else: #fail
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state, committed_state, is_committed, next_rule_index)
                                 self.node_list.append(new_node)
-                                self.Next(0, new_limit)
-                            else:
-                                new_node = CPNode()
-                                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-                                self.node_list.append(new_node)
                                 self.Next(new_rules_skipped+1, new_limit)
-                        else:
+                        else: #fail, should not happen
                             new_node = CPNode()
                             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                             self.node_list.append(new_node)
@@ -207,6 +299,8 @@ class CPVerifier:
                                 ruleset.append(r2)
                         terms2 = deepcopy(terms)
                         products2 = deepcopy(products)
+                        is_committed2 = is_committed
+                        committed_state2 = committed_state
                         rule_applied = False
                         for r3 in ruleset:
                             ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
@@ -216,8 +310,20 @@ class CPVerifier:
                                 rule_applied = True
                                 success = True
                         if rule_applied:
+                            if not is_committed2:
+                                is_committed2 = True
+                                committed_state2 = r2.RState()
+                            if next_rule_index == 0:
+                                is_committed2 = False
+                                state2 = committed_state2
+                                for item1 in products2:
+                                    if item1 in terms2:
+                                        terms2[item1] += products2[item1]
+                                    else:
+                                        terms2[item1] = products2[item1]
+                                products2 = {}
                             new_node = CPNode()
-                            new_node.ReadContent(terms2, products2, state, committed_state, is_committed, next_rule_index)
+                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index)
                             self.node_list.append(new_node)
                     if success:
                         self.Next(0, new_limit)
@@ -230,39 +336,6 @@ class CPVerifier:
                     print('Incorrect application model!')
                     return False
         return True
-    
-
-    def VerifyARuleset(self, ruleset):
-        self.committed_state = self.state
-        self.is_committed = False
-        for r1 in ruleset:
-            if (not self.is_committed) and self.ApplyARule(r1):
-                self.is_committed = True
-                self.committed_state = r1.RState()
-            elif self.is_committed:
-                self.ApplyARule(r1, True)
-        self.StepOver()
-        self.Snapshot()
-        if self.is_committed:
-            return True
-        else: #no rule was applied
-            return False
-
-    def VStepOver (self): #move to the next step, activate terms in product membrane
-        self.state = self.committed_state
-        for item1 in self.products:
-            if item1 in self.terms:
-                self.terms[item1] += self.products[item1]
-            else:
-                self.terms[item1] = self.products[item1]
-        self.products = {}
-
-    def Verify(self, steps = 100):
-        i = 0
-        while (self.ApplyARuleset(self.rules) and i < steps):
-            i += 1
-        if i == steps:
-            print("The step limit is reached, which is " + str(steps) + '.')
             
     def VConsumeTerm(self, terms, t1, count = 1): #terms passed by reference
         if count < 1:
