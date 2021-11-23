@@ -136,7 +136,7 @@ class CPSystem:
                         print(str(count) + ' copies of ' + t1 + ' are produced!')
             return True
         elif self.show_detail:
-            print('Invalid product, please check!')
+            print('Nothing is produced!')
         return False
 
     def ProduceMultiset(self, m1):
@@ -182,7 +182,7 @@ class CPSystem:
             if self.show_detail:
                 print('State unmatched, the rule is not applicable!')
             return False
-        elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, directly generate products
+        elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, directly generate products - unbounded + will be treated as 1
             self.ProduceMultiset(r1.RHS())
             return True
         elif r1.IsGround(): #no need to unify
@@ -294,6 +294,7 @@ class CPSystem:
             i += 1
         if i == steps:
             print("The step limit is reached, which is " + str(steps) + '.')
+            
 
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------

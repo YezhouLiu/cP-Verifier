@@ -14,7 +14,7 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:25
 Total Transitions:25
-Time Used:0.0913905s
+Time Used:0.0313888s
 Estimated Memory Used:8585.432KB
 
 
@@ -32,7 +32,7 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:25
 Total Transitions:25
-Time Used:0.0007853s
+Time Used:0.0003677s
 Estimated Memory Used:8569.048KB
 
 
@@ -50,7 +50,7 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:26
 Total Transitions:25
-Time Used:0.0240873s
+Time Used:0.0096195s
 Estimated Memory Used:8626.344KB
 
 
@@ -68,7 +68,7 @@ System Abstraction: False
 ********Verification Statistics********
 Visited States:26
 Total Transitions:25
-Time Used:0.0056142s
+Time Used:0.002234s
 Estimated Memory Used:8577.24KB
 
 

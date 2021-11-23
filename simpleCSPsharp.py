@@ -67,7 +67,7 @@ def PAT3MC(str_ruleset, system_terms, system_state, system_name):
     sys.stdout = sys.__stdout__
     cwd = os.getcwd()
     file_path = cwd + '\\' + system_name + '.csp'
-    output_path = cwd + '\\pat3_result.txt'
+    output_path = cwd + '\\pat3_verification_result.txt'
     result = subprocess.run(['PAT3.Console.exe', '-csp', '-v', file_path, output_path], stdout=subprocess.PIPE)
     PrintPAT3Res(str(result))
     
@@ -80,7 +80,7 @@ def PAT3MCCustom(str_ruleset, system_terms, system_state, system_name, list_of_p
     sys.stdout = sys.__stdout__
     cwd = os.getcwd()
     file_path = cwd + '\\' + system_name + '.csp'
-    output_path = cwd + '\\pat3_result.txt'
+    output_path = cwd + '\\pat3_verification_result.txt'
     result = subprocess.run(['PAT3.Console.exe', '-csp', '-v', file_path, output_path], stdout=subprocess.PIPE)
     PrintPAT3Res(str(result))
             
