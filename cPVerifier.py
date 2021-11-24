@@ -79,7 +79,7 @@ class CPVerifier:
             return False
         
         conf1 = self.node_list[nodes_left-1] #depth-first: deal with the last node
-        print('Expanding node: \n' + conf1.ToString())
+        print('Expanding node ' + str(10001-limit)  + ':\n' + conf1.ToString())
 
         terms = conf1.terms
         products = conf1.products
@@ -250,9 +250,10 @@ class CPVerifier:
                             rule_applied = False
                             is_committed2 = is_committed
                             committed_state2 = committed_state
+                            state2 = state
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
-                                self.VConsumeMultiset(terms2, r1.LHS())
-                                self.VProduceMultiset(products2, r1.RHS())
+                                self.VConsumeMultiset(terms2, r2.LHS())
+                                self.VProduceMultiset(products2, r2.RHS())
                                 rule_applied = True      
                             if rule_applied:
                                 if not is_committed2:
@@ -301,12 +302,13 @@ class CPVerifier:
                         products2 = deepcopy(products)
                         is_committed2 = is_committed
                         committed_state2 = committed_state
+                        state2 = state
                         rule_applied = False
                         for r3 in ruleset:
                             ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
-                                self.VConsumeMultiset(terms2, r1.LHS())
-                                self.VProduceMultiset(products2, r1.RHS())
+                                self.VConsumeMultiset(terms2, r2.LHS())
+                                self.VProduceMultiset(products2, r2.RHS())
                                 rule_applied = True
                                 success = True
                         if rule_applied:

@@ -3,6 +3,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from cpsystem import CPSystem
 from cpparser import ParseTerm
 from cpparser import ParseRule
+from cpverifier import CPVerifier
 
 def CPSubsetSum(original_set, target_number):
     rule1 = ParseRule('s0 ->1 s1 p(u()n(M)s()) | m(M)')
@@ -27,11 +28,13 @@ def CPSubsetSum(original_set, target_number):
     sys.AddRule(rule5)
     sys.AddSystemTerm(t)
     sys.AddSystemTerm(m)
-    sys.DetailOn()
+    #sys.DetailOn()
 
     #Initial state of the cP syst em
-    sys.Snapshot()
-    sys.Run()
-    print(sys.ToString())
+    #sys.Snapshot()
+    #sys.Run()
+    #print(sys.ToString())
+    cpv = CPVerifier(sys)
+    cpv.Next()
 
 CPSubsetSum({1,2,3,4},7)
