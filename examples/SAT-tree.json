@@ -1,0 +1,26 @@
+{
+    "ruleset": [
+        "s1 ->1 s2 h(1) t(x()y(1)) a(x()y(0)z(1)w(0)) a(x()y(1)z(1)w(1))", 
+        
+        "s2 h(NA) ->1 s6 | n(N)",
+
+        "s2 ->+ s3 p(x(X)y(Y)) | t(x(X)y(Y))",
+        "s2 ->+ s3 b(x(X)y(Y)z(IH)w(V)) | a(x(X)y(Y)z(I)w(V)) h(H)",
+
+        "s3 ->+ s4 q(x(t(x(X)y(Y)))y(t(x(Z)y(W)))) | t(x(X)y(Y)) p(x(Z)y(W))",
+        "s3 t(x(X)y(Y)) ->+ s4",
+        "s3 p(x(X)y(Y)) ->+ s4",
+
+        "s4 ->+ s5 c(x(t(x(X)y(Y)))y(Z)z(I)w(V)) | q(x(t(x(X)y(Y)))y(Z)) a(x(X)y(Y)z(I)w(V))",
+        "s4 ->+ s5 c(x(Z)y(t(x(X)y(Y)))z(I)w(V)) | q(x(Z)y(t(x(X)y(Y)))) b(x(X)y(Y)z(I)w(V))",
+        "s4 a(x(X)y(Y)z(I)w(V)) ->+ s5",
+        "s4 b(x(X)y(Y)z(I)w(V)) ->+ s5",
+
+        "s5 q(x(X)y(Y)) ->+ s2 t(x(X)y(Y))",
+        "s5 c(x(X)y(Y)z(I)w(V)) ->+ s2 a(x(X)y(Y)z(I)w(V))",
+        "s5 h(H) =>1 s2 h(HH)"
+        ],
+	"terms": {},
+    "state": "s1",
+    "name": "SAT-tree"
+}
