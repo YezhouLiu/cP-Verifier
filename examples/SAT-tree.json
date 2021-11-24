@@ -18,7 +18,7 @@
 
         "s5 q(x(X)y(Y)) ->+ s2 t(x(X)y(Y))",
         "s5 c(w(X)x(Y)y(I)z(V)) ->+ s2 a(w(X)x(Y)y(I)z(V))",
-        "s5 h(H) =>1 s2 h(HH)"
+        "s5 h(H) ->1 s2 h(HH)"
         ],
 	"terms": {},
     "state": "s1",
