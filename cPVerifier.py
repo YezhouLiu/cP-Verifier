@@ -73,7 +73,7 @@ class CPVerifier:
         self.show_detail = False
         self.rules = sys1.Rules()
         self.terminations = []
-        self.search_method = 'DFS'
+        self.search_method = 'BFS'
         self.state_limit = 100000
         self.state_checked = 0
         self.property_code = 0
@@ -84,7 +84,7 @@ class CPVerifier:
         self.reachable_state = ''
         self.termination_set = set()
 #Property code
-#0: If certain goal terms are included in ALL halting configurations
+#0: If certain goal terms are included in a halting configuration
 #1: If a goal state is reachable
 #2: If the cP system is deterministic
 #3: If the cP system is deadlockfree
@@ -99,7 +99,7 @@ class CPVerifier:
         else:
             return 0
         
-    def SetSearchMethod(self, sm: str):
+    def SetSearchMethod(self, sm: str): #most of cP systems are actually working in a BFS way!
         if sm == 'DFS' or 'BFS':
             self.search_method = sm
             
@@ -122,10 +122,10 @@ class CPVerifier:
         self.state_limit = state_limit
         self.property_code = property_code
         self.Next()
-        print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.\n')
+        print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.\nThe search method is ' + self.search_method + '.\n')
         if self.counter_example_found:
             if self.property_code == 0:
-                print('The following counter example is found: \n' + self.counter_example.ToString())
+                print('The goal terms are reachable!\n' + self.counter_example.ToString())
             elif self.property_code == 1:
                 print('The goal state ' + self.goal_state + ' is reached!\n' + self.counter_example.ToString())
             elif self.property_code == 2:
@@ -138,7 +138,7 @@ class CPVerifier:
             
         else:
             if self.property_code == 0:
-                print('The goal terms cannot be found in the cP system, the property is not held!')
+                print('The goal terms are not reachable!')
             elif self.property_code == 1:
                 print('The goal state ' + self.goal_state + ' is not reachable!')
             elif self.property_code == 2:
@@ -182,7 +182,7 @@ class CPVerifier:
         if state in self.terminations:
             self.termination_set.add(conf1)
             if self.property_code == 0: #0: goal terms check
-                if not lnmu.MultisetInclusion(terms, self.goal):
+                if lnmu.MultisetInclusion(terms, self.goal):
                     self.counter_example = conf1
                     self.counter_example_found = True
                     return True
