@@ -10,6 +10,7 @@ from cpsystemsupport import ValidSystemTerm
 import itertools
 from typing import List, OrderedDict
 import heapq
+import time
 
 class CPNode:
     def __init__(self):
@@ -80,7 +81,7 @@ class CPVerifier:
         self.show_detail = False
         self.rules = sys1.Rules()
         self.terminations = []
-        self.search_method = 'PQ'
+        self.search_method = 'Priority Search'
         self.state_limit = 100000
         self.state_checked = 0
         self.property = 'deadlock'
@@ -90,14 +91,7 @@ class CPVerifier:
         self.target_state = ''
         self.termination_set = set()
         self.shortest_termination_step = -1
-        
-#Property code
-#0: If certain goal terms are included in a halting configuration
-#1: If a goal state is reachable
-#2: If the cP system is deterministic
-#3: If the cP system is deadlockfree
-#4: If the cP system is confluent
-
+        self.terminating_time_out = 1000000
 
 #Property code
 #0: If the cP system is deadlockfree
@@ -108,6 +102,8 @@ class CPVerifier:
 #5: If a goal state is reachable in a halting configuration
 #6: If a goal state is reachable in all halting configurations
 #7: If certain terms are always in the cP system
+#8: If certain terms are in the cP system at least in one configuration
+#9: If the cP system is terminating
     def Property(self, code):
         if code == 0:
             return 'deadlockfree'
@@ -123,8 +119,12 @@ class CPVerifier:
             return 'state_in_one_halting'
         elif code == 6:
             return 'state_in_all_halting'
-        elif code == '7':
+        elif code == 7:
             return 'terms_in_all'
+        elif code == 8:
+            return 'terms_in_one'
+        elif code == 9:
+            return 'terminating'
         else:
             return 'deadlockfree'
         
@@ -137,8 +137,11 @@ class CPVerifier:
         else:
             return 0
         
-    def SetSearchMethod(self, sm: str): #most of cP systems are actually working in a BFS way!
-        if sm == 'DFS' or 'BFS':
+    #cP systems are usually working in a priority search way! 
+    #Don't choose BFS or DSF unless you know what are you verifying exactly! 
+    #BFS and DFS may work for certain properties, while they may also drive the verifier to check practically unreachable states!
+    def SetSearchMethod(self, sm: str):
+        if sm == 'Priority Search' or 'DFS' or 'BFS':
             self.search_method = sm
             
     def DetailOn(self):
@@ -152,12 +155,22 @@ class CPVerifier:
         
     def SetTargetState(self, target: str):
         self.target_state = target
+        
+    def SetTimeOut(self, maxsteps: int):
+        self.terminating_time_out = maxsteps
 
     def Verify(self, property_code = 0, state_limit = 100000):
-        self.state_limit = state_limit
+        if self.property == 'terminating':
+            self.state_limit = self.terminating_time_out
+        else:
+            self.state_limit = state_limit
         self.property = self.Property(property_code)
+
+        time_start = time.perf_counter()
         self.Next()
-        print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.\nThe search method is ' + self.search_method + '.\n')
+        time_end = time.perf_counter()
+        print('The cP system verification is finished in ' + str(time_end - time_start) + ' second(s), ' + str(self.state_checked) + ' states were checked.')
+        print('The search method is ' + self.search_method + '.')
         
         if self.counter_example_found:
             if self.property == 'terms_in_one_halting':
@@ -177,6 +190,10 @@ class CPVerifier:
                 self.PrintTerminationSet()
             elif self.property == 'terms_in_all':
                 print('The target terms are NOT included in all configurations!\n' + self.counter_example.ToString())
+            elif self.property == 'terms_in_one':
+                print('The target terms are included in a configuration!\n' + self.counter_example.ToString())
+            elif self.property == 'terminating':
+                print('Time out! The cP system is assumed to be nonterminating!\n')
             
         else:
             if self.property == 'terms_in_one_halting':
@@ -195,21 +212,29 @@ class CPVerifier:
                 print('The cP system is confluent!')
             elif self.property == 'terms_in_all':
                 print('The target terms are included in all configurations!\n')
+            elif self.property == 'terms_in_one':
+                print('The target terms are NOT included in any configuration!\n')
+            elif self.property == 'terminating':
+                print('The cP system is terminating!\n')
         
     def Next(self, rules_skipped = 0):
         if self.counter_example_found:
             return True
         
         if self.state_checked >= self.state_limit: #verfication limit reached
-            print("Verification limit reached!")
-            return False
+            if self.property == 'terminating':
+                self.counter_example_found = True
+                return True
+            else:
+                print("Verification limit reached!")
+                return False
         
         nodes_left = len(self.node_list)
         if nodes_left <= 0: #verification finished, all nodes checked
             return False
         
         conf1 = CPNode()
-        if self.search_method == 'PQ':
+        if self.search_method == 'Priority Search':
             conf1 = self.node_list[0]
         elif self.search_method == 'BFS':
             conf1 = self.node_list[0]
@@ -231,7 +256,7 @@ class CPVerifier:
         step = conf1.step
         
         if self.shortest_termination_step != -1 and step > self.shortest_termination_step: #system already terminated
-            if self.search_method == 'PQ':
+            if self.search_method == 'Priority Search':
                 self.node_list.pop(0)
             elif self.search_method == 'BFS':
                 self.node_list.pop(0)
@@ -242,6 +267,11 @@ class CPVerifier:
         
         if self.property == 'terms_in_all':
             if not lnmu.MultisetInclusion(terms, self.target):
+                self.counter_example = conf1
+                self.counter_example_found = True
+                return True
+        elif self.property == 'terms_in_one':
+            if lnmu.MultisetInclusion(terms, self.target):
                 self.counter_example = conf1
                 self.counter_example_found = True
                 return True
@@ -280,11 +310,11 @@ class CPVerifier:
             self.counter_example_found = True
             return True           
         
-        if self.search_method == 'PQ':
+        if self.search_method == 'Priority Search':
             self.node_list.pop(0)
         elif self.search_method == 'BFS':
             self.node_list.pop(0)
-        else:
+        else: #DFS
             self.node_list.pop()
         
         if state in self.terminations or rules_skipped >= len(self.rules): #node terminated, termination reached or all rules are skipped (not applicable)
@@ -572,7 +602,7 @@ class CPVerifier:
             self.VProduceTerm(products, t1, mult)
             
     def PushCPNode(self, node1):
-        if self.search_method == 'PQ':
+        if self.search_method == 'Priority Search':
             heapq.heappush(self.node_list, node1)
         else:
             self.node_list.append(node1)

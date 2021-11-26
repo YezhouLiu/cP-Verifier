@@ -40,9 +40,9 @@ def CPSubsetSum(original_set, target_number):
     
     cpv = CPVerifier(sys)
     cpv.SetTerminations(['s2','s3'])
-    cpv.SetGoalTerms({ParseTerm('o(m(2)m(3))'):1})
-    cpv.SetGoalState('s3')
-    cpv.Verify(1)
+    cpv.SetTargetTerms({ParseTerm('o(m(2)m(3))'):1})
+    cpv.SetTargetState('s3')
+    cpv.Verify(9)
     
-CPSubsetSum({1,2,3},5)
+CPSubsetSum({1,2,3},11)
 
