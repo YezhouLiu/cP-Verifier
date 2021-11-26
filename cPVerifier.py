@@ -8,7 +8,7 @@ import random as rd
 import lnmu
 from cpsystemsupport import ValidSystemTerm
 import itertools
-from typing import List
+from typing import List, OrderedDict
 
 class CPNode:
     def __init__(self):
@@ -61,27 +61,77 @@ class CPVerifier:
         self.rules = sys1.Rules()
         self.terminations = []
         self.search_method = 'DFS'
-        self.state_limit = 10000
+        self.state_limit = 100000
         self.state_checked = 0
+        self.property_code = 0
+        self.counter_example_found = False
+        self.counter_example = CPNode()
+        self.goal = {}
+        self.goal_state = ''
+        self.reachable_state = ''
+#Property code
+#0: If certain goal terms are included in ALL halting configurations
+#1: If a goal state is reachable
+#2: If the cP system is deterministic
+#3: If the cP system is deadlockfree
         
     def SetTerminations(self, terminations: List[str]):
         self.terminations = terminations
         
-    def GetNextRuleIndex(self, current_rule_index):
+    def GetNextRuleIndex(self, current_rule_index: int):
         if current_rule_index < len(self.rules) - 1:
             return current_rule_index + 1
         else:
             return 0
         
-    def SetSearchMethod(self, sm):
+    def SetSearchMethod(self, sm: str):
         if sm == 'DFS' or 'BFS':
             self.search_method = sm
+            
+    def DetailOn(self):
+        self.show_detail = True
         
-    def Verify(self, limit = 10000):
-        self.state_limit = limit
+    def DetailOff(self):
+        self.show_detail = False
+        
+    def SetGoalTerms(self, goal: OrderedDict[Term, int]):
+        self.goal = goal
+        
+    def SetGoalState(self, goal: str):
+        self.goal_state = goal
+        
+    def SetReachableState(self, state: str):
+        self.reachable_state = state
+
+    def Verify(self, property_code = 0, state_limit = 100000):
+        self.state_limit = state_limit
+        self.property_code = property_code
         self.Next()
+        print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.')
+        if self.counter_example_found:
+            if self.property_code == 0:
+                print('The following counter example is found: \n' + self.counter_example.ToString())
+            elif self.property_code == 1:
+                print('The goal state ' + self.goal_state + ' is reached!\n' + self.counter_example.ToString())
+            elif self.property_code == 2:
+                print('The cP system is nondeterministic!')
+            elif self.property_code == 3:
+                print('A deadlock state is found!\n' + self.counter_example.ToString())
+            
+        else:
+            if self.property_code == 0:
+                print('The goal terms cannot be found in the cP system, the property is not held!')
+            elif self.property_code == 1:
+                print('The goal state ' + self.goal_state + ' is not reachable!')
+            elif self.property_code == 2:
+                print('The cP system is deterministic!')
+            elif self.property_code == 3:
+                print('The cP system is deadlock free!')
         
     def Next(self, rules_skipped = 0):
+        if self.counter_example_found:
+            return True
+        
         if self.state_checked >= self.state_limit: #verfication limit reached
             print("Verification limit reached!")
             return False
@@ -96,18 +146,11 @@ class CPVerifier:
         else: #temporarily choose DFS
             conf1 = self.node_list[nodes_left-1]
         self.state_checked += 1
-        print('********************\nState #' + str(self.state_checked)  + ':\n' + conf1.ToString() + '\n********************\n')
+        if self.show_detail:
+            print('********************\nState #' + str(self.state_checked)  + ':\n' + conf1.ToString() + '\n********************\n')
         
-        state = conf1.state
         new_rules_skipped = rules_skipped
-        if state in self.terminations or rules_skipped >= len(self.rules): #node terminated, termination reached or all rules are skipped (not applicable)
-            if self.search_method == 'BFS':
-                self.node_list.pop(0)
-            else:
-                self.node_list.pop()
-            self.Next()
-            return False
-
+        state = conf1.state
         terms = conf1.terms
         products = conf1.products
         committed_state = conf1.committed_state
@@ -115,8 +158,33 @@ class CPVerifier:
         current_rule_index = conf1.next_rule_index
         r1 = self.rules[current_rule_index]
         next_rule_index = self.GetNextRuleIndex(current_rule_index)
-        self.node_list.pop()
         
+        if state in self.terminations:
+            if self.property_code == 0: #0: goal terms check
+                if not lnmu.MultisetInclusion(terms, self.goal):
+                    self.counter_example = conf1
+                    self.counter_example_found = True
+                    return True
+            elif self.property_code == 1: #1: goal-state reached
+                if state == self.goal_state:
+                    self.counter_example = conf1
+                    self.counter_example_found = True
+                    return True
+                
+        if (not state in self.terminations) and (rules_skipped >= len(self.rules)-1) and (self.property_code == 3):  #no ourgoing edge, not a expected termination
+            self.counter_example = conf1
+            self.counter_example_found = True
+            return True           
+        
+        if self.search_method == 'BFS':
+            self.node_list.pop(0)
+        else:
+            self.node_list.pop()
+        
+        if state in self.terminations or rules_skipped >= len(self.rules): #node terminated, termination reached or all rules are skipped (not applicable)
+            self.Next()
+            return False
+            
         #1
         if (r1.LState() != state) or (is_committed and r1.RState() != committed_state): #rule is not applicable, go to next rule
             if next_rule_index == 0:
@@ -245,6 +313,11 @@ class CPVerifier:
             SS = [] #the set of unifiers
             S = {}
             lnmu.LNMU(G, S, SS)
+            if len(SS) > 1:
+                self.nonedeterministic = True
+                if self.property_code == 2:
+                    self.counter_example_found = True
+                    return True
             
             if len(SS) == 0: #unification failed
                 if next_rule_index == 0:

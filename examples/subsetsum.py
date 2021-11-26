@@ -1,4 +1,5 @@
 import os, sys
+from typing import OrderedDict
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from cpsystem import CPSystem
 from cpparser import ParseTerm
@@ -6,6 +7,7 @@ from cpparser import ParseRule
 from cpverifier import CPVerifier
 
 def CPSubsetSum(original_set, target_number):
+    #rule0 = ParseRule('s0 ->1 s4')
     rule1 = ParseRule('s0 ->1 s1 p(u()n(M)s()) | m(M)')
     rule2 = ParseRule('s1 ->1 s2 o(X) | p(u(X)s(T)A)) t(T)')
     rule3 = ParseRule('s1 ->1 s3 o() | p(n()A)')
@@ -21,6 +23,7 @@ def CPSubsetSum(original_set, target_number):
     m = ParseTerm(string_m)
 
     sys = CPSystem('s0')
+    #sys.AddRule(rule0)
     sys.AddRule(rule1)
     sys.AddRule(rule2)
     sys.AddRule(rule3)
@@ -37,7 +40,9 @@ def CPSubsetSum(original_set, target_number):
     
     cpv = CPVerifier(sys)
     cpv.SetTerminations(['s2','s3'])
-    cpv.Verify()
+    cpv.SetGoalTerms({ParseTerm('o(1)'):1})
+    cpv.SetGoalState('s2')
+    cpv.Verify(3)
     
-CPSubsetSum({1,2},3)
+CPSubsetSum({1,2,3},6)
 
