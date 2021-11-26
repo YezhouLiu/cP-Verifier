@@ -9,6 +9,7 @@ import lnmu
 from cpsystemsupport import ValidSystemTerm
 import itertools
 from typing import List, OrderedDict
+import heapq
 
 class CPNode:
     def __init__(self):
@@ -18,6 +19,7 @@ class CPNode:
         self.committed_state = ''
         self.is_committed = False
         self.next_rule_index = 0
+        self.step = 0
     
     #HASH
     #------------------------------------------------------------------------------
@@ -28,7 +30,10 @@ class CPNode:
     def __lt__(self, node2): #less than
         if not isinstance(node2, CPNode):
             return False
-        return self.ToString() < node2.ToString()
+        if self.step != node2.step:
+            return self.step < node2.step
+        else:
+            return self.ToString() < node2.ToString()
     def __hash__(self):
         return hash(self.ToString())
         
@@ -37,16 +42,18 @@ class CPNode:
         self.state = sys1.State()
         self.committed_state = sys1.State()
         
-    def ReadContent(self, terms, products, state, committed_state, is_committed, next_rule_index):
+    def ReadContent(self, terms, products, state, committed_state, is_committed, next_rule_index, step):
         self.terms = terms
         self.products = products
         self.state = state
         self.committed_state = committed_state
         self.is_committed = is_committed
         self.next_rule_index = next_rule_index
+        self.step = step
         
     def ToString(self):
-        str_node = 'State: ' + self.state + '\n'
+        str_node = 'Step: ' + str(self.step) + '\n'
+        str_node += 'State: ' + self.state + '\n'
         if self.is_committed:
             str_node += 'Commited to: ' + self.committed_state + '\n'
         str_node += 'Terms:\n'
@@ -73,7 +80,7 @@ class CPVerifier:
         self.show_detail = False
         self.rules = sys1.Rules()
         self.terminations = []
-        self.search_method = 'BFS'
+        self.search_method = 'PQ'
         self.state_limit = 100000
         self.state_checked = 0
         self.property_code = 0
@@ -83,6 +90,7 @@ class CPVerifier:
         self.goal_state = ''
         self.reachable_state = ''
         self.termination_set = set()
+        self.shortest_termination_step = -1
 #Property code
 #0: If certain goal terms are included in a halting configuration
 #1: If a goal state is reachable
@@ -161,9 +169,11 @@ class CPVerifier:
             return False
         
         conf1 = CPNode()
-        if self.search_method == 'BFS':
+        if self.search_method == 'PQ':
             conf1 = self.node_list[0]
-        else: #temporarily choose DFS
+        elif self.search_method == 'BFS':
+            conf1 = self.node_list[0]
+        else: #DFS
             conf1 = self.node_list[nodes_left-1]
         self.state_checked += 1
         if self.show_detail:
@@ -178,8 +188,21 @@ class CPVerifier:
         current_rule_index = conf1.next_rule_index
         r1 = self.rules[current_rule_index]
         next_rule_index = self.GetNextRuleIndex(current_rule_index)
+        step = conf1.step
+        
+        if self.shortest_termination_step != -1 and step > self.shortest_termination_step: #system already terminated
+            if self.search_method == 'PQ':
+                self.node_list.pop(0)
+            elif self.search_method == 'BFS':
+                self.node_list.pop(0)
+            else:
+                self.node_list.pop()
+            self.Next()
+            return False
         
         if state in self.terminations:
+            if self.shortest_termination_step == -1:
+                self.shortest_termination_step = step
             self.termination_set.add(conf1)
             if self.property_code == 0: #0: goal terms check
                 if lnmu.MultisetInclusion(terms, self.goal):
@@ -201,7 +224,9 @@ class CPVerifier:
             self.counter_example_found = True
             return True           
         
-        if self.search_method == 'BFS':
+        if self.search_method == 'PQ':
+            self.node_list.pop(0)
+        elif self.search_method == 'BFS':
             self.node_list.pop(0)
         else:
             self.node_list.pop()
@@ -223,8 +248,8 @@ class CPVerifier:
                 products = {}
                 new_rules_skipped = -1  
             new_node = CPNode()
-            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-            self.node_list.append(new_node)
+            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+            self.PushCPNode(new_node)
             self.Next(new_rules_skipped+1)
         
         #2
@@ -233,6 +258,7 @@ class CPVerifier:
             if not is_committed:
                 is_committed = True
                 committed_state = r1.RState()
+                step += 1 #a rule commitment = a step
             if next_rule_index == 0:
                 is_committed = False
                 state = committed_state
@@ -243,8 +269,8 @@ class CPVerifier:
                         terms[item1] = products[item1]
                 products = {}
             new_node = CPNode()
-            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-            self.node_list.append(new_node)
+            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+            self.PushCPNode(new_node)
             self.Next()
         
         #3
@@ -257,6 +283,7 @@ class CPVerifier:
                     if not is_committed:
                         is_committed = True
                         committed_state = r1.RState()
+                        step += 1
                     if next_rule_index == 0:
                         is_committed = False
                         state = committed_state
@@ -267,8 +294,8 @@ class CPVerifier:
                                 terms[item1] = products[item1]
                         products = {}
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-                    self.node_list.append(new_node)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    self.PushCPNode(new_node)
                     self.Next()
                     
                 else: #rule not applicable
@@ -283,8 +310,8 @@ class CPVerifier:
                         products = {} 
                         new_rules_skipped = -1 
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-                    self.node_list.append(new_node)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    self.PushCPNode(new_node)
                     self.Next(new_rules_skipped+1)
                     
             else: #model = '+'
@@ -306,8 +333,8 @@ class CPVerifier:
                         products = {} 
                         new_rules_skipped = -1 
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-                    self.node_list.append(new_node)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    self.PushCPNode(new_node)
                     self.Next(new_rules_skipped+1)
                 else:
                     mult -= 1
@@ -316,6 +343,7 @@ class CPVerifier:
                     if not is_committed:
                         is_committed = True
                         committed_state = r1.RState()
+                        step += 1
                     if next_rule_index == 0:
                         is_committed = False
                         state = committed_state
@@ -326,8 +354,8 @@ class CPVerifier:
                                 terms[item1] = products[item1]
                         products = {}
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-                    self.node_list.append(new_node)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    self.PushCPNode(new_node)
                     self.Next()
         
         #4           
@@ -356,8 +384,8 @@ class CPVerifier:
                     products = {} 
                     new_rules_skipped = -1 
                 new_node = CPNode()
-                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
-                self.node_list.append(new_node)
+                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                self.PushCPNode(new_node)
                 self.Next(new_rules_skipped+1)
                 
             else:
@@ -378,6 +406,7 @@ class CPVerifier:
                             is_committed2 = is_committed
                             committed_state2 = committed_state
                             state2 = state
+                            step2 = step
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
                                 self.VConsumeMultiset(terms2, r2.LHS())
                                 self.VProduceMultiset(products2, r2.RHS())
@@ -386,6 +415,7 @@ class CPVerifier:
                                 if not is_committed2:
                                     is_committed2 = True
                                     committed_state2 = r2.RState()
+                                    step2 += 1
                                 if next_rule_index == 0:
                                     is_committed2 = False
                                     state2 = committed_state2
@@ -396,8 +426,8 @@ class CPVerifier:
                                             terms2[item1] = products2[item1]
                                     products2 = {}
                                 new_node = CPNode()
-                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index)
-                                self.node_list.append(new_node)
+                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2)
+                                self.PushCPNode(new_node)
                                 self.Next()
                             else: #fail
                                 return False
@@ -423,6 +453,7 @@ class CPVerifier:
                             is_committed2 = is_committed
                             committed_state2 = committed_state
                             state2 = state
+                            step2 = step
                             ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
                                 self.VConsumeMultiset(terms2, r3.LHS())
@@ -430,6 +461,7 @@ class CPVerifier:
                             if not is_committed2:
                                 is_committed2 = True
                                 committed_state2 = r2.RState()
+                                step2 += 1
                             if next_rule_index == 0:
                                 is_committed2 = False
                                 state2 = committed_state2
@@ -440,8 +472,8 @@ class CPVerifier:
                                         terms2[item1] = products2[item1]
                                 products2 = {}
                             new_node = CPNode()
-                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index)
-                            self.node_list.append(new_node)
+                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2)
+                            self.PushCPNode(new_node)
                         self.Next()        
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
@@ -482,6 +514,12 @@ class CPVerifier:
         for t1 in m1:
             mult = m1[t1]
             self.VProduceTerm(products, t1, mult)
+            
+    def PushCPNode(self, node1):
+        if self.search_method == 'PQ':
+            heapq.heappush(self.node_list, node1)
+        else:
+            self.node_list.append(node1)
             
     def ToString(self):
         str_cpv = 'Nodes:\n'
