@@ -60,6 +60,9 @@ class CPVerifier:
         self.show_detail = False
         self.rules = sys1.Rules()
         self.terminations = []
+        self.search_method = 'DFS'
+        self.state_limit = 10000
+        self.state_checked = 0
         
     def SetTerminations(self, terminations: List[str]):
         self.terminations = terminations
@@ -70,26 +73,39 @@ class CPVerifier:
         else:
             return 0
         
-    def Next(self, rules_skipped = 0, limit = 10000):
-        #self.PrintNodeList()
-        if limit == 0: #verfication limit reached
+    def SetSearchMethod(self, sm):
+        if sm == 'DFS' or 'BFS':
+            self.search_method = sm
+        
+    def Verify(self, limit = 10000):
+        self.state_limit = limit
+        self.Next()
+        
+    def Next(self, rules_skipped = 0):
+        if self.state_checked >= self.state_limit: #verfication limit reached
             print("Verification limit reached!")
             return False
-        new_rules_skipped = rules_skipped
-        if rules_skipped >= len(self.rules): #node terminated, all rules are skipped (not applicable)
-            self.node_list.pop()
-            new_rules_skipped = 0
-        nodes_left = len(self.node_list)
         
+        nodes_left = len(self.node_list)
         if nodes_left <= 0: #verification finished, all nodes checked
             return False
         
-        conf1 = self.node_list[nodes_left-1] #depth-first: deal with the last node
-
+        conf1 = CPNode()
+        if self.search_method == 'BFS':
+            conf1 = self.node_list[0]
+        else: #temporarily choose DFS
+            conf1 = self.node_list[nodes_left-1]
+        self.state_checked += 1
+        print('********************\nState #' + str(self.state_checked)  + ':\n' + conf1.ToString() + '\n********************\n')
+        
         state = conf1.state
-        if state in self.terminations:
-            self.node_list.pop()
-            self.Next(0, limit)
+        new_rules_skipped = rules_skipped
+        if state in self.terminations or rules_skipped >= len(self.rules): #node terminated, termination reached or all rules are skipped (not applicable)
+            if self.search_method == 'BFS':
+                self.node_list.pop(0)
+            else:
+                self.node_list.pop()
+            self.Next()
             return False
 
         terms = conf1.terms
@@ -99,7 +115,6 @@ class CPVerifier:
         current_rule_index = conf1.next_rule_index
         r1 = self.rules[current_rule_index]
         next_rule_index = self.GetNextRuleIndex(current_rule_index)
-        
         self.node_list.pop()
         
         #1
@@ -117,7 +132,7 @@ class CPVerifier:
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
             self.node_list.append(new_node)
-            self.Next(new_rules_skipped+1, limit)
+            self.Next(new_rules_skipped+1)
         
         #2
         elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, no diff between 1 and +
@@ -137,9 +152,7 @@ class CPVerifier:
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
             self.node_list.append(new_node)
-            self.PrintNodeList()
-            print('Node list ' + str(10001-limit)  + ':\n')
-            self.Next(0, limit-1)
+            self.Next()
         
         #3
         elif r1.IsGround(): #no need to unify
@@ -163,9 +176,7 @@ class CPVerifier:
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
-                    self.PrintNodeList()
-                    print('Node list' + str(10001-limit)  + ':\n')
-                    self.Next(0, limit-1)
+                    self.Next()
                     
                 else: #rule not applicable
                     if next_rule_index == 0:
@@ -181,7 +192,7 @@ class CPVerifier:
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
-                    self.Next(new_rules_skipped+1, limit)
+                    self.Next(new_rules_skipped+1)
                     
             else: #model = '+'
                 ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
@@ -204,7 +215,7 @@ class CPVerifier:
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
-                    self.Next(new_rules_skipped+1, limit)
+                    self.Next(new_rules_skipped+1)
                 else:
                     mult -= 1
                     self.VConsumeMultiset(terms, lnmu.MultisetTimes(r1.LHS(), mult))
@@ -224,9 +235,7 @@ class CPVerifier:
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                     self.node_list.append(new_node)
-                    self.PrintNodeList()
-                    print('Node list' + str(10001-limit)  + ':\n')
-                    self.Next(0, limit-1)
+                    self.Next()
         
         #4           
         elif (not is_committed) or (is_committed and r1.RState() == committed_state): #a rule with variables
@@ -251,7 +260,7 @@ class CPVerifier:
                 new_node = CPNode()
                 new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index)
                 self.node_list.append(new_node)
-                self.Next(new_rules_skipped+1, limit)
+                self.Next(new_rules_skipped+1)
                 
             else:
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
@@ -291,9 +300,7 @@ class CPVerifier:
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index)
                                 self.node_list.append(new_node)
-                                self.PrintNodeList()
-                                print('Node list' + str(10001-limit)  + ':\n')
-                                self.Next(0, limit-1)
+                                self.Next()
                             else: #fail
                                 return False
                         
@@ -337,9 +344,7 @@ class CPVerifier:
                             new_node = CPNode()
                             new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index)
                             self.node_list.append(new_node)
-                        self.PrintNodeList()
-                        print('Node list' + str(10001-limit)  + ':\n')
-                        self.Next(0, limit-1)        
+                        self.Next()        
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
                     return False

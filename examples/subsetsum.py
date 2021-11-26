@@ -37,7 +37,7 @@ def CPSubsetSum(original_set, target_number):
     
     cpv = CPVerifier(sys)
     cpv.SetTerminations(['s2','s3'])
-    cpv.Next()
+    cpv.Verify()
     
-CPSubsetSum({1,2,3},7)
+CPSubsetSum({1,2},3)
 
