@@ -10,6 +10,19 @@ class Rule:
         self.rhs = {} #rhs terms
         self.pmt = {} #promoter terms
         self.model = model # '1' exact-once, '+' max-parallel
+        
+#HASH
+    #------------------------------------------------------------------------------
+    def __eq__(self, rule2): 
+        if not isinstance(rule2, Rule): # compare rules only
+            return False
+        return self.ToString() == rule2.ToString()
+    def __lt__(self, rule2): #less than
+        if not isinstance(rule2, Rule):
+            return False
+        return self.ToString() < rule2.ToString()
+    def __hash__(self): #implement eq and hash function, which the system can use Term as a dictionary key
+        return hash(self.ToString())
 
 #GETTERS
 #------------------------------------------------------------------------------
