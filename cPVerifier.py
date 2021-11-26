@@ -83,20 +83,50 @@ class CPVerifier:
         self.search_method = 'PQ'
         self.state_limit = 100000
         self.state_checked = 0
-        self.property_code = 0
+        self.property = 'deadlock'
         self.counter_example_found = False
         self.counter_example = CPNode()
-        self.goal = {}
-        self.goal_state = ''
-        self.reachable_state = ''
+        self.target = {}
+        self.target_state = ''
         self.termination_set = set()
         self.shortest_termination_step = -1
+        
 #Property code
 #0: If certain goal terms are included in a halting configuration
 #1: If a goal state is reachable
 #2: If the cP system is deterministic
 #3: If the cP system is deadlockfree
 #4: If the cP system is confluent
+
+
+#Property code
+#0: If the cP system is deadlockfree
+#1: If the cP system is deterministic
+#2: If the cP system is confluent
+#3: If certain goal terms are included in a halting configuration
+#4: If certain goal terms are included in all halting configurations
+#5: If a goal state is reachable in a halting configuration
+#6: If a goal state is reachable in all halting configurations
+#7: If certain terms are always in the cP system
+    def Property(self, code):
+        if code == 0:
+            return 'deadlockfree'
+        elif code == 1:
+            return 'deterministic'
+        elif code == 2:
+            return 'confluent'
+        elif code == 3:
+            return 'terms_in_one_halting'
+        elif code == 4:
+            return 'terms_in_all_halting'
+        elif code == 5:
+            return 'state_in_one_halting'
+        elif code == 6:
+            return 'state_in_all_halting'
+        elif code == '7':
+            return 'terms_in_all'
+        else:
+            return 'deadlockfree'
         
     def SetTerminations(self, terminations: List[str]):
         self.terminations = terminations
@@ -117,44 +147,54 @@ class CPVerifier:
     def DetailOff(self):
         self.show_detail = False
         
-    def SetGoalTerms(self, goal: OrderedDict[Term, int]):
-        self.goal = goal
+    def SetTargetTerms(self, target: OrderedDict[Term, int]):
+        self.target = target
         
-    def SetGoalState(self, goal: str):
-        self.goal_state = goal
-        
-    def SetReachableState(self, state: str):
-        self.reachable_state = state
+    def SetTargetState(self, target: str):
+        self.target_state = target
 
     def Verify(self, property_code = 0, state_limit = 100000):
         self.state_limit = state_limit
-        self.property_code = property_code
+        self.property = self.Property(property_code)
         self.Next()
         print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.\nThe search method is ' + self.search_method + '.\n')
+        
         if self.counter_example_found:
-            if self.property_code == 0:
-                print('The goal terms are reachable!\n' + self.counter_example.ToString())
-            elif self.property_code == 1:
-                print('The goal state ' + self.goal_state + ' is reached!\n' + self.counter_example.ToString())
-            elif self.property_code == 2:
+            if self.property == 'terms_in_one_halting':
+                print('The target terms are included by a halting configuration!\n' + self.counter_example.ToString())
+            elif self.property == 'terms_in_all_halting':
+                print('The target terms are NOT included by all halting configurations!\n' + self.counter_example.ToString())
+            elif self.property == 'state_in_one_halting':
+                print('The target state ' + self.target_state + ' is reached in a halting configuration!\n' + self.counter_example.ToString())
+            elif self.property == 'state_in_all_halting':
+                print('The target state ' + self.target_state + ' is NOT reached in all halting configurations!\n' + self.counter_example.ToString())
+            elif self.property == 'deterministic':
                 print('The cP system is nondeterministic!')
-            elif self.property_code == 3:
+            elif self.property == 'deadlockfree':
                 print('A deadlock state is found!\n' + self.counter_example.ToString())
-            elif self.property_code == 4:
-                print('The cP system is not confluent! Different halting configuration can be found!')
+            elif self.property == 'confluent':
+                print('The cP system is NOT confluent! Different halting configuration can be found!')
                 self.PrintTerminationSet()
+            elif self.property == 'terms_in_all':
+                print('The target terms are NOT included in all configurations!\n' + self.counter_example.ToString())
             
         else:
-            if self.property_code == 0:
-                print('The goal terms are not reachable!')
-            elif self.property_code == 1:
-                print('The goal state ' + self.goal_state + ' is not reachable!')
-            elif self.property_code == 2:
+            if self.property == 'terms_in_one_halting':
+                print('The target terms are NOT included by any halting configuration!')
+            elif self.property == 'terms_in_all_halting':
+                print('The target terms are included by all halting configurations!\n')
+            elif self.property == 'state_in_one_halting':
+                print('The target state ' + self.target_state + ' is NOT reached in any halting configuration!')
+            elif self.property == 'state_in_all_halting':
+                print('The target state ' + self.target_state + ' is reached in all halting configurations!\n')
+            elif self.property == 'deterministic':
                 print('The cP system is deterministic!')
-            elif self.property_code == 3:
+            elif self.property == 'deadlockfree':
                 print('The cP system is deadlock free!')
-            elif self.property_code == 4:
+            elif self.property == 'confluent':
                 print('The cP system is confluent!')
+            elif self.property == 'terms_in_all':
+                print('The target terms are included in all configurations!\n')
         
     def Next(self, rules_skipped = 0):
         if self.counter_example_found:
@@ -200,26 +240,42 @@ class CPVerifier:
             self.Next()
             return False
         
+        if self.property == 'terms_in_all':
+            if not lnmu.MultisetInclusion(terms, self.target):
+                self.counter_example = conf1
+                self.counter_example_found = True
+                return True
+        
         if state in self.terminations:
             if self.shortest_termination_step == -1:
                 self.shortest_termination_step = step
             self.termination_set.add(conf1)
-            if self.property_code == 0: #0: goal terms check
-                if lnmu.MultisetInclusion(terms, self.goal):
+            if self.property == 'terms_in_one_halting':
+                if lnmu.MultisetInclusion(terms, self.target):
                     self.counter_example = conf1
                     self.counter_example_found = True
                     return True
-            elif self.property_code == 1: #1: goal-state reached
-                if state == self.goal_state:
+            elif self.property == 'terms_in_all_halting':
+                if not lnmu.MultisetInclusion(terms, self.target):
                     self.counter_example = conf1
                     self.counter_example_found = True
                     return True
-            elif self.property_code == 4: #: confluence check
+            elif self.property == 'state_in_one_halting':
+                if state == self.target_state:
+                    self.counter_example = conf1
+                    self.counter_example_found = True
+                    return True
+            elif self.property == 'state_in_all_halting':
+                if state != self.target_state:
+                    self.counter_example = conf1
+                    self.counter_example_found = True
+                    return True
+            elif self.property == 'confluent': #: confluence check
                 if len(self.termination_set) > 1:
                     self.counter_example_found = True
                     return True
                 
-        if (not state in self.terminations) and (rules_skipped >= len(self.rules)-1) and (self.property_code == 3):  #no ourgoing edge, not a expected termination
+        if (not state in self.terminations) and (rules_skipped >= len(self.rules)-1) and (self.property == 'deadlockfree'):  #no outgoing edge, not a expected termination, deadlock
             self.counter_example = conf1
             self.counter_example_found = True
             return True           
@@ -368,7 +424,7 @@ class CPVerifier:
             lnmu.LNMU(G, S, SS)
             if len(SS) > 1:
                 self.nonedeterministic = True
-                if self.property_code == 2:
+                if self.property == 'deterministic':
                     self.counter_example_found = True
                     return True
             
