@@ -265,6 +265,7 @@ class CPVerifier:
             self.Next()
             return False
         
+        #checking properties here for normal configurations
         if self.property == 'terms_in_all':
             if not lnmu.MultisetInclusion(terms, self.target):
                 self.counter_example = conf1
@@ -276,6 +277,7 @@ class CPVerifier:
                 self.counter_example_found = True
                 return True
         
+        #checking properties here for halting configurations
         if state in self.terminations:
             if self.shortest_termination_step == -1:
                 self.shortest_termination_step = step
