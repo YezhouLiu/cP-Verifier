@@ -21,7 +21,7 @@ class Rule:
         if not isinstance(rule2, Rule):
             return False
         return self.ToString() < rule2.ToString()
-    def __hash__(self): #implement eq and hash function, which the system can use Term as a dictionary key
+    def __hash__(self):
         return hash(self.ToString())
 
 #GETTERS

@@ -18,6 +18,19 @@ class CPNode:
         self.committed_state = ''
         self.is_committed = False
         self.next_rule_index = 0
+    
+    #HASH
+    #------------------------------------------------------------------------------
+    def __eq__(self, node2): 
+        if not isinstance(node2, CPNode): # compare cp nodes only
+            return False
+        return self.ToString() == node2.ToString()
+    def __lt__(self, node2): #less than
+        if not isinstance(node2, CPNode):
+            return False
+        return self.ToString() < node2.ToString()
+    def __hash__(self):
+        return hash(self.ToString())
         
     def ReadCP(self, sys1: CPSystem):
         self.terms = sys1.SystemTerms()
@@ -69,11 +82,13 @@ class CPVerifier:
         self.goal = {}
         self.goal_state = ''
         self.reachable_state = ''
+        self.termination_set = set()
 #Property code
 #0: If certain goal terms are included in ALL halting configurations
 #1: If a goal state is reachable
 #2: If the cP system is deterministic
 #3: If the cP system is deadlockfree
+#4: If the cP system is confluent
         
     def SetTerminations(self, terminations: List[str]):
         self.terminations = terminations
@@ -107,7 +122,7 @@ class CPVerifier:
         self.state_limit = state_limit
         self.property_code = property_code
         self.Next()
-        print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.')
+        print('The cP system verification is finished, totally ' + str(self.state_checked) + ' states were checked.\n')
         if self.counter_example_found:
             if self.property_code == 0:
                 print('The following counter example is found: \n' + self.counter_example.ToString())
@@ -117,6 +132,9 @@ class CPVerifier:
                 print('The cP system is nondeterministic!')
             elif self.property_code == 3:
                 print('A deadlock state is found!\n' + self.counter_example.ToString())
+            elif self.property_code == 4:
+                print('The cP system is not confluent! Different halting configuration can be found!')
+                self.PrintTerminationSet()
             
         else:
             if self.property_code == 0:
@@ -127,6 +145,8 @@ class CPVerifier:
                 print('The cP system is deterministic!')
             elif self.property_code == 3:
                 print('The cP system is deadlock free!')
+            elif self.property_code == 4:
+                print('The cP system is confluent!')
         
     def Next(self, rules_skipped = 0):
         if self.counter_example_found:
@@ -160,6 +180,7 @@ class CPVerifier:
         next_rule_index = self.GetNextRuleIndex(current_rule_index)
         
         if state in self.terminations:
+            self.termination_set.add(conf1)
             if self.property_code == 0: #0: goal terms check
                 if not lnmu.MultisetInclusion(terms, self.goal):
                     self.counter_example = conf1
@@ -168,6 +189,10 @@ class CPVerifier:
             elif self.property_code == 1: #1: goal-state reached
                 if state == self.goal_state:
                     self.counter_example = conf1
+                    self.counter_example_found = True
+                    return True
+            elif self.property_code == 4: #: confluence check
+                if len(self.termination_set) > 1:
                     self.counter_example_found = True
                     return True
                 
@@ -473,6 +498,14 @@ class CPVerifier:
     def PrintNodeList(self):
         str_cpv = 'Nodes:\n'
         for node in self.node_list:
+            str_cpv += '***************************\n'
+            str_cpv += node.ToString() + '\n'
+        str_cpv += '***************************\n'
+        print(str_cpv)
+        
+    def PrintTerminationSet(self):
+        str_cpv = 'Halting configurations:\n'
+        for node in self.termination_set:
             str_cpv += '***************************\n'
             str_cpv += node.ToString() + '\n'
         str_cpv += '***************************\n'
