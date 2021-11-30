@@ -28,6 +28,7 @@ class CPNode:
         if not isinstance(node2, CPNode): # compare cp nodes only
             return False
         return self.ToString() == node2.ToString()
+    
     def __lt__(self, node2): #less than
         if not isinstance(node2, CPNode):
             return False
@@ -35,6 +36,7 @@ class CPNode:
             return self.step < node2.step
         else:
             return self.ToString() < node2.ToString()
+        
     def __hash__(self):
         return hash(self.ToString())
         
@@ -160,6 +162,12 @@ class CPVerifier:
         self.terminating_time_out = maxsteps
 
     def Verify(self, property_code = 0, state_limit = 100000):
+        try:
+            self.CheckProperties(property_code, state_limit)
+        except:
+            print('The cP system verification is NOT finished as expected, which is often caused by non-terminating cP rules, please check the rules!')
+
+    def CheckProperties(self, property_code = 0, state_limit = 100000):
         if self.property == 'terminating':
             self.state_limit = self.terminating_time_out
         else:
