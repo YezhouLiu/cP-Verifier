@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>987</width>
+    <height>690</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>cPV - The cP System Verifier</string>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>987</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="menu_file"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>Examples</string>
+    </property>
+    <addaction name="actioncP_System_ADD"/>
+    <addaction name="actioncP_System_Subtract"/>
+    <addaction name="actioncP_System_Multiplication"/>
+    <addaction name="actioncP_System_Division"/>
+    <addaction name="actionThe_GCD_cP_System"/>
+    <addaction name="actionGCD_cP_System_2"/>
+    <addaction name="actionVersion"/>
+    <addaction name="actionThe_Hamiltonian_Path_cP_System"/>
+    <addaction name="actionThe_Hamitonian_Cycle_cP_System"/>
+   </widget>
+   <widget class="QMenu" name="menuSimulation">
+    <property name="title">
+     <string>Simulation</string>
+    </property>
+    <addaction name="actionPlaceholder"/>
+   </widget>
+   <widget class="QMenu" name="menuVerification">
+    <property name="title">
+     <string>Verification</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuAbout_2">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionVersion_2"/>
+    <addaction name="actionRelease_Plan"/>
+    <addaction name="actionEmail_Author"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuAbout"/>
+   <addaction name="menuSimulation"/>
+   <addaction name="menuVerification"/>
+   <addaction name="menuAbout_2"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="menu_file">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string/>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionVersion">
+   <property name="text">
+    <string>The Subset Sum cP System</string>
+   </property>
+  </action>
+  <action name="actionThe_Hamiltonian_Path_cP_System">
+   <property name="text">
+    <string>The Hamiltonian Path cP System</string>
+   </property>
+  </action>
+  <action name="actionPlaceholder">
+   <property name="text">
+    <string>Placeholder</string>
+   </property>
+  </action>
+  <action name="actionVersion_2">
+   <property name="text">
+    <string>Version</string>
+   </property>
+  </action>
+  <action name="actionRelease_Plan">
+   <property name="text">
+    <string>Release Plan</string>
+   </property>
+  </action>
+  <action name="actionThe_GCD_cP_System">
+   <property name="text">
+    <string>GCD cP System 1</string>
+   </property>
+  </action>
+  <action name="actionThe_Hamitonian_Cycle_cP_System">
+   <property name="text">
+    <string>The Hamiltonian Cycle cP System</string>
+   </property>
+  </action>
+  <action name="actioncP_System_ADD">
+   <property name="text">
+    <string>cP System: Add</string>
+   </property>
+  </action>
+  <action name="actioncP_System_Subtract">
+   <property name="text">
+    <string>cP System: Subtract</string>
+   </property>
+  </action>
+  <action name="actioncP_System_Multiplication">
+   <property name="text">
+    <string>cP System: Multiplication</string>
+   </property>
+  </action>
+  <action name="actioncP_System_Division">
+   <property name="text">
+    <string>cP System: Division</string>
+   </property>
+  </action>
+  <action name="actionGCD_cP_System_2">
+   <property name="text">
+    <string>GCD cP System 2</string>
+   </property>
+  </action>
+  <action name="actionEmail_Author">
+   <property name="text">
+    <string>Email Author</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
