@@ -268,7 +268,7 @@ class Ui_MainWindow(object):
         
     def Simulate(self):
         #sys1 = self.BuildcPSystem()
-        sys1 = ParsecPVJSON('.\examples\gcd.json')
+        sys1 = ParsecPVJSON('.\examples\subsetsum.json')
         with io.StringIO() as buf, redirect_stdout(buf):
             sys1.DetailOn()
             sys1.Run()
