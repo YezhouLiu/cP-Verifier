@@ -1,8 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os, sys, io
 import cpverifier
-import subprocess
-from cpparser import ParseSystem
+import re
+from cpparser import ParseRule, ParseSystem
 from cpparser import ParseTerm
 from cpparser import ParsecPVJSON
 from cpverifier import CPVerifier
@@ -70,13 +70,13 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.textEdit_state.setFont(font)
         self.textEdit_state.setObjectName("textEdit_state")
-        self.textEdit_state_2 = QtWidgets.QTextEdit(self.centralwidget)
-        self.textEdit_state_2.setGeometry(QtCore.QRect(140, 10, 181, 31))
+        self.textEdit_name = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit_name.setGeometry(QtCore.QRect(140, 10, 181, 31))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
-        self.textEdit_state_2.setFont(font)
-        self.textEdit_state_2.setObjectName("textEdit_state_2")
+        self.textEdit_name.setFont(font)
+        self.textEdit_name.setObjectName("textEdit_name")
         self.pushButton_simulate = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_simulate.setGeometry(QtCore.QRect(520, 50, 128, 32))
         font = QtGui.QFont()
@@ -172,7 +172,7 @@ class Ui_MainWindow(object):
         self.textEdit_rules.raise_()
         self.textEdit_terms.raise_()
         self.textEdit_state.raise_()
-        self.textEdit_state_2.raise_()
+        self.textEdit_name.raise_()
         self.pushButton_simulate.raise_()
         self.pushButton_verify.raise_()
         self.comboBox_veri_opt.raise_()
@@ -267,8 +267,8 @@ class Ui_MainWindow(object):
         self.pushButton_simulate.clicked.connect(lambda: self.Simulate())
         
     def Simulate(self):
-        #sys1 = self.BuildcPSystem()
-        sys1 = ParsecPVJSON('.\examples\subsetsum.json')
+        sys1 = self.BuildcPSystem()
+        #sys1 = ParsecPVJSON('.\examples\subsetsum.json')
         with io.StringIO() as buf, redirect_stdout(buf):
             sys1.DetailOn()
             sys1.Run()
@@ -277,6 +277,17 @@ class Ui_MainWindow(object):
  
     def BuildcPSystem(self):
         sys = CPSystem()
+        state = self.textEdit_state.toPlainText()
+        if state != '':
+            sys.SetState(state.strip())
+        else:
+            sys.SetState('s1')
+        str_terms = re.split(';|,| |\n', self.textEdit_terms.toPlainText())
+        for str_term in str_terms:
+            sys.AddSystemTerm(ParseTerm(str_term))
+        rules = re.split(';|\n', self.textEdit_rules.toPlainText())
+        for rule in rules:
+            sys.AddRule(ParseRule(rule))
         return sys
         
     def ShowVersion(self):
@@ -298,17 +309,30 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Initial state:"))
         self.label_5.setText(_translate("MainWindow", "Initial terms:"))
         self.label_6.setText(_translate("MainWindow", "Rules:"))
-        self.textEdit_terms.setToolTip(_translate("MainWindow", "Please input terms as dictionary key-value pairs, for example: a:1, f(b):2, 1:3"))
+        self.textEdit_rules.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters for rules: (;) (,) (\\n). In each rule, l-state, r-state, terms, ->1, ->+, and | need to be separated by whitespaces ( ). </span></p></body></html>"))
+       
+        self.textEdit_terms.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters for terms: (;) (,) ( ) (\\n).</span></p></body></html>"))
+       
         self.textEdit_state.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Arial\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Arial\';\"></span></p></body></html>"))
-        self.textEdit_state_2.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">s1</span></p></body></html>"))
+       
+        self.textEdit_name.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Arial\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Arial\';\">Sample cP system</span></p></body></html>"))
+"</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">Sample cP system</span></p></body></html>"))
+        
         self.pushButton_simulate.setText(_translate("MainWindow", "Simulate"))
         self.pushButton_verify.setText(_translate("MainWindow", "Verify"))
         self.comboBox_veri_opt.setItemText(0, _translate("MainWindow", "Deadlockfree"))
@@ -319,11 +343,13 @@ class Ui_MainWindow(object):
         self.comboBox_veri_opt.setItemText(5, _translate("MainWindow", "Terms eventually"))
         self.comboBox_veri_opt.setItemText(6, _translate("MainWindow", "State reachable"))
         self.comboBox_veri_opt.setItemText(7, _translate("MainWindow", "State eventually"))
+        
         self.textEdit_prop_spe.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Arial\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Arial\';\">This textbox is only used for specifying certain system properties.</span></p></body></html>"))
+"</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">This textbox is only used for specifying certain system properties.</p></body></html>"))
+          
         self.label_2.setText(_translate("MainWindow", "Additional specifications:"))
         self.label_4.setText(_translate("MainWindow", "Simulation / verification result:"))
         self.comboBox_veri_opt_2.setItemText(0, _translate("MainWindow", "Detail level: 0"))

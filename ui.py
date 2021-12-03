@@ -62,6 +62,7 @@ class Ui_MainWindow(object):
         self.textEdit_rules.setObjectName("textEdit_rules")
         self.textEdit_terms = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit_terms.setGeometry(QtCore.QRect(20, 130, 451, 151))
+        self.textEdit_terms.setToolTip("")
         self.textEdit_terms.setToolTipDuration(-1)
         self.textEdit_terms.setObjectName("textEdit_terms")
         self.textEdit_state = QtWidgets.QTextEdit(self.centralwidget)
@@ -269,17 +270,26 @@ class Ui_MainWindow(object):
         self.label_3.setText(_translate("MainWindow", "Initial state:"))
         self.label_5.setText(_translate("MainWindow", "Initial terms:"))
         self.label_6.setText(_translate("MainWindow", "Rules:"))
-        self.textEdit_terms.setToolTip(_translate("MainWindow", "Please input terms as dictionary key-value pairs, for example: a:1, f(b):2, 1:3"))
+        self.textEdit_rules.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters: \';\' \',\' \'</span><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#777777;\">\\n</span><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">\'</span></p></body></html>"))
+        self.textEdit_terms.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters: \';\' \',\' \' \' \'</span><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#777777;\">\\n</span><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">\'</span></p></body></html>"))
         self.textEdit_state.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'SimSun\';\">s0</span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">s1</span></p></body></html>"))
         self.textEdit_state_2.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'SimSun\';\">N/A</span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">Sample cP system</span></p></body></html>"))
         self.pushButton_simulate.setText(_translate("MainWindow", "Simulate"))
         self.pushButton_verify.setText(_translate("MainWindow", "Verify"))
         self.comboBox_veri_opt.setItemText(0, _translate("MainWindow", "Deadlockfree"))
@@ -294,7 +304,7 @@ class Ui_MainWindow(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'SimSun\';\">Please only fill it when verifying certain system properties.</span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">Supported delimiters: \';\' \',\' \' \' \'</span><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#777777;\">\\n</span><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">\'</span></p></body></html>"))
         self.label_2.setText(_translate("MainWindow", "Additional specifications:"))
         self.label_4.setText(_translate("MainWindow", "Simulation / verification result:"))
         self.comboBox_veri_opt_2.setItemText(0, _translate("MainWindow", "Detail level: 0"))
