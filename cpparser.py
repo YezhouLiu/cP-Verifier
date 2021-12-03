@@ -88,10 +88,11 @@ def ParseTerms(str_terms): #parse a string of terms splitted by blank spaces, re
     term_dict = OrderedDict()
     for t1 in terms:
         t2 = ParseTerm(t1)
-        if t2 in term_dict:
-            term_dict[t2] += 1
-        else:
-            term_dict[t2] = 1
+        if t2 != '':
+            if t2 in term_dict:
+                term_dict[t2] += 1
+            else:
+                term_dict[t2] = 1
     return term_dict
     
 
@@ -106,6 +107,7 @@ def ParseRule(str_rule): # lstate lterm1 lterm2... ->1/+ rstate rterm1 rterm2...
     pmt_terms = []
     app_model = ''
     for item in rule:
+        item = item.strip()
         if item[:2] == '->':
             app_model = item[-1:]
             element_type = 'right_state'
@@ -132,9 +134,12 @@ def ParseRule(str_rule): # lstate lterm1 lterm2... ->1/+ rstate rterm1 rterm2...
             continue 
     rule = Rule(lstate, rstate, app_model)
     for x in l_terms:
-        rule.AddL(ParseTerm(x))
+        if ParseTerm(x) != '':
+            rule.AddL(ParseTerm(x))
     for y in r_terms:
-        rule.AddR(ParseTerm(y))
+        if ParseTerm(y) != '':
+            rule.AddR(ParseTerm(y))
     for z in pmt_terms:
-        rule.AddPMT(ParseTerm(z))
+        if ParseTerm(z) != '':
+            rule.AddPMT(ParseTerm(z))
     return rule

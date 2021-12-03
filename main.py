@@ -1,3 +1,4 @@
+from term import Term
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os, sys, io
 import cpverifier
@@ -8,9 +9,15 @@ from cpparser import ParsecPVJSON
 from cpverifier import CPVerifier
 from cpsystem import CPSystem
 from contextlib import redirect_stdout
-import threading
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 class Ui_MainWindow(object):
+    def cP_init(self):
+        self.sys = CPSystem()
+        self.ve = CPVerifier(self.sys)    
+        
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(993, 667)
@@ -199,8 +206,8 @@ class Ui_MainWindow(object):
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
-        self.menu_file = QtWidgets.QAction(MainWindow)
-        self.menu_file.setObjectName("menu_file")
+        self.actionOpen = QtWidgets.QAction(MainWindow)
+        self.actionOpen.setObjectName("actionOpen")
         self.actionSave = QtWidgets.QAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
         self.actionQuit = QtWidgets.QAction(MainWindow)
@@ -237,7 +244,7 @@ class Ui_MainWindow(object):
         self.actionSave_As.setWhatsThis("")
         self.actionSave_As.setObjectName("actionSave_As")
         self.menuFile.addAction(self.actionNew)
-        self.menuFile.addAction(self.menu_file)
+        self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_As)
         self.menuFile.addAction(self.actionQuit)
@@ -262,31 +269,41 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
       
 #Triggering the UI components        
-        self.actionVersion.triggered.connect(lambda: self.ShowVersion())
-        self.actionEmail_Author.triggered.connect(lambda: self.ShowAuthor())
-        self.pushButton_simulate.clicked.connect(lambda: self.Simulate())
+        self.actionVersion.triggered.connect(self.ShowVersion)
+        self.actionEmail_Author.triggered.connect(self.ShowAuthor)
+        self.pushButton_simulate.clicked.connect(self.Simulate)
+        self.actionNew.triggered.connect(self.New)
+        self.actionOpen.triggered.connect(self.Open)
         
     def Simulate(self):
-        sys1 = self.BuildcPSystem()
-        #sys1 = ParsecPVJSON('.\examples\subsetsum.json')
+        self.sys = self.ReadcPSystem()
         with io.StringIO() as buf, redirect_stdout(buf):
-            sys1.DetailOn()
-            sys1.Run()
+            self.sys.DetailOn()
+            self.sys.Run()
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
  
-    def BuildcPSystem(self):
+    def ReadcPSystem(self):
         sys = CPSystem()
+        sys.SetSystemName(self.textEdit_name.toPlainText())
         state = self.textEdit_state.toPlainText()
         if state != '':
             sys.SetState(state.strip())
         else:
             sys.SetState('s1')
-        str_terms = re.split(';|,| |\n', self.textEdit_terms.toPlainText())
-        for str_term in str_terms:
-            sys.AddSystemTerm(ParseTerm(str_term))
+        raw_terms = self.textEdit_terms.toPlainText()
+        raw_terms2 = raw_terms.replace(' ','')  
+        dict_terms = re.split(';|\n', raw_terms2)
+        print(dict_terms)
+        for dict_term in dict_terms:
+            if dict_term == '':
+                continue
+            [str_term, str_amount] = dict_term.split(':')   
+            sys.AddSystemTerm(ParseTerm(str_term), int(str_amount))
         rules = re.split(';|\n', self.textEdit_rules.toPlainText())
         for rule in rules:
+            if rule == '':
+                continue
             sys.AddRule(ParseRule(rule))
         return sys
         
@@ -301,25 +318,40 @@ class Ui_MainWindow(object):
         msg.setWindowTitle('cPV')
         msg.setText('Thanks for using cPV, if you found any bugs or got any questions, please feel free to contact yliu442@aucklanduni.ac.nz')
         msg.exec_()
-
-    def retranslateUi(self, MainWindow):
+            
+    def Open(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        path, _ = QFileDialog.getOpenFileName(MainWindow,"QFileDialog.getOpenFileName()", "","cPVJ Files (*.json)", options=options)
+        self.sys = ParsecPVJSON(path)
+        self.textEdit_state.setText(self.sys.State())
+        self.textEdit_name.setText(self.sys.SystemName())
+        str_terms = ''
+        for term in self.sys.SystemTerms():
+            if isinstance(term, Term):      
+                str_terms += term.ToString() + ':' + str(self.sys.SystemTerms()[term]) + ';\n'
+            else:
+                str_terms += term + ':' + str(self.sys.SystemTerms()[term]) + ';\n'
+        self.textEdit_terms.setText(str_terms)
+        str_rules = ''
+        for rule in self.sys.Rules():
+            str_rules += rule.ToString() + ';\n'
+        self.textEdit_rules.setText(str_rules)
+    
+    def New(self):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "cPV - The cP System Verifier"))
-        self.label.setText(_translate("MainWindow", "cP system:"))
-        self.label_3.setText(_translate("MainWindow", "Initial state:"))
-        self.label_5.setText(_translate("MainWindow", "Initial terms:"))
-        self.label_6.setText(_translate("MainWindow", "Rules:"))
         self.textEdit_rules.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters for rules: (;) (,) (\\n). In each rule, l-state, r-state, terms, ->1, ->+, and | need to be separated by whitespaces ( ). </span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters for rules: (;) (\\n). In each rule, l-state, r-state, terms, ->1, ->+, and | need to be separated by whitespaces ( ). </span></p></body></html>"))
        
         self.textEdit_terms.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters for terms: (;) (,) ( ) (\\n).</span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Terms should be written in a dictionary way, for example: a:1; f(bg(c)):2; 1: 3. Supported delimiters for terms: (;) (\\n).</span></p></body></html>"))
        
         self.textEdit_state.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -333,6 +365,24 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">Sample cP system</span></p></body></html>"))
         
+        self.textEdit_prop_spe.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">This textbox is only used for specifying certain system properties.</p></body></html>"))
+      
+        self.textBrowser_result.setText('')
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "cPV - The cP System Verifier"))
+        self.label.setText(_translate("MainWindow", "cP system:"))
+        self.label_3.setText(_translate("MainWindow", "Initial state:"))
+        self.label_5.setText(_translate("MainWindow", "Initial terms:"))
+        self.label_6.setText(_translate("MainWindow", "Rules:"))
+        
+        self.New()
+        
         self.pushButton_simulate.setText(_translate("MainWindow", "Simulate"))
         self.pushButton_verify.setText(_translate("MainWindow", "Verify"))
         self.comboBox_veri_opt.setItemText(0, _translate("MainWindow", "Deadlockfree"))
@@ -343,13 +393,7 @@ class Ui_MainWindow(object):
         self.comboBox_veri_opt.setItemText(5, _translate("MainWindow", "Terms eventually"))
         self.comboBox_veri_opt.setItemText(6, _translate("MainWindow", "State reachable"))
         self.comboBox_veri_opt.setItemText(7, _translate("MainWindow", "State eventually"))
-        
-        self.textEdit_prop_spe.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; color:#448c27;\">This textbox is only used for specifying certain system properties.</p></body></html>"))
-          
+         
         self.label_2.setText(_translate("MainWindow", "Additional specifications:"))
         self.label_4.setText(_translate("MainWindow", "Simulation / verification result:"))
         self.comboBox_veri_opt_2.setItemText(0, _translate("MainWindow", "Detail level: 0"))
@@ -359,8 +403,8 @@ class Ui_MainWindow(object):
         self.menuSimulation.setTitle(_translate("MainWindow", "Simulation"))
         self.menuVerification.setTitle(_translate("MainWindow", "Verification"))
         self.menuAbout_2.setTitle(_translate("MainWindow", "About"))
-        self.menu_file.setText(_translate("MainWindow", "Open"))
-        self.menu_file.setShortcut(_translate("MainWindow", "Ctrl+O"))
+        self.actionOpen.setText(_translate("MainWindow", "Open"))
+        self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
@@ -382,14 +426,12 @@ class Ui_MainWindow(object):
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
         self.actionSave_As.setText(_translate("MainWindow", "Save As"))
         self.actionSave_As.setShortcut(_translate("MainWindow", "Alt+A"))
-        
-
 
 if __name__ == "__main__":
-    import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
+    ui.cP_init()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
