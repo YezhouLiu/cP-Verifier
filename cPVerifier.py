@@ -129,6 +129,11 @@ class CPVerifier:
             return 'terms_in_one'
         elif code == 9:
             return 'terminating'
+        elif code == 10:
+            return 'state_in_all'
+        elif code == 11:
+            return 'state_in_one'
+        
         else:
             return 'deadlockfree'
         
@@ -204,6 +209,11 @@ class CPVerifier:
                 print('The target terms are included in a configuration!\n' + self.counter_example.ToString())
             elif self.property == 'terminating':
                 print('Time out! The cP system is assumed to be nonterminating!\n')
+            elif self.property == 'state_in_all':
+                print('The target state is NOT held by all configurations!\n' + self.counter_example.ToString())
+            elif self.property == 'state_in_one':
+                print('The target state is reachable!\n' + self.counter_example.ToString())
+            
             
         else:
             if self.property == 'terms_in_one_halting':
@@ -226,6 +236,11 @@ class CPVerifier:
                 print('The target terms are NOT included in any configuration!\n')
             elif self.property == 'terminating':
                 print('The cP system is terminating!\n')
+            elif self.property == 'state_in_all':
+                print('The target state is held by all configurations!\n')
+            elif self.property == 'state_in_one':
+                print('The target state is NOT reachable!\n')
+            
         
     def Next(self, rules_skipped = 0):
         if self.counter_example_found:
@@ -286,7 +301,17 @@ class CPVerifier:
                 self.counter_example = conf1
                 self.counter_example_found = True
                 return True
-        
+        elif self.property == 'state_in_all':
+            if state != self.target_state:
+                self.counter_example = conf1
+                self.counter_example_found = True
+                return True
+        elif self.property == 'state_in_one':
+            if state == self.target_state:
+                self.counter_example = conf1
+                self.counter_example_found = True
+                return True  
+            
         #checking properties here for halting configurations
         if state in self.terminations:
             if self.shortest_termination_step == -1:

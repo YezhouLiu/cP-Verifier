@@ -112,6 +112,9 @@ class CPSystem:
         for t1 in m1:
             mult = m1[t1]
             self.ConsumeTerm(t1, mult)
+            
+    def CleanSystemTerms(self):
+        self.terms = {}
 
 #PRODUCT MEMBRANE
 #------------------------------------------------------------------------------
@@ -165,6 +168,9 @@ class CPSystem:
             
     def Rules(self):
         return self.rules
+    
+    def CleanRules(self):
+        self.rules = []
 
 #RULE APPLICATION
 #------------------------------------------------------------------------------
@@ -289,6 +295,7 @@ class CPSystem:
         self.products = {}
 
     def Run(self, steps = 100):
+        self.Snapshot(True)
         i = 0
         while (self.ApplyARuleset(self.rules) and i < steps):
             i += 1
@@ -298,8 +305,10 @@ class CPSystem:
 
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------
-    def Snapshot(self): 
-        print('\n\n--------------------------------------------------------')
+    def Snapshot(self, initial = False): 
+        print('--------------------------------------------------------')
+        if initial:
+            print('Initial cP system configuration:')
         print('System state: ', self.state)
         print('Terms in the system:')
         for item in self.terms:
@@ -330,3 +339,13 @@ class CPSystem:
                 else:
                     str_system += item + ": " + str(self.products[item]) + '\n'
         return str_system
+    
+    def ResetCPSystem(self):
+        self.sys_name = 'cP system'
+        self.rules = []
+        self.state = 's0' 
+        self.terms = {} 
+        self.products = {}
+        self.committed_state = 's0'
+        self.is_committed = False
+        self.show_detail = False

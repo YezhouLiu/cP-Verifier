@@ -1,3 +1,4 @@
+from typing import OrderedDict
 from term import Term
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os, sys, io
@@ -16,7 +17,7 @@ from PyQt5.QtGui import *
 class Ui_MainWindow(object):
     def cP_init(self):
         self.sys = CPSystem()
-        self.ve = CPVerifier(self.sys)    
+        self.ve = CPVerifier(self.sys)
         
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -161,16 +162,16 @@ class Ui_MainWindow(object):
         self.label_background.setScaledContents(True)
         self.label_background.setWordWrap(False)
         self.label_background.setObjectName("label_background")
-        self.comboBox_veri_opt_2 = QtWidgets.QComboBox(self.centralwidget)
-        self.comboBox_veri_opt_2.setGeometry(QtCore.QRect(520, 10, 151, 29))
+        self.comboBox_detail = QtWidgets.QComboBox(self.centralwidget)
+        self.comboBox_detail.setGeometry(QtCore.QRect(520, 10, 151, 29))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(12)
-        self.comboBox_veri_opt_2.setFont(font)
-        self.comboBox_veri_opt_2.setStatusTip("")
-        self.comboBox_veri_opt_2.setObjectName("comboBox_veri_opt_2")
-        self.comboBox_veri_opt_2.addItem("")
-        self.comboBox_veri_opt_2.addItem("")
+        self.comboBox_detail.setFont(font)
+        self.comboBox_detail.setStatusTip("")
+        self.comboBox_detail.setObjectName("comboBox_detail")
+        self.comboBox_detail.addItem("")
+        self.comboBox_detail.addItem("")
         self.label_background.raise_()
         self.label.raise_()
         self.label_3.raise_()
@@ -187,7 +188,7 @@ class Ui_MainWindow(object):
         self.label_2.raise_()
         self.label_4.raise_()
         self.textBrowser_result.raise_()
-        self.comboBox_veri_opt_2.raise_()
+        self.comboBox_detail.raise_()
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 993, 22))
@@ -272,40 +273,108 @@ class Ui_MainWindow(object):
         self.actionVersion.triggered.connect(self.ShowVersion)
         self.actionEmail_Author.triggered.connect(self.ShowAuthor)
         self.pushButton_simulate.clicked.connect(self.Simulate)
+        self.pushButton_verify.clicked.connect(self.Verify)
         self.actionNew.triggered.connect(self.New)
         self.actionOpen.triggered.connect(self.Open)
+        #self.comboBox_detail.currentIndexChanged.connect(self.Detail)
         
     def Simulate(self):
-        self.sys = self.ReadcPSystem()
+        self.ReloadcPSystem()
         with io.StringIO() as buf, redirect_stdout(buf):
-            self.sys.DetailOn()
             self.sys.Run()
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
+            
+    def Verify(self):
+        self.ReloadcPSystem()
+        self.ve = CPVerifier(self.sys)
+        with io.StringIO() as buf, redirect_stdout(buf):
+            veri_opt = self.comboBox_veri_opt.currentIndex()
+            if veri_opt == 0:
+                self.ve.Verify()
+            elif veri_opt == 1:
+                self.ve.Verify(2)
+            elif veri_opt == 2:
+                self.ve.Verify(9)
+            elif veri_opt == 3:
+                self.ve.Verify(2)
+            elif veri_opt == 4: #terms reachable
+                raw_terms = self.textEdit_prop_spe.toPlainText()
+                raw_terms2 = raw_terms.replace(' ','') 
+                raw_terms3 = raw_terms2.replace('\n','')  
+                dict_terms = re.split(';', raw_terms3)
+                tar_terms = OrderedDict()
+                for dict_term in dict_terms:
+                    if (dict_term == '') or (not ':' in dict_term):
+                        continue
+                    [str_term, str_amount] = dict_term.split(':')
+                    if ParseTerm(str_term) != '':
+                        if ParseTerm(str_term) in tar_terms:
+                            tar_terms[ParseTerm(str_term)] += int(str_amount)
+                        else:
+                            tar_terms[ParseTerm(str_term)] = int(str_amount)
+                self.ve.SetTargetTerms(tar_terms)
+                self.ve.Verify(8)
+            elif veri_opt == 5: #terms eventually
+                raw_terms = self.textEdit_prop_spe.toPlainText()
+                raw_terms2 = raw_terms.replace(' ','') 
+                raw_terms3 = raw_terms2.replace('\n','')  
+                dict_terms = re.split(';', raw_terms3)
+                tar_terms = OrderedDict()
+                for dict_term in dict_terms:
+                    if (dict_term == '') or (not ':' in dict_term):
+                        continue
+                    [str_term, str_amount] = dict_term.split(':')
+                    if ParseTerm(str_term) != '':
+                        if ParseTerm(str_term) in tar_terms:
+                            tar_terms[ParseTerm(str_term)] += int(str_amount)
+                        else:
+                            tar_terms[ParseTerm(str_term)] = int(str_amount)
+                self.ve.SetTargetTerms(tar_terms)
+                self.ve.Verify(4)
+            elif veri_opt == 6: #state reachable
+                raw_state = self.textEdit_prop_spe.toPlainText()
+                raw_state2 = raw_state.replace(' ','')
+                self.ve.SetTargetState(raw_state2)
+                self.ve.Verify(11)
+            elif veri_opt == 7: #state eventually
+                raw_state = self.textEdit_prop_spe.toPlainText()
+                raw_state2 = raw_state.replace(' ','')
+                self.ve.SetTargetState(raw_state2)
+                self.ve.Verify(6)
+            
+            output = buf.getvalue()
+            self.textBrowser_result.setText(output)
  
-    def ReadcPSystem(self):
-        sys = CPSystem()
-        sys.SetSystemName(self.textEdit_name.toPlainText())
+    def ReloadcPSystem(self):
+        self.sys.ResetCPSystem()
+        self.sys.SetSystemName(self.textEdit_name.toPlainText())
         state = self.textEdit_state.toPlainText()
         if state != '':
-            sys.SetState(state.strip())
+            self.sys.SetState(state.strip())
         else:
-            sys.SetState('s1')
+            self.sys.SetState('s1')
         raw_terms = self.textEdit_terms.toPlainText()
-        raw_terms2 = raw_terms.replace(' ','')  
-        dict_terms = re.split(';|\n', raw_terms2)
-        print(dict_terms)
+        raw_terms2 = raw_terms.replace(' ','') 
+        raw_terms3 = raw_terms2.replace('\n','')  
+        dict_terms = re.split(';', raw_terms3)
         for dict_term in dict_terms:
-            if dict_term == '':
+            if (dict_term == '') or (not ':' in dict_term):
                 continue
-            [str_term, str_amount] = dict_term.split(':')   
-            sys.AddSystemTerm(ParseTerm(str_term), int(str_amount))
-        rules = re.split(';|\n', self.textEdit_rules.toPlainText())
+            [str_term, str_amount] = dict_term.split(':') 
+            if ParseTerm(str_term) != '':
+                self.sys.AddSystemTerm(ParseTerm(str_term), int(str_amount))
+        raw_rules = self.textEdit_rules.toPlainText()
+        raw_rules2 = raw_rules.replace('\n','')
+        rules = re.split(';', raw_rules2)
         for rule in rules:
             if rule == '':
                 continue
-            sys.AddRule(ParseRule(rule))
-        return sys
+            self.sys.AddRule(ParseRule(rule))
+        if self.comboBox_detail.currentIndex() == 0:
+            self.sys.DetailOff()
+        elif self.comboBox_detail.currentIndex() == 1:
+            self.sys.DetailOn()
         
     def ShowVersion(self):
         msg = QtWidgets.QMessageBox()
@@ -345,13 +414,13 @@ class Ui_MainWindow(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Supported delimiters for rules: (;) (\\n). In each rule, l-state, r-state, terms, ->1, ->+, and | need to be separated by whitespaces ( ). </span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Rules need to be separated by semicolons (;). In each rule, l-state, r-state, terms, ->1, ->+, and | need to be separated by whitespaces ( ). </span></p></body></html>"))
        
         self.textEdit_terms.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'SimSun\'; font-size:18pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Terms should be written in a dictionary way, for example: a:1; f(bg(c)):2; 1: 3. Supported delimiters for terms: (;) (\\n).</span></p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;\"><span style=\" font-family:\'Consolas\',\'Courier New\',\'monospace\'; font-size:12pt; color:#448c27;\">Terms need to be written as key-value pairs, and be separated by semicolons (;). For example: a:1; f(bg(c)):2; 1: 3.</span></p></body></html>"))
        
         self.textEdit_state.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
@@ -396,8 +465,8 @@ class Ui_MainWindow(object):
          
         self.label_2.setText(_translate("MainWindow", "Additional specifications:"))
         self.label_4.setText(_translate("MainWindow", "Simulation / verification result:"))
-        self.comboBox_veri_opt_2.setItemText(0, _translate("MainWindow", "Detail level: 0"))
-        self.comboBox_veri_opt_2.setItemText(1, _translate("MainWindow", "Detail level: 1"))
+        self.comboBox_detail.setItemText(0, _translate("MainWindow", "Detail level: 0"))
+        self.comboBox_detail.setItemText(1, _translate("MainWindow", "Detail level: 1"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menuAbout.setTitle(_translate("MainWindow", "Examples"))
         self.menuSimulation.setTitle(_translate("MainWindow", "Simulation"))
