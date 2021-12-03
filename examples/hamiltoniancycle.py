@@ -1,9 +1,8 @@
 import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import sys
 from cpparser import ParseSystem
-from cpverifier import CPVerifier
 from cpparser import ParseTerm
+from cpverifier import CPVerifier
 
 ruleset = ['s1 v(v(R)Y) ->1 s2 s(r(R)u(Y)p(h(R)p()))',
            's2 s(r(R)u()p(h(F)p(P))) ->+ s3 z(p(h(R)p(h(F)p(P)))) | e(f(F)t(R))',

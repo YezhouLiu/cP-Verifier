@@ -12,6 +12,8 @@ from typing import List, OrderedDict
 import heapq
 import time
 
+VERSION = 1.0
+
 class CPNode:
     def __init__(self):
         self.terms = {}

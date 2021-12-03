@@ -4,6 +4,6 @@ from cpparser import ParsecPVJSON
 import sys
 import json
 
-sys1 = ParsecPVJSON('gcd.json')
+sys1 = ParsecPVJSON('./examples/gcd.json')
 sys1.DetailOn()
 sys1.Run()
