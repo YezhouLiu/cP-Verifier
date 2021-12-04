@@ -224,8 +224,8 @@ class Ui_MainWindow(object):
         self.actionOpen.setObjectName("actionOpen")
         self.actionSave = QtWidgets.QAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
-        self.actionQuit = QtWidgets.QAction(MainWindow)
-        self.actionQuit.setObjectName("actionQuit")
+        #self.actionQuit = QtWidgets.QAction(MainWindow)
+        #self.actionQuit.setObjectName("actionQuit")
         self.actionSubset_Sum_cP_System = QtWidgets.QAction(MainWindow)
         self.actionSubset_Sum_cP_System.setObjectName("actionSubset_Sum_cP_System")
         self.actionThe_Hamiltonian_Path_cP_System = QtWidgets.QAction(MainWindow)
@@ -254,9 +254,9 @@ class Ui_MainWindow(object):
         self.actionContact_Author.setObjectName("actionContact_Author")
         self.actionNew = QtWidgets.QAction(MainWindow)
         self.actionNew.setObjectName("actionNew")
-        self.actionSave_As = QtWidgets.QAction(MainWindow)
-        self.actionSave_As.setWhatsThis("")
-        self.actionSave_As.setObjectName("actionSave_As")
+        #self.actionSave_As = QtWidgets.QAction(MainWindow)
+        #self.actionSave_As.setWhatsThis("")
+        #self.actionSave_As.setObjectName("actionSave_As")
         self.actionSimulate = QtWidgets.QAction(MainWindow)
         self.actionSimulate.setObjectName("actionSimulate")
         self.actionVerify = QtWidgets.QAction(MainWindow)
@@ -264,8 +264,8 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
-        self.menuFile.addAction(self.actionSave_As)
-        self.menuFile.addAction(self.actionQuit)
+        #self.menuFile.addAction(self.actionSave_As)
+        #self.menuFile.addAction(self.actionQuit)
         self.menuAbout.addAction(self.actioncP_System_ADD)
         self.menuAbout.addAction(self.actioncP_System_Subtract)
         self.menuAbout.addAction(self.actioncP_System_Multiplication)
@@ -406,7 +406,10 @@ class Ui_MainWindow(object):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         path, _ = QFileDialog.getOpenFileName(MainWindow,"QFileDialog.getOpenFileName()", "","cPVJ Files (*.json)", options=options)
-        self.sys = ParsecPVJSON(path)
+        try:
+            self.sys = ParsecPVJSON(path)
+        except:
+            return False
         self.textEdit_state.setText(self.sys.State())
         self.textEdit_name.setText(self.sys.SystemName())
         str_terms = ''
@@ -420,6 +423,7 @@ class Ui_MainWindow(object):
         for rule in self.sys.Rules():
             str_rules += rule.ToString() + ';\n'
         self.textEdit_rules.setText(str_rules)
+        return True
     
     def New(self):
         self.textEdit_name.setText('')
@@ -491,8 +495,8 @@ class Ui_MainWindow(object):
         self.actionOpen.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
-        self.actionQuit.setText(_translate("MainWindow", "Quit"))
-        self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
+        #self.actionQuit.setText(_translate("MainWindow", "Quit"))
+        #self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionSubset_Sum_cP_System.setText(_translate("MainWindow", "The Subset Sum cP System"))
         self.actionThe_Hamiltonian_Path_cP_System.setText(_translate("MainWindow", "The Hamiltonian Path cP System"))
         self.actionPlaceholder.setText(_translate("MainWindow", "Placeholder"))
@@ -508,8 +512,8 @@ class Ui_MainWindow(object):
         self.actionContact_Author.setText(_translate("MainWindow", "Contact Author"))
         self.actionNew.setText(_translate("MainWindow", "New"))
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
-        self.actionSave_As.setText(_translate("MainWindow", "Save As"))
-        self.actionSave_As.setShortcut(_translate("MainWindow", "Alt+A"))
+        #self.actionSave_As.setText(_translate("MainWindow", "Save As"))
+        #self.actionSave_As.setShortcut(_translate("MainWindow", "Alt+A"))
         self.actionSimulate.setText(_translate("MainWindow", "Simulate"))
         self.actionVerify.setText(_translate("MainWindow", "Verify"))
 
