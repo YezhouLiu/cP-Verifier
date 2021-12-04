@@ -6,63 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>993</width>
-    <height>667</height>
+    <width>1475</width>
+    <height>802</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>cPV - The cP System Verifier</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label">
+   <widget class="QLabel" name="label_1">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>91</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-      <pointsize>14</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>cP system:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>60</y>
-      <width>171</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Times New Roman</family>
-      <pointsize>14</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Initial state:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>100</y>
+      <x>30</x>
+      <y>30</y>
       <width>111</width>
       <height>24</height>
      </rect>
@@ -70,9 +26,52 @@
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>18</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>cP system:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>90</y>
+      <width>171</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>18</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Initial state:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>200</y>
+      <width>141</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>18</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -80,21 +79,21 @@
      <string>Initial terms:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_6">
+   <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>290</y>
-      <width>61</width>
+      <x>30</x>
+      <y>360</y>
+      <width>81</width>
       <height>24</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>18</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -105,28 +104,40 @@
    <widget class="QTextEdit" name="textEdit_rules">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>320</y>
-      <width>451</width>
-      <height>291</height>
+      <x>30</x>
+      <y>390</y>
+      <width>541</width>
+      <height>361</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="html">
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:18pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:12pt; color:#448c27;&quot;&gt;Supported delimiters: ';' ',' '&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:12pt; color:#777777;&quot;&gt;\n&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:12pt; color:#448c27;&quot;&gt;'&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'SimSun'; font-size:18pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="textEdit_terms">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>130</y>
-      <width>451</width>
-      <height>151</height>
+      <x>30</x>
+      <y>230</y>
+      <width>541</width>
+      <height>111</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="toolTip">
      <string/>
@@ -138,15 +149,15 @@ p, li { white-space: pre-wrap; }
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:18pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; background-color:#f5f5f5;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:12pt; color:#448c27;&quot;&gt;Supported delimiters: ';' ',' ' ' '&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:12pt; color:#777777;&quot;&gt;\n&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; font-size:12pt; color:#448c27;&quot;&gt;'&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; line-height:22px; font-family:'SimSun'; font-size:18pt; background-color:#f5f5f5;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="textEdit_state">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>50</y>
+      <x>160</x>
+      <y>90</y>
       <width>181</width>
       <height>31</height>
      </rect>
@@ -162,14 +173,14 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; color:#448c27;&quot;&gt;s1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QTextEdit" name="textEdit_state_2">
+   <widget class="QTextEdit" name="textEdit_name">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>10</y>
+      <x>160</x>
+      <y>30</y>
       <width>181</width>
       <height>31</height>
      </rect>
@@ -185,24 +196,24 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; color:#448c27;&quot;&gt;Sample cP system&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_simulate">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>50</y>
-      <width>128</width>
-      <height>32</height>
+      <x>590</x>
+      <y>10</y>
+      <width>251</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>20</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -213,18 +224,18 @@ p, li { white-space: pre-wrap; }
    <widget class="QPushButton" name="pushButton_verify">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>50</y>
-      <width>128</width>
-      <height>32</height>
+      <x>1060</x>
+      <y>10</y>
+      <width>251</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>20</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -232,19 +243,19 @@ p, li { white-space: pre-wrap; }
      <string>Verify</string>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox_veri_opt">
+   <widget class="QComboBox" name="comboBox_property">
     <property name="geometry">
      <rect>
-      <x>750</x>
-      <y>10</y>
-      <width>171</width>
+      <x>1220</x>
+      <y>120</y>
+      <width>221</width>
       <height>29</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>12</pointsize>
      </font>
     </property>
     <property name="statusTip">
@@ -291,12 +302,12 @@ p, li { white-space: pre-wrap; }
      </property>
     </item>
    </widget>
-   <widget class="QTextEdit" name="textEdit_prop_spe">
+   <widget class="QTextEdit" name="textEdit_spec">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>130</y>
-      <width>451</width>
+      <x>1060</x>
+      <y>190</y>
+      <width>381</width>
       <height>91</height>
      </rect>
     </property>
@@ -311,14 +322,14 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; color:#448c27;&quot;&gt;Supported delimiters: ';' ',' ' ' '&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; color:#777777;&quot;&gt;\n&lt;/span&gt;&lt;span style=&quot; font-family:'Consolas','Courier New','monospace'; color:#448c27;&quot;&gt;'&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_2">
+   <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>100</y>
+      <x>1060</x>
+      <y>160</y>
       <width>201</width>
       <height>24</height>
      </rect>
@@ -328,7 +339,7 @@ p, li { white-space: pre-wrap; }
       <family>Times New Roman</family>
       <pointsize>14</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -336,21 +347,21 @@ p, li { white-space: pre-wrap; }
      <string>Additional specifications:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>240</y>
-      <width>261</width>
+      <x>600</x>
+      <y>290</y>
+      <width>341</width>
       <height>24</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>18</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -361,54 +372,46 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextBrowser" name="textBrowser_result">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>270</y>
-      <width>451</width>
-      <height>341</height>
+      <x>600</x>
+      <y>320</y>
+      <width>841</width>
+      <height>431</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
-      <pointsize>20</pointsize>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
      </font>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_background">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>981</width>
-      <height>641</height>
-     </rect>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
     </property>
-    <property name="text">
-     <string/>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
     </property>
-    <property name="pixmap">
-     <pixmap>background/IMG_1.jpg</pixmap>
+    <property name="lineWidth">
+     <number>1</number>
     </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-    <property name="wordWrap">
-     <bool>false</bool>
+    <property name="midLineWidth">
+     <number>0</number>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox_veri_opt_2">
+   <widget class="QComboBox" name="comboBox_detail">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>10</y>
-      <width>151</width>
+      <x>590</x>
+      <y>80</y>
+      <width>251</width>
       <height>29</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Times New Roman</family>
-      <pointsize>14</pointsize>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
      </font>
     </property>
     <property name="statusTip">
@@ -425,30 +428,79 @@ p, li { white-space: pre-wrap; }
      </property>
     </item>
    </widget>
-   <zorder>label_background</zorder>
-   <zorder>label</zorder>
-   <zorder>label_3</zorder>
-   <zorder>label_5</zorder>
-   <zorder>label_6</zorder>
-   <zorder>textEdit_rules</zorder>
-   <zorder>textEdit_terms</zorder>
-   <zorder>textEdit_state</zorder>
-   <zorder>textEdit_state_2</zorder>
-   <zorder>pushButton_simulate</zorder>
-   <zorder>pushButton_verify</zorder>
-   <zorder>comboBox_veri_opt</zorder>
-   <zorder>textEdit_prop_spe</zorder>
-   <zorder>label_2</zorder>
-   <zorder>label_4</zorder>
-   <zorder>textBrowser_result</zorder>
-   <zorder>comboBox_veri_opt_2</zorder>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>120</y>
+      <width>141</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>System property:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>80</y>
+      <width>151</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Statespace limit:</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="textEdit_state_limit">
+    <property name="geometry">
+     <rect>
+      <x>1220</x>
+      <y>80</y>
+      <width>221</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="html">
+     <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Times New Roman'; font-size:12pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;100000&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>993</width>
+     <width>1475</width>
      <height>22</height>
     </rect>
    </property>
@@ -457,7 +509,7 @@ p, li { white-space: pre-wrap; }
      <string>File</string>
     </property>
     <addaction name="actionNew"/>
-    <addaction name="menu_file"/>
+    <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
     <addaction name="actionQuit"/>
@@ -472,35 +524,23 @@ p, li { white-space: pre-wrap; }
     <addaction name="actioncP_System_Division"/>
     <addaction name="actionThe_GCD_cP_System"/>
     <addaction name="actionGCD_cP_System_2"/>
-    <addaction name="actionVersion"/>
+    <addaction name="actionSubset_Sum_cP_System"/>
     <addaction name="actionThe_Hamiltonian_Path_cP_System"/>
     <addaction name="actionThe_Hamitonian_Cycle_cP_System"/>
-   </widget>
-   <widget class="QMenu" name="menuSimulation">
-    <property name="title">
-     <string>Simulation</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuVerification">
-    <property name="title">
-     <string>Verification</string>
-    </property>
    </widget>
    <widget class="QMenu" name="menuAbout_2">
     <property name="title">
      <string>About</string>
     </property>
-    <addaction name="actionVersion_2"/>
-    <addaction name="actionEmail_Author"/>
+    <addaction name="actionVersion"/>
+    <addaction name="actionContact_Author"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuAbout"/>
-   <addaction name="menuSimulation"/>
-   <addaction name="menuVerification"/>
    <addaction name="menuAbout_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="menu_file">
+  <action name="actionOpen">
    <property name="text">
     <string>Open</string>
    </property>
@@ -524,7 +564,7 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionVersion">
+  <action name="actionSubset_Sum_cP_System">
    <property name="text">
     <string>The Subset Sum cP System</string>
    </property>
@@ -539,7 +579,7 @@ p, li { white-space: pre-wrap; }
     <string>Placeholder</string>
    </property>
   </action>
-  <action name="actionVersion_2">
+  <action name="actionVersion">
    <property name="text">
     <string>Version</string>
    </property>
@@ -584,9 +624,9 @@ p, li { white-space: pre-wrap; }
     <string>GCD cP System 2</string>
    </property>
   </action>
-  <action name="actionEmail_Author">
+  <action name="actionContact_Author">
    <property name="text">
-    <string>Email Author</string>
+    <string>Contact Author</string>
    </property>
   </action>
   <action name="actionNew">
@@ -606,6 +646,16 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="shortcut">
     <string>Alt+A</string>
+   </property>
+  </action>
+  <action name="actionSimulate">
+   <property name="text">
+    <string>Simulate</string>
+   </property>
+  </action>
+  <action name="actionVerify">
+   <property name="text">
+    <string>Verify</string>
    </property>
   </action>
  </widget>
