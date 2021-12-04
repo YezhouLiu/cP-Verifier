@@ -422,7 +422,13 @@ class Ui_MainWindow(object):
         self.textEdit_rules.setText(str_rules)
     
     def New(self):
-        pass
+        self.textEdit_name.setText('')
+        self.textEdit_state.setText('')
+        self.textEdit_terms.setText('')
+        self.textEdit_rules.setText('')
+        self.textBrowser_result.setText('')
+        self.textEdit_spec.setText('')
+        self.textEdit_state_limit.setText('100000')
         
 
     def retranslateUi(self, MainWindow):
