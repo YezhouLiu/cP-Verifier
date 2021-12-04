@@ -432,10 +432,13 @@ class Ui_MainWindow(object):
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getSaveFileName(MainWindow,"QFileDialog.getSaveFileName()","","cPVJ Files (*.JSON)", options=options)
         if fileName:
-            if fileName[-5:] != '.JSON':
-                fileName += '.JSON'
+            if fileName[-5:].lower() != '.json':
+                fileName += '.json'
         self.ReloadcPSystem()
-        f = open(fileName, 'w')
+        try:
+            f = open(fileName, 'w')
+        except:
+            return False
         cPVJ_str = '{\n \"ruleset\": ['
         for rule in self.sys.Rules():
             cPVJ_str += '\"' + rule.ToString() + '\",\n'
@@ -452,6 +455,7 @@ class Ui_MainWindow(object):
         cPVJ_str += '}'
         f.write(cPVJ_str)
         f.close()
+        return True
     
     def New(self):
         self.textEdit_name.setText('')
