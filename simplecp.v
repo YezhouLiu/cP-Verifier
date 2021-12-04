@@ -19,4 +19,3 @@ if AtomBagIn [Atom b; Atom b] terms then ChangeState (s 1) (ProduceATerm (Atom d
 else sys
 | _ => sys
 end.
-

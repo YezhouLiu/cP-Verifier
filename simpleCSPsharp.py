@@ -62,9 +62,9 @@ def PAT3MC(str_ruleset, system_terms, system_state, system_name):
     CSP_file += '#assert P0() deadlockfree;\n'
     CSP_file += '#assert P0() divergencefree;\n'
     CSP_file += '#assert P0() deterministic;\n'
-    sys.stdout = open(system_name + '.csp', 'w')
-    print(CSP_file)
-    sys.stdout = sys.__stdout__
+    f = open(system_name + '.csp', 'w')
+    f.write(CSP_file)
+    f.close()
     cwd = os.getcwd()
     file_path = cwd + '\\' + system_name + '.csp'
     output_path = cwd + '\\pat3_verification_result.txt'
@@ -75,9 +75,9 @@ def PAT3MCCustom(str_ruleset, system_terms, system_state, system_name, list_of_p
     CSP_file = cPtoCSP(str_ruleset, system_terms, system_state, system_name)
     for prop in list_of_properties:
         CSP_file += prop + ';\n'
-    sys.stdout = open(system_name + '.csp', 'w')
-    print(CSP_file)
-    sys.stdout = sys.__stdout__
+    f = open(system_name + '.csp', 'w')
+    f.write(CSP_file)
+    f.close()
     cwd = os.getcwd()
     file_path = cwd + '\\' + system_name + '.csp'
     output_path = cwd + '\\pat3_verification_result.txt'

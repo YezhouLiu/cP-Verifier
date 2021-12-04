@@ -60,6 +60,6 @@ def cPtocPCoq(str_ruleset, system_terms, system_state, system_name):
     return cPCoq_file
 
 def CreatecPCoqFile(str_ruleset, system_terms, system_state, system_name):
-    sys.stdout = open(system_name + '.v', 'w')
-    print(cPtocPCoq(str_ruleset, system_terms, system_state, system_name))
-    sys.stdout = sys.__stdout__
+    f = open(system_name + '.v', 'w')
+    f.write(cPtocPCoq(str_ruleset, system_terms, system_state, system_name))
+    f.close()

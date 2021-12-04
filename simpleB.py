@@ -49,9 +49,9 @@ def cPtoB(str_ruleset, system_terms, system_state, system_name):
     
     
 def CreateBFile(str_ruleset, system_terms, system_state, system_name):
-    sys.stdout = open(system_name + '.mch', 'w')
-    print(cPtoB(str_ruleset, system_terms, system_state, system_name))
-    sys.stdout = sys.__stdout__
+    f = open(system_name + '.mch', 'w')
+    f.write(cPtoB(str_ruleset, system_terms, system_state, system_name))
+    f.close()
     
 def ProBHelp():
     result = subprocess.run(['probcli', '--help'], stdout=subprocess.PIPE)

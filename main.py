@@ -1,9 +1,8 @@
 from typing import OrderedDict
 from term import Term
 from PyQt5 import QtCore, QtGui, QtWidgets
-import io
+import io, re
 import cpverifier
-import re
 from cpparser import ParseRule
 from cpparser import ParseTerm
 from cpparser import ParsecPVJSON
@@ -95,7 +94,7 @@ class Ui_MainWindow(object):
         self.textEdit_name.setFont(font)
         self.textEdit_name.setObjectName("textEdit_name")
         self.pushButton_simulate = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_simulate.setGeometry(QtCore.QRect(590, 10, 251, 51))
+        self.pushButton_simulate.setGeometry(QtCore.QRect(600, 10, 251, 51))
         font = QtGui.QFont()
         font.setFamily("Times New Roman")
         font.setPointSize(20)
@@ -169,7 +168,7 @@ class Ui_MainWindow(object):
         self.textBrowser_result.setMidLineWidth(0)
         self.textBrowser_result.setObjectName("textBrowser_result")
         self.comboBox_detail = QtWidgets.QComboBox(self.centralwidget)
-        self.comboBox_detail.setGeometry(QtCore.QRect(590, 80, 251, 29))
+        self.comboBox_detail.setGeometry(QtCore.QRect(600, 80, 251, 29))
         font = QtGui.QFont()
         font.setFamily("Times New Roman")
         font.setPointSize(12)
@@ -291,6 +290,7 @@ class Ui_MainWindow(object):
         self.pushButton_verify.clicked.connect(self.Verify)
         self.actionNew.triggered.connect(self.New)
         self.actionOpen.triggered.connect(self.Open)
+        self.actionSave.triggered.connect(self.Save)
 
     def Simulate(self):
         self.ReloadcPSystem()
@@ -298,12 +298,13 @@ class Ui_MainWindow(object):
             self.sys.Run()
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
-            
+        self.statusbar.showMessage("Done")
+        
     def Verify(self):
         self.ReloadcPSystem()
         self.ve = CPVerifier(self.sys)
         with io.StringIO() as buf, redirect_stdout(buf):
-            veri_opt = self.comboBox_veri_opt.currentIndex()
+            veri_opt = self.comboBox_property.currentIndex()
             if veri_opt == 0:
                 self.ve.Verify()
             elif veri_opt == 1:
@@ -359,6 +360,7 @@ class Ui_MainWindow(object):
             
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
+        self.statusbar.showMessage("Done")
  
     def ReloadcPSystem(self):
         self.sys.ResetCPSystem()
@@ -424,6 +426,32 @@ class Ui_MainWindow(object):
             str_rules += rule.ToString() + ';\n'
         self.textEdit_rules.setText(str_rules)
         return True
+    
+    def Save(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(MainWindow,"QFileDialog.getSaveFileName()","","cPVJ Files (*.JSON)", options=options)
+        if fileName:
+            if fileName[-5:] != '.JSON':
+                fileName += '.JSON'
+        self.ReloadcPSystem()
+        f = open(fileName, 'w')
+        cPVJ_str = '{\n \"ruleset\": ['
+        for rule in self.sys.Rules():
+            cPVJ_str += '\"' + rule.ToString() + '\",\n'
+        cPVJ_str = cPVJ_str[:-2] + '],\n'
+        cPVJ_str += '\"terms\": {'
+        for term in self.sys.SystemTerms():
+            if isinstance(term, Term):
+                cPVJ_str += '\"' + term.ToString() + '\":' + str(self.sys.SystemTerms()[term]) + ',\n'
+            else:
+                cPVJ_str += '\"' + term + '\":' + str(self.sys.SystemTerms()[term]) + ',\n'
+        cPVJ_str = cPVJ_str[:-2] + '},\n'
+        cPVJ_str += '\"state\": \"' + self.sys.State() + '\",\n'
+        cPVJ_str += '\"name\": \"' + self.sys.SystemName() + '\"\n'
+        cPVJ_str += '}'
+        f.write(cPVJ_str)
+        f.close()
     
     def New(self):
         self.textEdit_name.setText('')

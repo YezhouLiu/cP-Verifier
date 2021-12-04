@@ -306,7 +306,7 @@ class CPSystem:
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------
     def Snapshot(self, initial = False): 
-        print('--------------------------------------------------------')
+        print('-------------------------------------------------------------------------------------------------------------------------------------')
         if initial:
             print('Initial cP system configuration:')
         print('System state: ', self.state)
@@ -316,7 +316,7 @@ class CPSystem:
                 print(item.ToString() + ': ' + str(self.terms[item]))
             else:
                 print(item+ ': ' + str(self.terms[item]))
-        print('--------------------------------------------------------\n\n')
+        print('-------------------------------------------------------------------------------------------------------------------------------------\n\n')
 
     def ToString(self):
         str_system = self.sys_name + '\nRules:\n'
