@@ -1,0 +1,9 @@
+{
+ "ruleset": ["s1 a b ->1 s2 g(a) g(b) ",
+"s2 f(X) ->+ s3 k(X) | g(X) "],
+"terms": {"a":1,
+"b":3,
+"f(a)":1},
+"state": "s1",
+"name": "s1"
+}

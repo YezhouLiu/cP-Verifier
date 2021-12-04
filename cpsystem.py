@@ -279,7 +279,6 @@ class CPSystem:
             elif self.is_committed:
                 self.ApplyARule(r1, True)
         self.StepOver()
-        self.Snapshot()
         if self.is_committed:
             return True
         else: #no rule was applied
@@ -295,20 +294,24 @@ class CPSystem:
         self.products = {}
 
     def Run(self, steps = 100):
-        self.Snapshot(True)
+        self.Snapshot(1)
         i = 0
         while (self.ApplyARuleset(self.rules) and i < steps):
+            self.Snapshot()
             i += 1
+        self.Snapshot(2)
         if i == steps:
             print("The step limit is reached, which is " + str(steps) + '.')
             
 
 #SYSTEM DISPLAY
 #------------------------------------------------------------------------------
-    def Snapshot(self, initial = False): 
+    def Snapshot(self, token = 0): 
         print('-------------------------------------------------------------------------------------------------------------------------------------')
-        if initial:
+        if token == 1: #initial
             print('Initial cP system configuration:')
+        elif token == 2: #halting
+            print('Halting cP system configuration:')
         print('System state: ', self.state)
         print('Terms in the system:')
         for item in self.terms:

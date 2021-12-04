@@ -442,14 +442,20 @@ class Ui_MainWindow(object):
         cPVJ_str = '{\n \"ruleset\": ['
         for rule in self.sys.Rules():
             cPVJ_str += '\"' + rule.ToString() + '\",\n'
-        cPVJ_str = cPVJ_str[:-2] + '],\n'
+        if len(self.sys.Rules()) > 0:
+            cPVJ_str = cPVJ_str[:-2] + '],\n'
+        else:
+            cPVJ_str += '],\n'
         cPVJ_str += '\"terms\": {'
         for term in self.sys.SystemTerms():
             if isinstance(term, Term):
                 cPVJ_str += '\"' + term.ToString() + '\":' + str(self.sys.SystemTerms()[term]) + ',\n'
             else:
                 cPVJ_str += '\"' + term + '\":' + str(self.sys.SystemTerms()[term]) + ',\n'
-        cPVJ_str = cPVJ_str[:-2] + '},\n'
+        if len(self.sys.SystemTerms()) > 0:
+            cPVJ_str = cPVJ_str[:-2] + '},\n'
+        else:
+            cPVJ_str += '},\n'
         cPVJ_str += '\"state\": \"' + self.sys.State() + '\",\n'
         cPVJ_str += '\"name\": \"' + self.sys.SystemName() + '\"\n'
         cPVJ_str += '}'
