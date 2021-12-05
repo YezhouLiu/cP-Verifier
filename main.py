@@ -325,6 +325,11 @@ class Ui_MainWindow(object):
             self.ve.DetailOff()
         elif self.comboBox_detail.currentIndex() == 1:
             self.ve.DetailOn()
+        state_limit = 100000
+        try:
+            state_limit = int(self.textEdit_state_limit.toPlainText())
+        except:
+            state_limit = 100000
         with io.StringIO() as buf, redirect_stdout(buf):
             veri_opt = self.comboBox_property.currentIndex()
             if veri_opt == 0:
@@ -337,13 +342,13 @@ class Ui_MainWindow(object):
                     if len(state) > 0:
                         halting_states1.append(state)
                 self.ve.SetTerminations(halting_states1)
-                self.ve.Verify()
+                self.ve.Verify(0, state_limit)
             elif veri_opt == 1:
-                self.ve.Verify(2)
+                self.ve.Verify(2, state_limit)
             elif veri_opt == 2:
-                self.ve.Verify(9)
+                self.ve.Verify(9, state_limit)
             elif veri_opt == 3:
-                self.ve.Verify(2)
+                self.ve.Verify(1, state_limit)
             elif veri_opt == 4: #terms reachable
                 raw_terms = self.textEdit_spec.toPlainText()
                 raw_terms2 = raw_terms.replace(' ','') 
@@ -360,7 +365,7 @@ class Ui_MainWindow(object):
                         else:
                             tar_terms[ParseTerm(str_term)] = int(str_amount)
                 self.ve.SetTargetTerms(tar_terms)
-                self.ve.Verify(8)
+                self.ve.Verify(8, state_limit)
             elif veri_opt == 5: #terms eventually
                 raw_terms = self.textEdit_spec.toPlainText()
                 raw_terms2 = raw_terms.replace(' ','') 
@@ -377,17 +382,17 @@ class Ui_MainWindow(object):
                         else:
                             tar_terms[ParseTerm(str_term)] = int(str_amount)
                 self.ve.SetTargetTerms(tar_terms)
-                self.ve.Verify(4)
+                self.ve.Verify(4, state_limit)
             elif veri_opt == 6: #state reachable
                 raw_state = self.textEdit_spec.toPlainText()
                 raw_state2 = raw_state.replace(' ','')
                 self.ve.SetTargetState(raw_state2)
-                self.ve.Verify(11)
+                self.ve.Verify(11, state_limit)
             elif veri_opt == 7: #state eventually
                 raw_state = self.textEdit_spec.toPlainText()
                 raw_state2 = raw_state.replace(' ','')
                 self.ve.SetTargetState(raw_state2)
-                self.ve.Verify(6)
+                self.ve.Verify(6, state_limit)
             
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
@@ -502,6 +507,7 @@ class Ui_MainWindow(object):
         self.textBrowser_result.setText('')
         self.textEdit_spec.setText('')
         self.textEdit_state_limit.setText('100000')
+        self.textEdit_halting_states.setText('')
         
 
     def retranslateUi(self, MainWindow):

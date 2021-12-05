@@ -95,7 +95,7 @@ class CPVerifier:
         self.node_list = [node]
         self.show_detail = False
         self.rules = sys1.Rules()
-        self.terminations = []
+        self.expected_terminations = []
         self.search_method = 'Priority Search'
         self.state_limit = 100000
         self.state_checked = 0
@@ -105,8 +105,6 @@ class CPVerifier:
         self.target = {}
         self.target_state = ''
         self.termination_set = set()
-        self.shortest_termination_step = -1
-        self.terminating_time_out = 1000000
 
 #Property code
 #0: If the cP system is deadlockfree
@@ -149,7 +147,7 @@ class CPVerifier:
             return 'deadlockfree'
         
     def SetTerminations(self, terminations: List[str]):
-        self.terminations = terminations
+        self.expected_terminations = terminations
         
     def GetNextRuleIndex(self, current_rule_index: int):
         if current_rule_index < len(self.rules) - 1:
@@ -175,9 +173,6 @@ class CPVerifier:
         
     def SetTargetState(self, target: str):
         self.target_state = target
-        
-    def SetTimeOut(self, maxsteps: int):
-        self.terminating_time_out = maxsteps
 
     def Verify(self, property_code = 0, state_limit = 100000):
         try:
@@ -186,10 +181,7 @@ class CPVerifier:
             print(f"Unexpected {err=}, {type(err)=}")
     
     def CheckProperties(self, property_code = 0, state_limit = 100000):
-        if self.property == 'terminating':
-            self.state_limit = self.terminating_time_out
-        else:
-            self.state_limit = state_limit
+        self.state_limit = state_limit
         self.property = self.Property(property_code)
 
         time_start = time.perf_counter()
@@ -240,7 +232,6 @@ class CPVerifier:
                 print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
             elif self.property == 'deterministic':
                 print('The cP system is nondeterministic!')
-                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
             elif self.property == 'deadlockfree':
                 print('A deadlock state is found!\n' + self.counter_example.ToString())
                 print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
@@ -333,15 +324,12 @@ class CPVerifier:
         step = conf1.step
         terminated = conf1.terminated
         
-        if self.shortest_termination_step != -1 and step > self.shortest_termination_step: #system already terminated
-            if self.search_method == 'Priority Search':
-                self.node_list.pop(0)
-            elif self.search_method == 'BFS':
-                self.node_list.pop(0)
-            else:
-                self.node_list.pop()
-            self.Next()
-            return False
+        if self.search_method == 'Priority Search':
+            self.node_list.pop(0)
+        elif self.search_method == 'BFS':
+            self.node_list.pop(0)
+        else: #DFS
+            self.node_list.pop()
         
         #checking properties here for normal configurations
         if self.property == 'terms_in_all':
@@ -366,9 +354,7 @@ class CPVerifier:
                 return True  
             
         #checking properties here for halting configurations
-        if state in self.terminations:
-            if self.shortest_termination_step == -1:
-                self.shortest_termination_step = step
+        if state in self.expected_terminations or terminated:
             self.termination_set.add(conf1)
             if self.property == 'terms_in_one_halting':
                 if lnmu.MultisetInclusion(terms, self.target):
@@ -394,20 +380,10 @@ class CPVerifier:
                 if len(self.termination_set) > 1:
                     self.counter_example_found = True
                     return True
-                
-        if (not state in self.terminations) and terminated and (self.property == 'deadlockfree'):  #no outgoing edge, not a expected termination, deadlock
-            self.counter_example = conf1
-            self.counter_example_found = True
-            return True           
-        
-        if self.search_method == 'Priority Search':
-            self.node_list.pop(0)
-        elif self.search_method == 'BFS':
-            self.node_list.pop(0)
-        else: #DFS
-            self.node_list.pop()
-        
-        if state in self.terminations or terminated:
+            elif (self.property == 'deadlockfree') and (not state in self.expected_terminations):
+                self.counter_example = conf1
+                self.counter_example_found = True
+                return True  
             self.Next()
             return False
             
