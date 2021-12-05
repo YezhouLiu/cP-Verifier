@@ -23,6 +23,8 @@ class CPNode:
         self.is_committed = False
         self.next_rule_index = 0
         self.step = 0
+        self.ancestors = [] #use string to make it smaller
+        self.terminated = False
     
     #HASH
     #------------------------------------------------------------------------------
@@ -47,7 +49,7 @@ class CPNode:
         self.state = sys1.State()
         self.committed_state = sys1.State()
         
-    def ReadContent(self, terms, products, state, committed_state, is_committed, next_rule_index, step):
+    def ReadContent(self, terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated):
         self.terms = terms
         self.products = products
         self.state = state
@@ -55,6 +57,8 @@ class CPNode:
         self.is_committed = is_committed
         self.next_rule_index = next_rule_index
         self.step = step
+        self.ancestors = ancestors
+        self.terminated = terminated
         
     def ToString(self):
         str_node = 'Step: ' + str(self.step) + '\n'
@@ -76,7 +80,14 @@ class CPNode:
                     str_node += item + ": " + str(self.products[item]) + '\n'
         str_node += 'Next rule: ' + str(self.next_rule_index) + '\n'
         return str_node
-    
+        #ancestors is not considered in __hash__
+        
+    def AncestorsToString(self):
+        str_ans = ''
+        for ancestor in self.ancestors:
+            str_ans += ancestor + '\n'
+        return str_ans
+                
 class CPVerifier:
     def __init__(self, sys1: CPSystem):
         node = CPNode()
@@ -171,9 +182,9 @@ class CPVerifier:
     def Verify(self, property_code = 0, state_limit = 100000):
         try:
             self.CheckProperties(property_code, state_limit)
-        except:
-            print('The cP system verification is NOT finished as expected, which is often caused by non-terminating cP rules, please check the rules!')
-
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+    
     def CheckProperties(self, property_code = 0, state_limit = 100000):
         if self.property == 'terminating':
             self.state_limit = self.terminating_time_out
@@ -184,10 +195,10 @@ class CPVerifier:
         time_start = time.perf_counter()
         self.Next()
         time_end = time.perf_counter()
-        print('The cP system verification is finished in ' + str(time_end - time_start) + ' second(s), ' + str(self.state_checked) + ' states were checked.')
+        print('The cP system verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.state_checked) + ' states were checked.')
         print('The search method is ' + self.search_method + '.')
         
-        if self.counter_example_found:
+        if self.counter_example_found and not self.show_detail:
             if self.property == 'terms_in_one_halting':
                 print('The target terms are included by a halting configuration!\n' + self.counter_example.ToString())
             elif self.property == 'terms_in_all_halting':
@@ -213,6 +224,48 @@ class CPVerifier:
                 print('The target state is NOT held by all configurations!\n' + self.counter_example.ToString())
             elif self.property == 'state_in_one':
                 print('The target state is reachable!\n' + self.counter_example.ToString())
+                
+        elif self.counter_example_found:
+            if self.property == 'terms_in_one_halting':
+                print('The target terms are included by a halting configuration!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'terms_in_all_halting':
+                print('The target terms are NOT included by all halting configurations!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'state_in_one_halting':
+                print('The target state ' + self.target_state + ' is reached in a halting configuration!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'state_in_all_halting':
+                print('The target state ' + self.target_state + ' is NOT reached in all halting configurations!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'deterministic':
+                print('The cP system is nondeterministic!')
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'deadlockfree':
+                print('A deadlock state is found!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'confluent':
+                print('The cP system is NOT confluent! Different halting configuration can be found!')
+                self.PrintTerminationSet()
+                i = 1
+                for item in self.termination_set:
+                    print('Trace' + str(i) + ':\n' + item.AncestorsToString())
+                    i += 1
+            elif self.property == 'terms_in_all':
+                print('The target terms are NOT included in all configurations!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'terms_in_one':
+                print('The target terms are included in a configuration!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'terminating':
+                print('Time out! The cP system is assumed to be nonterminating!\n')
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'state_in_all':
+                print('The target state is NOT held by all configurations!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
+            elif self.property == 'state_in_one':
+                print('The target state is reachable!\n' + self.counter_example.ToString())
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
             
             
         else:
@@ -266,10 +319,7 @@ class CPVerifier:
         else: #DFS
             conf1 = self.node_list[nodes_left-1]
         self.state_checked += 1
-        if self.show_detail:
-            print('********************\nState #' + str(self.state_checked)  + ':\n' + conf1.ToString() + '\n********************\n')
         
-        new_rules_skipped = rules_skipped
         state = conf1.state
         terms = conf1.terms
         products = conf1.products
@@ -278,7 +328,10 @@ class CPVerifier:
         current_rule_index = conf1.next_rule_index
         r1 = self.rules[current_rule_index]
         next_rule_index = self.GetNextRuleIndex(current_rule_index)
+        ancestors = conf1.ancestors
+        ancestors.append(conf1.ToString())
         step = conf1.step
+        terminated = conf1.terminated
         
         if self.shortest_termination_step != -1 and step > self.shortest_termination_step: #system already terminated
             if self.search_method == 'Priority Search':
@@ -342,7 +395,7 @@ class CPVerifier:
                     self.counter_example_found = True
                     return True
                 
-        if (not state in self.terminations) and (rules_skipped >= len(self.rules)-1) and (self.property == 'deadlockfree'):  #no outgoing edge, not a expected termination, deadlock
+        if (not state in self.terminations) and terminated and (self.property == 'deadlockfree'):  #no outgoing edge, not a expected termination, deadlock
             self.counter_example = conf1
             self.counter_example_found = True
             return True           
@@ -354,7 +407,7 @@ class CPVerifier:
         else: #DFS
             self.node_list.pop()
         
-        if state in self.terminations or rules_skipped >= len(self.rules): #node terminated, termination reached or all rules are skipped (not applicable)
+        if state in self.terminations or terminated:
             self.Next()
             return False
             
@@ -368,12 +421,16 @@ class CPVerifier:
                         terms[item1] += products[item1]
                     else:
                         terms[item1] = products[item1]
-                products = {}
-                new_rules_skipped = -1  
+                products = {}  
+                if rules_skipped >= len(self.rules) - 1:
+                    terminated = True
             new_node = CPNode()
-            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
             self.PushCPNode(new_node)
-            self.Next(new_rules_skipped+1)
+            if next_rule_index == 0:
+                self.Next()
+            else:
+                self.Next(rules_skipped + 1)
         
         #2
         elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, no diff between 1 and +
@@ -392,7 +449,7 @@ class CPVerifier:
                         terms[item1] = products[item1]
                 products = {}
             new_node = CPNode()
-            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
             self.PushCPNode(new_node)
             self.Next()
         
@@ -417,7 +474,7 @@ class CPVerifier:
                                 terms[item1] = products[item1]
                         products = {}
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushCPNode(new_node)
                     self.Next()
                     
@@ -430,12 +487,16 @@ class CPVerifier:
                                 terms[item1] += products[item1]
                             else:
                                 terms[item1] = products[item1]
-                        products = {} 
-                        new_rules_skipped = -1 
+                        products = {}
+                        if rules_skipped >= len(self.rules) - 1:
+                            terminated = True
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushCPNode(new_node)
-                    self.Next(new_rules_skipped+1)
+                    if next_rule_index == 0:
+                        self.Next()
+                    else:
+                        self.Next(rules_skipped + 1)
                     
             else: #model = '+'
                 ms_to_check = lnmu.MultisetUnion(r1.PMT(), r1.LHS())
@@ -453,12 +514,16 @@ class CPVerifier:
                                 terms[item1] += products[item1]
                             else:
                                 terms[item1] = products[item1]
-                        products = {} 
-                        new_rules_skipped = -1 
+                        products = {}
+                        if rules_skipped >= len(self.rules) - 1:
+                            terminated = True
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushCPNode(new_node)
-                    self.Next(new_rules_skipped+1)
+                    if next_rule_index == 0:
+                        self.Next()
+                    else:
+                        self.Next(rules_skipped + 1)
                 else:
                     mult -= 1
                     self.VConsumeMultiset(terms, lnmu.MultisetTimes(r1.LHS(), mult))
@@ -477,7 +542,7 @@ class CPVerifier:
                                 terms[item1] = products[item1]
                         products = {}
                     new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushCPNode(new_node)
                     self.Next()
         
@@ -504,12 +569,16 @@ class CPVerifier:
                             terms[item1] += products[item1]
                         else:
                             terms[item1] = products[item1]
-                    products = {} 
-                    new_rules_skipped = -1 
+                    products = {}
+                    if rules_skipped >= len(self.rules) - 1:
+                        terminated = True
                 new_node = CPNode()
-                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step)
+                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                 self.PushCPNode(new_node)
-                self.Next(new_rules_skipped+1)
+                if next_rule_index == 0:
+                    self.Next()
+                else:
+                    self.Next(rules_skipped + 1)
                 
             else:
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
@@ -549,7 +618,7 @@ class CPVerifier:
                                             terms2[item1] = products2[item1]
                                     products2 = {}
                                 new_node = CPNode()
-                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2)
+                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
                                 self.PushCPNode(new_node)
                                 self.Next()
                             else: #fail
@@ -595,7 +664,7 @@ class CPVerifier:
                                         terms2[item1] = products2[item1]
                                 products2 = {}
                             new_node = CPNode()
-                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2)
+                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
                             self.PushCPNode(new_node)
                         self.Next()        
                 else: #currently cP systems only have 2 major models, '1' and '+'

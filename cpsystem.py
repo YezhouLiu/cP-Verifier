@@ -296,12 +296,15 @@ class CPSystem:
     def Run(self, steps = 100):
         self.Snapshot(1)
         i = 0
+        time_start = time.perf_counter()
         while (self.ApplyARuleset(self.rules) and i < steps):
             self.Snapshot()
             i += 1
+        time_end = time.perf_counter()
         self.Snapshot(2)
         if i == steps:
             print("The step limit is reached, which is " + str(steps) + '.')
+        print('The cP system simulation is finished in ' + str(round(time_end - time_start, 4)) + ' second(s)')
             
 
 #SYSTEM DISPLAY

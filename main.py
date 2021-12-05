@@ -321,6 +321,10 @@ class Ui_MainWindow(object):
     def Verify(self):
         self.ReloadcPSystem()
         self.ve = CPVerifier(self.sys)
+        if self.comboBox_detail.currentIndex() == 0:
+            self.ve.DetailOff()
+        elif self.comboBox_detail.currentIndex() == 1:
+            self.ve.DetailOn()
         with io.StringIO() as buf, redirect_stdout(buf):
             veri_opt = self.comboBox_property.currentIndex()
             if veri_opt == 0:
