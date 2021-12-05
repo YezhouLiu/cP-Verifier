@@ -539,6 +539,62 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>120</y>
+      <width>271</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Search method:</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_search">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>120</y>
+      <width>221</width>
+      <height>29</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="statusTip">
+     <string/>
+    </property>
+    <item>
+     <property name="text">
+      <string>Priority Search</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Breadth-first</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Depth-first</string>
+     </property>
+    </item>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

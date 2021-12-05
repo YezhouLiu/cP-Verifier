@@ -222,6 +222,27 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.textEdit_halting_states.setFont(font)
         self.textEdit_halting_states.setObjectName("textEdit_halting_states")
+        self.label_10 = QtWidgets.QLabel(self.centralwidget)
+        self.label_10.setGeometry(QtCore.QRect(600, 120, 271, 24))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(14)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setWeight(75)
+        self.label_10.setFont(font)
+        self.label_10.setObjectName("label_10")
+        self.comboBox_search = QtWidgets.QComboBox(self.centralwidget)
+        self.comboBox_search.setGeometry(QtCore.QRect(760, 120, 221, 29))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(12)
+        self.comboBox_search.setFont(font)
+        self.comboBox_search.setStatusTip("")
+        self.comboBox_search.setObjectName("comboBox_search")
+        self.comboBox_search.addItem("")
+        self.comboBox_search.addItem("")
+        self.comboBox_search.addItem("")
         
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -245,8 +266,8 @@ class Ui_MainWindow(object):
         #self.actionQuit.setObjectName("actionQuit")
         self.actionSubset_Sum_cP_System = QtWidgets.QAction(MainWindow)
         self.actionSubset_Sum_cP_System.setObjectName("actionSubset_Sum_cP_System")
-        self.actionThe_Hamiltonian_Path_cP_System = QtWidgets.QAction(MainWindow)
-        self.actionThe_Hamiltonian_Path_cP_System.setObjectName("actionThe_Hamiltonian_Path_cP_System")
+        #self.actionThe_Hamiltonian_Path_cP_System = QtWidgets.QAction(MainWindow)
+        #self.actionThe_Hamiltonian_Path_cP_System.setObjectName("actionThe_Hamiltonian_Path_cP_System")
         self.actionPlaceholder = QtWidgets.QAction(MainWindow)
         self.actionPlaceholder.setObjectName("actionPlaceholder")
         self.actionVersion = QtWidgets.QAction(MainWindow)
@@ -263,8 +284,8 @@ class Ui_MainWindow(object):
         self.actioncP_System_Subtract.setObjectName("actioncP_System_Subtract")
         self.actioncP_System_Multiplication = QtWidgets.QAction(MainWindow)
         self.actioncP_System_Multiplication.setObjectName("actioncP_System_Multiplication")
-        self.actioncP_System_Division = QtWidgets.QAction(MainWindow)
-        self.actioncP_System_Division.setObjectName("actioncP_System_Division")
+        #self.actioncP_System_Division = QtWidgets.QAction(MainWindow)
+        #self.actioncP_System_Division.setObjectName("actioncP_System_Division")
         self.actionGCD_cP_System_2 = QtWidgets.QAction(MainWindow)
         self.actionGCD_cP_System_2.setObjectName("actionGCD_cP_System_2")
         self.actionContact_Author = QtWidgets.QAction(MainWindow)
@@ -286,11 +307,11 @@ class Ui_MainWindow(object):
         self.menuAbout.addAction(self.actioncP_System_ADD)
         self.menuAbout.addAction(self.actioncP_System_Subtract)
         self.menuAbout.addAction(self.actioncP_System_Multiplication)
-        self.menuAbout.addAction(self.actioncP_System_Division)
+        #self.menuAbout.addAction(self.actioncP_System_Division)
         self.menuAbout.addAction(self.actionThe_GCD_cP_System)
         self.menuAbout.addAction(self.actionGCD_cP_System_2)
         self.menuAbout.addAction(self.actionSubset_Sum_cP_System)
-        self.menuAbout.addAction(self.actionThe_Hamiltonian_Path_cP_System)
+        #self.menuAbout.addAction(self.actionThe_Hamiltonian_Path_cP_System)
         self.menuAbout.addAction(self.actionThe_Hamitonian_Cycle_cP_System)
         self.menuAbout_2.addAction(self.actionVersion)
         self.menuAbout_2.addAction(self.actionContact_Author)
@@ -309,7 +330,56 @@ class Ui_MainWindow(object):
         self.actionNew.triggered.connect(self.New)
         self.actionOpen.triggered.connect(self.Open)
         self.actionSave.triggered.connect(self.Save)
+        self.actioncP_System_ADD.triggered.connect(self.CP_ADD)
+        self.actioncP_System_Subtract.triggered.connect(self.CP_SUB)
+        self.actioncP_System_Multiplication.triggered.connect(self.CP_MUL)
+        self.actionThe_GCD_cP_System.triggered.connect(self.CP_GCD1)
+        self.actionGCD_cP_System_2.triggered.connect(self.CP_GCD2)
+        self.actionSubset_Sum_cP_System.triggered.connect(self.CP_SSM)
+        self.actionThe_Hamitonian_Cycle_cP_System.triggered.connect(self.CP_HCP)
 
+    def CP_ADD(self):
+        try:
+            self.OpenPath('./examples/add.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+    
+    def CP_SUB(self):
+        try:
+            self.OpenPath('./examples/sub.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            
+    def CP_MUL(self):
+        try:
+            self.OpenPath('./examples/mul.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            
+    def CP_GCD1(self):
+        try:
+            self.OpenPath('./examples/gcd1.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            
+    def CP_GCD2(self):
+        try:
+            self.OpenPath('./examples/gcd2.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            
+    def CP_SSM(self):
+        try:
+            self.OpenPath('./examples/subsetsum.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            
+    def CP_HCP(self):
+        try:
+            self.OpenPath('./examples/hamiltoniancycle.json')
+        except BaseException as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            
     def Simulate(self):
         self.ReloadcPSystem()
         with io.StringIO() as buf, redirect_stdout(buf):
@@ -330,6 +400,13 @@ class Ui_MainWindow(object):
             state_limit = int(self.textEdit_state_limit.toPlainText())
         except:
             state_limit = 100000
+        search = self.comboBox_search.currentIndex()
+        if search == 0:
+            self.ve.SetSearchMethod('Priority Search')
+        elif search == 1:
+            self.ve.SetSearchMethod('BFS')
+        elif search == 2:
+            self.ve.SetSearchMethod('DFS')
         with io.StringIO() as buf, redirect_stdout(buf):
             veri_opt = self.comboBox_property.currentIndex()
             if veri_opt == 0:
@@ -444,6 +521,10 @@ class Ui_MainWindow(object):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         path, _ = QFileDialog.getOpenFileName(MainWindow,"QFileDialog.getOpenFileName()", "","cPVJ Files (*.json)", options=options)
+        self.OpenPath(path)
+        return True
+    
+    def OpenPath(self, path):
         try:
             self.sys = ParsecPVJSON(path)
         except:
@@ -461,7 +542,6 @@ class Ui_MainWindow(object):
         for rule in self.sys.Rules():
             str_rules += rule.ToString() + ';\n'
         self.textEdit_rules.setText(str_rules)
-        return True
     
     def Save(self):
         options = QFileDialog.Options()
@@ -570,6 +650,10 @@ class Ui_MainWindow(object):
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
+        self.label_10.setText(_translate("MainWindow", "Search method:"))
+        self.comboBox_search.setItemText(0, _translate("MainWindow", "Priority Search"))
+        self.comboBox_search.setItemText(1, _translate("MainWindow", "Breadth-first"))
+        self.comboBox_search.setItemText(2, _translate("MainWindow", "Depth-first"))
         
         self.menuAbout.setTitle(_translate("MainWindow", "Examples"))
         self.menuAbout_2.setTitle(_translate("MainWindow", "About"))
@@ -580,7 +664,7 @@ class Ui_MainWindow(object):
         #self.actionQuit.setText(_translate("MainWindow", "Quit"))
         #self.actionQuit.setShortcut(_translate("MainWindow", "Ctrl+Q"))
         self.actionSubset_Sum_cP_System.setText(_translate("MainWindow", "The Subset Sum cP System"))
-        self.actionThe_Hamiltonian_Path_cP_System.setText(_translate("MainWindow", "The Hamiltonian Path cP System"))
+        #self.actionThe_Hamiltonian_Path_cP_System.setText(_translate("MainWindow", "The Hamiltonian Path cP System"))
         self.actionPlaceholder.setText(_translate("MainWindow", "Placeholder"))
         self.actionVersion.setText(_translate("MainWindow", "Version"))
         self.actionRelease_Plan.setText(_translate("MainWindow", "Release Plan"))
@@ -589,7 +673,7 @@ class Ui_MainWindow(object):
         self.actioncP_System_ADD.setText(_translate("MainWindow", "cP System: Add"))
         self.actioncP_System_Subtract.setText(_translate("MainWindow", "cP System: Subtract"))
         self.actioncP_System_Multiplication.setText(_translate("MainWindow", "cP System: Multiplication"))
-        self.actioncP_System_Division.setText(_translate("MainWindow", "cP System: Division"))
+        #self.actioncP_System_Division.setText(_translate("MainWindow", "cP System: Division"))
         self.actionGCD_cP_System_2.setText(_translate("MainWindow", "GCD cP System 2"))
         self.actionContact_Author.setText(_translate("MainWindow", "Contact Author"))
         self.actionNew.setText(_translate("MainWindow", "New"))
