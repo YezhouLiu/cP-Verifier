@@ -1,50 +1,62 @@
-# How to Use
+# How to use:
+(1) a compiled desktop (.exe) version of cPV is under the "Release" folder. 
+The "main.exe" is the entry to the programme.
+(2) for the console version, example python files can be found under the "examples" folder.
 
-- Commas (,) are temporary allowed in the term or rule parsers.
-- Each FIRST-LEVEL TERM in a rule should be separate by a blank space `' '`
-- Each term itself should be written tightly, without using any space in it
+# How to represent cP systems
+(1)
+We proposed a JSON format for cP systems, namely cPVJ. Example files can be found under the "examples" folder.
 
-# ParseTerm()
+In the desktop version of cPV, examples of cPVJ can be loaded via menu bar.
+Users can also open the .JSON files and check their details.
 
-- Spaces are allowed. Example:
+(2)
+cP systems can also be inputed via the UI interface provided by the desktop version of cPV, and be saved as cPVJ files.
 
-  - `p(u(Xm(Y)) n(Z)s(SY ))` can be correctly parsed to a Term object by calling
-    `t1 = ParseTerm('p(u(Xm(Y)) n(Z)s(SY ))')`
+A cP system should contain the followingfour parts:
+(2.1)
+A system name, which is an arbitrary string.
 
-- String terms are splitted with spaces `' '`. Example:
-  - ParseTerms`('f(a) b c g(Xt(y)h) c')` will return a dictionary, which is:
-    `{f(a):1, b:1, c:2, g(Xt(y)h):1}`
+(2.2)
+The initial state of the system.
+For example, s0, s1, or s2.
 
-# ParseRule()
+(2.3)
+Initial system terms, which is a number of key-value pairs separated by semicolons (;).
+For example, if the system contains 3 copies of f(a), 2 copies of b, 1 copy of c.
+Users can input the following terms in "Initial terms" :
+f(a):1; b:2; c:1;
 
-As an early implementation, I used blank space ' ' to separate each object in a rule,
-such as `l_state, r_state, ->+, | and each first-level term`
+Notice that whitespaces and '\n' will be ignored in the "Initial terms" field.
 
-- Example can be parsed:
-  ```
-  s1 ->+ s1 p(u(Xm(Y))n(Z)s(SY)) | p(u(X)n(Zm(Y))s(S))
-  ```
-- Example can NOT be parsed:
+(2.4)
+Rules, which are one or more rules separated by semicolons (;).
+For example:
+s0 ->1 s1 p(n(M)s()u()) | m(M) ;
+s1 ->1 s2 o(X) | p(As(T)u(X)) t(T) ;
+s1 ->1 s3 o() | p(An()) ;
+s1 ->+ s1 p(n(Z)s(SY)u(Xm(Y))) | p(n(Zm(Y))s(S)u(X)) ;
+s1 p(A) ->+ s1 ;
 
-  ```
-  s1 ->+ s1 p( u(Xm(Y)) n(Z) s(SY) ) | p( u(X) n(Zm(Y)) s(S) )
-  ```
+Notice that each term, state, arrow(->1 or ->+) and bar(|) in a rule must be separated by whitespaces.
+Please do not add whitespaces inside a term, for example, please DO NOT write f(abc) as f(a b c) in the "Rules" field.
 
-- Simpler examples which works properly:
+Correct rule example:
+ s1 ->+ s1 p(u(Xm(Y))n(Z)s(SY)) | p(u(X)n(Zm(Y))s(S))
+Incorrect rule example:
+ s1 ->+ s1 p( u(Xm(Y)) n(Z) s(SY) ) | p( u(X) n(Zm(Y)) s(S) )
+  
+# cPV verification:
+Please try different buttons and see, most of them are pretty straightforward.
 
-  ```
-  s1 p(f(a)g(b)) h(X) d ->+ s1
-  ```
+For a cP system, if users what to do deadlock check, users need to specify which states are expected halting states. 
+This design is used to get rid of sinks -- otherwise they will be treated as deadlocks, since these states has no outgoing edge.
 
-- Example NOT work properly at this moment:
-
-  ```
-  s1 p(f(a)g(b))h(X) d ->+ s1
-  s1 p(f(a) g(b)) h(X) d ->+ s1
-  s1 p(f(a)g(b)) h(X)d ->+ s1
-  ```
-
+Additional specifications are used to perform verification related to terms and states -- to input them. 
+The format of them is the same to previous fields on terms and states.
+  
 # ProB model checker
+Only command line version allows users to use their party tools to verify cP systems.
 
 Refer to `Bexample.py`
 
@@ -57,4 +69,5 @@ cP systems do not have virtual product membranes, all the rules will run in `exa
 
 To use the ProB model checking functionality, user needs to install the latest version of [ProB](https://www.probesoftware.com/), and properly configure probcli.
 
+# PAT3 model checker
 Similarly, to use PAT3 automated verification, user needs to install `PAT3` software and configure corresponding environment variables.
