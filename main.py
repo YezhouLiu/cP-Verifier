@@ -441,8 +441,11 @@ class Ui_MainWindow(object):
                             tar_terms[ParseTerm(str_term)] += int(str_amount)
                         else:
                             tar_terms[ParseTerm(str_term)] = int(str_amount)
-                self.ve.SetTargetTerms(tar_terms)
-                self.ve.Verify(8, state_limit)
+                if len(tar_terms) > 0:
+                    self.ve.SetTargetTerms(tar_terms)
+                    self.ve.Verify(8, state_limit)
+                else:
+                    print('Input terms invalid! Please input terms as key-value pairs, for example: a:1; b:2')
             elif veri_opt == 5: #terms eventually
                 raw_terms = self.textEdit_spec.toPlainText()
                 raw_terms2 = raw_terms.replace(' ','') 
@@ -458,8 +461,11 @@ class Ui_MainWindow(object):
                             tar_terms[ParseTerm(str_term)] += int(str_amount)
                         else:
                             tar_terms[ParseTerm(str_term)] = int(str_amount)
-                self.ve.SetTargetTerms(tar_terms)
-                self.ve.Verify(4, state_limit)
+                if len(tar_terms) > 0:
+                    self.ve.SetTargetTerms(tar_terms)
+                    self.ve.Verify(4, state_limit)
+                else:
+                    print('Input terms invalid! Please input terms as key-value pairs, for example: a:1; b:2')
             elif veri_opt == 6: #state reachable
                 raw_state = self.textEdit_spec.toPlainText()
                 raw_state2 = raw_state.replace(' ','')
