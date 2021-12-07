@@ -46,7 +46,7 @@ A cP system should contain the following 4 parts:
      ```
 
    - Notice that each term, state, arrow`(->1 or ->+)` and bar`(|)` in a rule must be separated by whitespaces.
-   - Please do NOT add whitespaces inside a term, for example, please DO NOT write f(abc) as f(a b c) in the `Rules` field.
+   - Please DO NOT add whitespaces inside a term, for example, please do not write f(abc) as f(a b c) in the `Rules` field.
 
    - Correct rule example:
 
@@ -60,7 +60,7 @@ A cP system should contain the following 4 parts:
      s1 ->+ s1 p( u(Xm(Y)) n(Z) s(SY) ) | p( u(X) n(Zm(Y)) s(S) )
      ```
 
-# `cPV` verification:
+# cPV verification:
 
 Please try different buttons and see, most of them are straightforward.
 
