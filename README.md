@@ -1,6 +1,6 @@
 # How to use:
 
-1. A compiled desktop version (`.exe`) of `cPV` is under the `Release` folder.
+1. A compiled desktop version (`.exe`) of cPV is under the `Release` folder.
    The `main.exe` is the entry to the programme.
 2. For the console version, example python files can be found under the `examples` folder.
 
@@ -8,9 +8,9 @@
 
 ## Load from File
 
-We proposed a JSON format for cP systems, namely `cPVJ`. Example files can be found under the `examples` folder.
+We proposed a JSON format for cP systems, namely cPVJ. Example files can be found under the `examples` folder.
 
-In the desktop version of `cPV`, examples of `cPVJ` files can be loaded via menu bar.
+In the desktop version of cPV, examples of cPVJ files can be loaded via menu bar.
 
 Users can also open the `.JSON` files and check their details.
 
