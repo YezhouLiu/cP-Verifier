@@ -76,7 +76,7 @@ The format of them is the same to previous fields on terms and states.
 
 Only command line version allows users to use their party tools to verify cP systems.
 
-Refer to `Bexample.py` in examples folder
+Refer to `Bexample.py` in ./examples folder
 
 ```
 ProBMCCustom(ruleset, system_terms, system_state, system_name, '-bf -mc 1000')
@@ -91,3 +91,5 @@ To use the ProB model checking functionality, user needs to install the latest v
 # PAT3 model checker
 
 Similarly, to use PAT3 automated verification, user needs to install `PAT3` software and configure corresponding environment variables.
+
+A file named CSPexample.py can be found in ./examples folder.
