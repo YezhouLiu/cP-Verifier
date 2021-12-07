@@ -92,4 +92,4 @@ To use the ProB model checking functionality, user needs to install the latest v
 
 Similarly, to use PAT3 automated verification, user needs to install `PAT3` software and configure corresponding environment variables.
 
-A file named CSPexample.py can be found in ./examples folder.
+A file named `CSPexample.py` can be found in ./examples folder.
