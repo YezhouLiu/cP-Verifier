@@ -90,6 +90,6 @@ To use the ProB model checking functionality, user needs to install the latest v
 
 # PAT3 model checker
 
-Similarly, to use PAT3 automated verification, user needs to install `PAT3` software and configure corresponding environment variables.
+Similarly, to use PAT3 automated verification, user needs to install [PAT3](https://pat.comp.nus.edu.sg/) software and configure corresponding environment variables.
 
 A file named `CSPexample.py` can be found in `examples` folder.
