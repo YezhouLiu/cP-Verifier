@@ -11,7 +11,7 @@ sys1 = CPSystem('s1')
 sys1.AddRule(rule1)
 sys1.AddRule(rule2)
 sys1.AddSystemMultiset(ParseTerms('a(7) a(11) a(9) a(8) a(10)'))
-sys1.DetailOn()
+sys1.SetDetailLevel(2)
 
 sys1.Snapshot()
 sys1.Run()

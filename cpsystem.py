@@ -18,7 +18,7 @@ class CPSystem:
         self.products = {} #a virtual product membrane
         self.committed_state = state
         self.is_committed = False
-        self.show_detail = False
+        self.detail_level = 1
         
 #SYSTEM NAME
 #------------------------------------------------------------------------------
@@ -50,11 +50,10 @@ class CPSystem:
 
 #SHOW DETAIL
 #------------------------------------------------------------------------------
-    def DetailOn(self):
-        self.show_detail = True
+    def SetDetailLevel(self, lvl):
+        if lvl == 0 or lvl == 2 or lvl == 3:
+            self.detail_level = lvl
 
-    def DetailOff(self):
-        self.show_detail = False
 
 #SYSTEM TERM
 #------------------------------------------------------------------------------
@@ -67,7 +66,7 @@ class CPSystem:
                 self.terms[t1] += count
             else: 
                 self.terms[t1] = count
-        elif self.show_detail:
+        elif self.detail_level == 2:
             print('Invalid system term, please check!')
 
     def AddSystemMultiset(self, m1):
@@ -79,7 +78,7 @@ class CPSystem:
         if count < 1:
             return False
         if not t1 in self.terms:
-            if self.show_detail:
+            if self.detail_level == 2:
                 if isinstance(t1, Term):
                     print('There is no ' + t1.ToString() + ' in the cP system!')
                 elif t1 >= 'a' and t1 <= 'z':
@@ -91,7 +90,7 @@ class CPSystem:
             self.terms[t1] -= count
             if self.terms[t1] == 0:
                 self.terms.pop(t1)
-            if self.show_detail:
+            if self.detail_level == 2:
                 if isinstance(t1, Term):
                     if count == 1:
                         print('1 copy of ' + t1.ToString() + ' is consumed! ')
@@ -104,7 +103,7 @@ class CPSystem:
                         print(str(count) + ' copies of ' + t1 + ' are consumed!')
             return True
         else:
-            if self.show_detail:
+            if self.detail_level == 2:
                 print('Insufficient terms in the system!')
             return False
 
@@ -126,7 +125,7 @@ class CPSystem:
                 self.products[t1] += count
             else: 
                 self.products[t1] = count
-            if self.show_detail:
+            if self.detail_level == 2:
                 if isinstance(t1, Term):
                     if count == 1:
                         print('1 copy of ' + t1.ToString() + ' is produced! ')
@@ -138,7 +137,7 @@ class CPSystem:
                     else:
                         print(str(count) + ' copies of ' + t1 + ' are produced!')
             return True
-        elif self.show_detail:
+        elif self.detail_level == 2:
             print('Nothing is produced!')
         return False
 
@@ -155,10 +154,10 @@ class CPSystem:
     def AddRule(self, r1):
         if r1.IsValid():
             self.rules.append(r1)
-            if self.show_detail:
+            if self.detail_level == 2:
                 print('The rule: ' + r1.ToString() + ' is added to the cP system!')
             return True
-        elif self.show_detail:
+        elif self.detail_level == 2:
             print('Invalid rule!')
         return False
     
@@ -175,17 +174,17 @@ class CPSystem:
 #RULE APPLICATION
 #------------------------------------------------------------------------------
     def ApplyARule(self, r1: Rule, is_committed = False): 
-        if self.show_detail:
+        if self.detail_level == 2:
             if not r1.IsGround():
                 print('Trying the rule: ' + r1.ToString())
             else:
                 print('Ground (unified) rule: ' + r1.ToString())
         if r1.LState() != self.state:
-            if self.show_detail:
+            if self.detail_level == 2:
                 print('State unmatched, the rule is not applicable!')
             return False
         elif is_committed and r1.RState() != self.committed_state:
-            if self.show_detail:
+            if self.detail_level == 2:
                 print('State unmatched, the rule is not applicable!')
             return False
         elif len(r1.LHS()) == 0 and len(r1.PMT()) == 0: #no lhs and promoter, success, directly generate products - unbounded + will be treated as 1
@@ -199,7 +198,7 @@ class CPSystem:
                     self.ProduceMultiset(r1.RHS())
                     return True
                 else:
-                    if self.show_detail:
+                    if self.detail_level == 2:
                         print('Insufficient terms, the rule is not applicable!')
                     return False
             else: #model = '+'
@@ -210,7 +209,7 @@ class CPSystem:
                     mult += 1
                     ms_to_check_2 = lnmu.MultisetTimes(ms_to_check, mult)
                 if mult == 1:
-                    if self.show_detail:
+                    if self.detail_level == 2:
                         print('Insufficient terms, the rule is not applicable!')
                     return False
                 else:
@@ -226,7 +225,7 @@ class CPSystem:
             S = {}
             lnmu.LNMU(G, S, SS)
             if len(SS) == 0:
-                if self.show_detail:
+                if self.detail_level == 2:
                     print('Insufficient terms, the rule is not applicable!')
                 return False
             else:
@@ -298,7 +297,8 @@ class CPSystem:
         i = 0
         time_start = time.perf_counter()
         while (self.ApplyARuleset(self.rules) and i < steps):
-            self.Snapshot()
+            if self.detail_level == 1:
+                self.Snapshot()
             i += 1
         time_end = time.perf_counter()
         self.Snapshot(2)
@@ -354,4 +354,4 @@ class CPSystem:
         self.products = {}
         self.committed_state = 's0'
         self.is_committed = False
-        self.show_detail = False
+        self.detail_level = 1

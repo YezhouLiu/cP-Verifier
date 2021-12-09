@@ -12,7 +12,7 @@ rule4 = ParseRule('s2 s(A) ->+ s2')
 
 sys1 = CPSystem('s1')
 sys1.AddRuleset([rule1, rule2, rule3, rule4])
-sys1.DetailOn()
+sys1.SetDetailLevel(2)
 size = 4
 
 for i in range(1, size):

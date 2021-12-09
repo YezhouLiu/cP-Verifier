@@ -11,7 +11,7 @@ sys1.AddRuleset([rule1, rule2])
 
 ms1 = {'a': 144, 'b': 88}
 sys1.AddSystemMultiset(ms1)
-sys1.DetailOn()
+sys1.SetDetailLevel(2)
 
 print(sys1.ToString())
 

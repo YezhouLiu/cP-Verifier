@@ -168,7 +168,7 @@ class Ui_MainWindow(object):
         self.textBrowser_result.setMidLineWidth(0)
         self.textBrowser_result.setObjectName("textBrowser_result")
         self.comboBox_detail = QtWidgets.QComboBox(self.centralwidget)
-        self.comboBox_detail.setGeometry(QtCore.QRect(600, 80, 251, 29))
+        self.comboBox_detail.setGeometry(QtCore.QRect(30, 140, 251, 29))
         font = QtGui.QFont()
         font.setFamily("Times New Roman")
         font.setPointSize(12)
@@ -177,6 +177,7 @@ class Ui_MainWindow(object):
         self.comboBox_detail.setFont(font)
         self.comboBox_detail.setStatusTip("")
         self.comboBox_detail.setObjectName("comboBox_detail")
+        self.comboBox_detail.addItem("")
         self.comboBox_detail.addItem("")
         self.comboBox_detail.addItem("")
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
@@ -243,6 +244,22 @@ class Ui_MainWindow(object):
         self.comboBox_search.addItem("")
         self.comboBox_search.addItem("")
         self.comboBox_search.addItem("")
+        self.label_11 = QtWidgets.QLabel(self.centralwidget)
+        self.label_11.setGeometry(QtCore.QRect(600, 80, 151, 24))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(14)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_11.setFont(font)
+        self.label_11.setObjectName("label_11")
+        self.textEdit_step_limit = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit_step_limit.setGeometry(QtCore.QRect(760, 80, 221, 31))
+        font = QtGui.QFont()
+        font.setFamily("Times New Roman")
+        font.setPointSize(12)
+        self.textEdit_step_limit.setFont(font)
+        self.textEdit_step_limit.setObjectName("textEdit_step_limit")
         
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -382,8 +399,15 @@ class Ui_MainWindow(object):
             
     def Simulate(self):
         self.ReloadcPSystem()
+        step_limit = 100
+        try:
+            step_limit = int(self.textEdit_step_limit.toPlainText())
+            if step_limit < 0:
+                step_limit = 100
+        except:
+            step_limit = 100
         with io.StringIO() as buf, redirect_stdout(buf):
-            self.sys.Run()
+            self.sys.Run(step_limit)
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
         self.statusbar.showMessage("Done")
@@ -391,15 +415,21 @@ class Ui_MainWindow(object):
     def Verify(self):
         self.ReloadcPSystem()
         self.ve = CPVerifier(self.sys)
-        if self.comboBox_detail.currentIndex() == 0:
-            self.ve.DetailOff()
-        elif self.comboBox_detail.currentIndex() == 1:
-            self.ve.DetailOn()
-        state_limit = 100000
+        self.ve.SetDetailLevel(self.comboBox_detail.currentIndex())
+        state_limit = 10000
         try:
             state_limit = int(self.textEdit_state_limit.toPlainText())
+            if state_limit < 0:
+                state_limit = 10000
         except:
-            state_limit = 100000
+            state_limit = 10000
+        step_limit = 100
+        try:
+            step_limit = int(self.textEdit_step_limit.toPlainText())
+            if step_limit < 0:
+                step_limit = 100
+        except:
+            step_limit = 100
         search = self.comboBox_search.currentIndex()
         if search == 0:
             self.ve.SetSearchMethod('Priority Search')
@@ -419,13 +449,13 @@ class Ui_MainWindow(object):
                     if len(state) > 0:
                         halting_states1.append(state)
                 self.ve.SetTerminations(halting_states1)
-                self.ve.Verify(0, state_limit)
+                self.ve.Verify(0, state_limit, step_limit)
             elif veri_opt == 1:
-                self.ve.Verify(2, state_limit)
+                self.ve.Verify(2, state_limit, step_limit)
             elif veri_opt == 2:
-                self.ve.Verify(9, state_limit)
+                self.ve.Verify(9, state_limit, step_limit)
             elif veri_opt == 3:
-                self.ve.Verify(1, state_limit)
+                self.ve.Verify(1, state_limit, step_limit)
             elif veri_opt == 4: #terms reachable
                 raw_terms = self.textEdit_spec.toPlainText()
                 raw_terms2 = raw_terms.replace(' ','') 
@@ -443,7 +473,7 @@ class Ui_MainWindow(object):
                             tar_terms[ParseTerm(str_term)] = int(str_amount)
                 if len(tar_terms) > 0:
                     self.ve.SetTargetTerms(tar_terms)
-                    self.ve.Verify(8, state_limit)
+                    self.ve.Verify(8, state_limit, step_limit)
                 else:
                     print('Input terms invalid! Please input terms as key-value pairs, for example: a:1; b:2')
             elif veri_opt == 5: #terms eventually
@@ -463,19 +493,19 @@ class Ui_MainWindow(object):
                             tar_terms[ParseTerm(str_term)] = int(str_amount)
                 if len(tar_terms) > 0:
                     self.ve.SetTargetTerms(tar_terms)
-                    self.ve.Verify(4, state_limit)
+                    self.ve.Verify(4, state_limit, step_limit)
                 else:
                     print('Input terms invalid! Please input terms as key-value pairs, for example: a:1; b:2')
             elif veri_opt == 6: #state reachable
                 raw_state = self.textEdit_spec.toPlainText()
                 raw_state2 = raw_state.replace(' ','')
                 self.ve.SetTargetState(raw_state2)
-                self.ve.Verify(11, state_limit)
+                self.ve.Verify(11, state_limit, step_limit)
             elif veri_opt == 7: #state eventually
                 raw_state = self.textEdit_spec.toPlainText()
                 raw_state2 = raw_state.replace(' ','')
                 self.ve.SetTargetState(raw_state2)
-                self.ve.Verify(6, state_limit)
+                self.ve.Verify(6, state_limit, step_limit)
             
             output = buf.getvalue()
             self.textBrowser_result.setText(output)
@@ -506,10 +536,7 @@ class Ui_MainWindow(object):
             if rule == '':
                 continue
             self.sys.AddRule(ParseRule(rule))
-        if self.comboBox_detail.currentIndex() == 0:
-            self.sys.DetailOff()
-        elif self.comboBox_detail.currentIndex() == 1:
-            self.sys.DetailOn()
+        self.sys.SetDetailLevel(self.comboBox_detail.currentIndex())
         
     def ShowVersion(self):
         msg = QtWidgets.QMessageBox()
@@ -592,8 +619,9 @@ class Ui_MainWindow(object):
         self.textEdit_rules.setText('')
         self.textBrowser_result.setText('')
         self.textEdit_spec.setText('')
-        self.textEdit_state_limit.setText('100000')
+        self.textEdit_state_limit.setText('10000')
         self.textEdit_halting_states.setText('')
+        self.textEdit_step_limit.setText('100')
         
 
     def retranslateUi(self, MainWindow):
@@ -642,13 +670,14 @@ class Ui_MainWindow(object):
         self.label_5.setText(_translate("MainWindow", "Simulation / verification result:"))
         self.comboBox_detail.setItemText(0, _translate("MainWindow", "Detail level: 0"))
         self.comboBox_detail.setItemText(1, _translate("MainWindow", "Detail level: 1"))
+        self.comboBox_detail.setItemText(2, _translate("MainWindow", "Detail level: 2"))
         self.label_7.setText(_translate("MainWindow", "System property:"))
         self.label_6.setText(_translate("MainWindow", "Statespace limit:"))
         self.textEdit_state_limit.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">100000</p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">10000</p></body></html>"))
         self.label_9.setText(_translate("MainWindow", "Expected halting states:"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.textEdit_halting_states.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
@@ -660,7 +689,13 @@ class Ui_MainWindow(object):
         self.comboBox_search.setItemText(0, _translate("MainWindow", "Priority Search"))
         self.comboBox_search.setItemText(1, _translate("MainWindow", "Breadth-first"))
         self.comboBox_search.setItemText(2, _translate("MainWindow", "Depth-first"))
-        
+        self.label_11.setText(_translate("MainWindow", "Step limit:"))
+        self.textEdit_step_limit.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">100</p></body></html>"))
+         
         self.menuAbout.setTitle(_translate("MainWindow", "Examples"))
         self.menuAbout_2.setTitle(_translate("MainWindow", "About"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))

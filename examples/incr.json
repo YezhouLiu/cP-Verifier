@@ -1,0 +1,8 @@
+{
+ "ruleset": ["s0 a(X) ->1 s0 a(X1) | b(XY1) ",
+"s0 a(X) b(X) ->1 s1 o(X) "],
+"terms": {"a(1)":1,
+"b(100)":1},
+"state": "s0",
+"name": "test1"
+}

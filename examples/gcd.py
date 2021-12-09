@@ -5,5 +5,5 @@ import sys
 import json
 
 sys1 = ParsecPVJSON('./examples/gcd2.json')
-sys1.DetailOn()
+sys1.SetDetailLevel(2)
 sys1.Run()

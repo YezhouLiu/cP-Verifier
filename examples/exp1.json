@@ -1,0 +1,6 @@
+{
+ "ruleset": ["s0 a ->+ s0 a a "],
+"terms": {"a":1},
+"state": "s0",
+"name": "test2"
+}

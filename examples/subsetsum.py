@@ -31,18 +31,12 @@ def CPSubsetSum(original_set, target_number):
     sys.AddRule(rule5)
     sys.AddSystemTerm(t)
     sys.AddSystemTerm(m)
-    #sys.DetailOn()
+    sys.SetDetailLevel(2)
 
-    #Initial state of the cP syst em
-    #sys.Snapshot()
     #sys.Run()
-    #print(sys.ToString())
+    v1 = CPVerifier(sys)
+    v1.Verify(9, 900)
     
-    cpv = CPVerifier(sys)
-    cpv.SetTerminations(['s2','s3'])
-    cpv.SetTargetTerms({ParseTerm('o(m(2)m(3))'):1})
-    cpv.SetTargetState('s3')
-    cpv.Verify(9)
     
-CPSubsetSum({1,2,3},11)
+CPSubsetSum({1,2,3,4,5,6},80)
 

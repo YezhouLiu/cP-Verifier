@@ -93,11 +93,11 @@ class CPVerifier:
         node = CPNode()
         node.ReadCP(sys1)
         self.node_list = [node]
-        self.show_detail = False
+        self.detail_level = 0
         self.rules = sys1.Rules()
         self.expected_terminations = []
         self.search_method = 'Priority Search'
-        self.state_limit = 100000
+        self.state_limit = 10000
         self.state_checked = 0
         self.property = 'deadlock'
         self.counter_example_found = False
@@ -105,6 +105,7 @@ class CPVerifier:
         self.target = {}
         self.target_state = ''
         self.termination_set = set()
+        self.step_limit = 100
 
 #Property code
 #0: If the cP system is deadlockfree
@@ -162,11 +163,9 @@ class CPVerifier:
         if sm == 'Priority Search' or 'DFS' or 'BFS':
             self.search_method = sm
             
-    def DetailOn(self):
-        self.show_detail = True
-        
-    def DetailOff(self):
-        self.show_detail = False
+    def SetDetailLevel(self, lvl):
+        if lvl == 0 or lvl == 2 or lvl == 3:
+            self.detail_level = lvl
         
     def SetTargetTerms(self, target: OrderedDict[Term, int]):
         self.target = target
@@ -174,14 +173,15 @@ class CPVerifier:
     def SetTargetState(self, target: str):
         self.target_state = target
 
-    def Verify(self, property_code = 0, state_limit = 100000):
+    def Verify(self, property_code = 0, state_limit = 10000, step_limit = 100):
         try:
-            self.CheckProperties(property_code, state_limit)
+            self.CheckProperties(property_code, state_limit, step_limit)
         except BaseException as err:
             print(f"Unexpected {err=}, {type(err)=}")
     
-    def CheckProperties(self, property_code = 0, state_limit = 100000):
+    def CheckProperties(self, property_code = 0, state_limit = 10000, step_limit = 100):
         self.state_limit = state_limit
+        self.step_limit = step_limit
         self.property = self.Property(property_code)
 
         time_start = time.perf_counter()
@@ -190,7 +190,7 @@ class CPVerifier:
         print('The cP system verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.state_checked) + ' states were checked.')
         print('The search method is ' + self.search_method + '.')
         
-        if self.counter_example_found and not self.show_detail:
+        if self.counter_example_found and self.detail_level == 0:
             if self.property == 'terms_in_one_halting':
                 print('The target terms are included by a halting configuration!\n' + self.counter_example.ToString())
             elif self.property == 'terms_in_all_halting':
@@ -330,6 +330,10 @@ class CPVerifier:
             self.node_list.pop(0)
         else: #DFS
             self.node_list.pop()
+            
+        if step > self.step_limit:
+            self.Next()
+            return False
         
         #checking properties here for normal configurations
         if self.property == 'terms_in_all':
