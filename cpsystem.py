@@ -297,7 +297,7 @@ class CPSystem:
         i = 0
         time_start = time.perf_counter()
         while (self.ApplyARuleset(self.rules) and i < steps):
-            if self.detail_level == 1:
+            if self.detail_level >= 1:
                 self.Snapshot()
             i += 1
         time_end = time.perf_counter()
