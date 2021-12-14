@@ -3,7 +3,6 @@
 1. A compiled desktop version (`.exe`) of cPV is under the `Release` folder.
    The `main.exe` is the entry to the programme.
 2. For the console version, example python files can be found under the `examples` folder.
-3. Users can also run the UI by running the main.py file. (command: python main.py)
 
 # How to represent cP systems
 
