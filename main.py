@@ -359,43 +359,43 @@ class Ui_MainWindow(object):
         try:
             self.OpenPath('./examples/add.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
     
     def CP_SUB(self):
         try:
             self.OpenPath('./examples/sub.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
             
     def CP_MUL(self):
         try:
             self.OpenPath('./examples/mul.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
             
     def CP_GCD1(self):
         try:
             self.OpenPath('./examples/gcd1.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
             
     def CP_GCD2(self):
         try:
             self.OpenPath('./examples/gcd2.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
             
     def CP_SSM(self):
         try:
             self.OpenPath('./examples/subsetsum.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
             
     def CP_HCP(self):
         try:
             self.OpenPath('./examples/hamiltoniancycle.json')
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
             
     def Simulate(self):
         self.ReloadcPSystem()
@@ -626,7 +626,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "cPV - The cP System Verifier"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "cPV - The cP System Verification Framework"))
         self.label_1.setText(_translate("MainWindow", "cP system:"))
         self.label_2.setText(_translate("MainWindow", "Initial state:"))
         self.label_3.setText(_translate("MainWindow", "Initial terms:"))

@@ -106,6 +106,10 @@ class CPVerifier:
         self.target_state = ''
         self.termination_set = set()
         self.step_limit = 100
+        #self.target_until_1 = {} #some terms are in the system
+        #self.target_until_2 = {} #until others are in the system
+        #self.target_next_1 = {} #some terms are in the system
+        #self.target_next_2 = {} #until others are in the system in the next step
 
 #Property code
 #0: If the cP system is deadlockfree
@@ -177,7 +181,7 @@ class CPVerifier:
         try:
             self.CheckProperties(property_code, state_limit, step_limit)
         except BaseException as err:
-            print(f"Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}, {type(err)=}")
     
     def CheckProperties(self, property_code = 0, state_limit = 10000, step_limit = 100):
         self.state_limit = state_limit
