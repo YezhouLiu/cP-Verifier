@@ -1,6 +1,9 @@
 {
- "ruleset": ["s0 a(X) ->+ s0 a(a(X)) "],
-"terms": {"a(b)":1},
-"state": "s0",
-"name": "test3"
+ "ruleset": ["s1 b(X) c(X) ->1 s2 o(X) ",
+"s1 a(X) c(Y) ->+ s1 a(a(X)) c(Y1) "],
+"terms": {"a(1)":1,
+"c(1)":1,
+"b(10)":1},
+"state": "s1",
+"name": "NES"
 }
