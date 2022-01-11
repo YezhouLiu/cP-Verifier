@@ -611,8 +611,10 @@ class CPVerifier:
                 elif r1.Model() == '+': #max-parallel model
                     p_SS = list(itertools.permutations(SS))
                     #self.PrintP_SS(p_SS)
+                    nodeset = set()
                     for s_SS in p_SS:
                         ruleset = set() #a set used to get rid of duplicated unified rules
+                        duplicated = False
                         for unifier in s_SS:
                             lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
                             rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
@@ -649,8 +651,13 @@ class CPVerifier:
                                 products2 = {}
                             new_node = CPNode()
                             new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
-                            self.PushCPNode(new_node)
-                        self.Next()        
+                            if not new_node in nodeset:
+                                self.PushCPNode(new_node)
+                                nodeset.add(new_node)
+                            else:
+                                duplicated = True
+                        if not duplicated:
+                            self.Next()        
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
                     return False
