@@ -66,18 +66,22 @@ class CPNode:
         if self.is_committed:
             str_node += 'Commited to: ' + self.committed_state + '\n'
         str_node += 'Terms:\n'
-        for item in self.terms:
+        
+        ordered_terms = OrderedDict(sorted(self.terms.items(), key = lambda t: t[0]))
+        for item in ordered_terms:
             if isinstance(item, Term):
-                str_node += item.ToString() + ": " + str(self.terms[item]) + '\n'
+                str_node += item.ToString() + ": " + str(ordered_terms[item]) + '\n'
             else:
-                str_node += item + ": " + str(self.terms[item]) + '\n'
+                str_node += item + ": " + str(ordered_terms[item]) + '\n'
+                
         if len(self.products) > 0:
             str_node += 'Virtual products:\n'
-            for item in self.products:
+            ordered_products = OrderedDict(sorted(self.products.items(), key = lambda t: t[0]))
+            for item in ordered_products:
                 if isinstance(item, Term):
-                    str_node += item.ToString() + ": " + str(self.products[item]) + '\n'
+                    str_node += item.ToString() + ": " + str(ordered_products[item]) + '\n'
                 else:
-                    str_node += item + ": " + str(self.products[item]) + '\n'
+                    str_node += item + ": " + str(ordered_products[item]) + '\n'
         str_node += 'Next rule: ' + str(self.next_rule_index) + '\n'
         return str_node
         #ancestors is not considered in __hash__
@@ -604,14 +608,9 @@ class CPVerifier:
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
                                 self.PushCPNode(new_node)
-                                if self.search_method == 'DFS':
-                                    self.Next()
+                                self.Next()
                             else: #fail
                                 return False
-                    if self.search_method == 'Priority Search':
-                        self.Next()
-                    elif self.search_method == 'BFS':
-                        self.Next()
                         
                 elif r1.Model() == '+': #max-parallel model
                     p_SS = list(itertools.permutations(SS))
@@ -662,15 +661,10 @@ class CPVerifier:
                             
                             new_node = CPNode()
                             new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
-                            if not new_node in duplicated:
+                            if not new_node.ToString() in duplicated:
                                 self.PushCPNode(new_node)
-                                duplicated.add(new_node)
-                                if self.search_method == 'DFS':
-                                    self.Next() 
-                    if self.search_method == 'Priority Search':
-                            self.Next()
-                    elif self.search_method == 'BFS':
-                        self.Next()       
+                                duplicated.add(new_node.ToString())
+                                self.Next() 
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
                     return False

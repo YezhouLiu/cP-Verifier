@@ -14,7 +14,7 @@ class CPSystem:
         self.sys_name = name
         self.rules = [] #rules follow a weak-priority order
         self.state = state #'s0' 's1' 's2' ...
-        self.terms = {} #system terms, must be ground, atom or term, no need to sort them
+        self.terms = {} #system terms, must be ground, atom or term
         self.products = {} #a virtual product membrane
         self.committed_state = state
         self.is_committed = False
