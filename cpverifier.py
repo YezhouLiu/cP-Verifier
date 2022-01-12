@@ -604,17 +604,22 @@ class CPVerifier:
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
                                 self.PushCPNode(new_node)
-                                self.Next()
+                                if self.search_method == 'DFS':
+                                    self.Next()
                             else: #fail
                                 return False
+                    if self.search_method == 'Priority Search':
+                        self.Next()
+                    elif self.search_method == 'BFS':
+                        self.Next()
                         
                 elif r1.Model() == '+': #max-parallel model
                     p_SS = list(itertools.permutations(SS))
                     #self.PrintP_SS(p_SS)
-                    nodeset = set()
-                    for s_SS in p_SS:
-                        ruleset = set() #a set used to get rid of duplicated unified rules
-                        duplicated = False
+                    duplicated = set()
+                    rule_applied = False
+                    for s_SS in p_SS: #a permutation of all the unifiers, which do not have to be compatible
+                        gruleset = []
                         for unifier in s_SS:
                             lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
                             rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
@@ -624,18 +629,23 @@ class CPVerifier:
                             r2.SetRHS(rhs2)
                             r2.SetPMT(pmt2)
                             if r2.IsGround():
-                                ruleset.add(r2)
-                        for r3 in ruleset:
-                            terms2 = deepcopy(terms)
-                            products2 = deepcopy(products)
-                            is_committed2 = is_committed
-                            committed_state2 = committed_state
-                            state2 = state
-                            step2 = step
+                                gruleset.append(r2) #a virtual ground rule
+                        
+                        terms2 = deepcopy(terms)
+                        products2 = deepcopy(products)
+                        is_committed2 = is_committed
+                        committed_state2 = committed_state
+                        state2 = state
+                        step2 = step    
+                                
+                        for r3 in gruleset:
                             ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
+                                rule_applied = True
                                 self.VConsumeMultiset(terms2, r3.LHS())
                                 self.VProduceMultiset(products2, r3.RHS())
+                        
+                        if rule_applied:               
                             if not is_committed2:
                                 is_committed2 = True
                                 committed_state2 = r2.RState()
@@ -649,15 +659,18 @@ class CPVerifier:
                                     else:
                                         terms2[item1] = products2[item1]
                                 products2 = {}
+                            
                             new_node = CPNode()
                             new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
-                            if not new_node in nodeset:
+                            if not new_node in duplicated:
                                 self.PushCPNode(new_node)
-                                nodeset.add(new_node)
-                            else:
-                                duplicated = True
-                        if not duplicated:
-                            self.Next()        
+                                duplicated.add(new_node)
+                                if self.search_method == 'DFS':
+                                    self.Next() 
+                    if self.search_method == 'Priority Search':
+                            self.Next()
+                    elif self.search_method == 'BFS':
+                        self.Next()       
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
                     return False
