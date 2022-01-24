@@ -212,7 +212,7 @@ class CPVerifier:
             elif self.property == 'deadlockfree':
                 print('A deadlock state is found!\n' + self.counter_example.ToString())
             elif self.property == 'confluent':
-                print('The cP system is NOT confluent! Different halting configuration can be found!')
+                print('The cP system is NOT confluent! Different halting configurations can be found!')
                 self.PrintTerminationSet()
             elif self.property == 'terms_in_all':
                 print('The target terms are NOT included in all configurations!\n' + self.counter_example.ToString())
