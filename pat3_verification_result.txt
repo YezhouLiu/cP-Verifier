@@ -3,7 +3,7 @@ Assertion: P0() nonterminating
 ********Verification Result********
 The Assertion (P0() nonterminating) is NOT valid.
 The following trace leads to a terminating situation.
-<init -> cp_init -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if!((applied == true))] -> terminate>
+<init -> cp_init -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if((applied == true))] -> τ -> r1 -> r2 -> [if!((applied == true))] -> terminate>
 
 ********Verification Setting********
 Admissible Behavior: All
@@ -12,10 +12,10 @@ System Abstraction: False
 
 
 ********Verification Statistics********
-Visited States:25
-Total Transitions:25
-Time Used:0.0313888s
-Estimated Memory Used:8585.432KB
+Visited States:365
+Total Transitions:365
+Time Used:0.0256232s
+Estimated Memory Used:9019.608KB
 
 
 =======================================================
@@ -30,10 +30,10 @@ System Abstraction: False
 
 
 ********Verification Statistics********
-Visited States:25
-Total Transitions:25
-Time Used:0.0003677s
-Estimated Memory Used:8569.048KB
+Visited States:365
+Total Transitions:365
+Time Used:0.0014091s
+Estimated Memory Used:8991.768KB
 
 
 =======================================================
@@ -48,10 +48,10 @@ System Abstraction: False
 
 
 ********Verification Statistics********
-Visited States:26
-Total Transitions:25
-Time Used:0.0096195s
-Estimated Memory Used:8626.344KB
+Visited States:366
+Total Transitions:365
+Time Used:0.0104177s
+Estimated Memory Used:9691.968KB
 
 
 =======================================================
@@ -66,9 +66,9 @@ System Abstraction: False
 
 
 ********Verification Statistics********
-Visited States:26
-Total Transitions:25
-Time Used:0.002234s
-Estimated Memory Used:8577.24KB
+Visited States:366
+Total Transitions:365
+Time Used:0.0033425s
+Estimated Memory Used:9085.144KB
 
 

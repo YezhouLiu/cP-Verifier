@@ -1,0 +1,33 @@
+//simplecp2
+var applied = false; 
+var a;
+var b;
+var state = 1;
+
+P0() = cp_init{
+a = 100;
+b = 90;
+}-> P1();
+P1() = r1{
+if (state == 1 && a > 0 && b > 0){
+applied = true;
+a = a - 3;
+b = b - 1;
+b = b + 1;
+state = 1;
+}
+}-> P2();
+P2() = r2{
+if (state == 1 && b > 0){
+applied = true;
+b = b - 1;
+a = a + 1;
+state = 1;
+}
+}-> P_CHECK();
+P_CHECK() = if(applied == true){P_NEXT()} else {Skip};
+P_NEXT() = {applied = false;}-> P1();
+#assert P0() nonterminating;
+#assert P0() deadlockfree;
+#assert P0() divergencefree;
+#assert P0() deterministic;

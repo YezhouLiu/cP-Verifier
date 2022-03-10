@@ -9,7 +9,9 @@ system_state = 's1'
 system_name = 'simplecp2'
 
 Bfile = simpleB.cPtoB(ruleset, system_terms, system_state, system_name)
-print(Bfile)
+#print(Bfile)
 
-simpleB.ProBMCBreathFirst(ruleset, system_terms, system_state, system_name, 5000)
-simpleB.ProBMCTimeout(ruleset, system_terms, system_state, system_name, 10000)
+simpleB.ProBMC(ruleset, system_terms, system_state, system_name)
+
+#simpleB.ProBMCBreathFirst(ruleset, system_terms, system_state, system_name, 5000)
+#simpleB.ProBMCTimeout(ruleset, system_terms, system_state, system_name, 10000)

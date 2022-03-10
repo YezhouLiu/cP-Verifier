@@ -69,7 +69,7 @@ def LNMU(G, S, SS): #G: set G, all working equations; SS: all substitutions, S: 
                         G1.append((mv_temp, mg_temp, e_or_i))
                         LNMU(G1, S, SS)
                         succ = True #successfully applied FUNCTOR
-                break #only deal with one compound term a time
+                break #only deal with one compound term at a time
         return succ
 
     else: #mv contains no functor, no atom, but only variables, XXY = f(a)bbccccc
