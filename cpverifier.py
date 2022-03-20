@@ -206,7 +206,7 @@ class CPVerifier:
             elif self.property == 'state_in_one_halting':
                 print('The target state ' + self.target_state + ' is reached in a halting configuration!\n' + self.counter_example.ToString())
             elif self.property == 'state_in_all_halting':
-                print('The target state ' + self.target_state + ' is NOT reached in all halting configurations!\n' + self.counter_example.ToString())
+                print('The target state ' + self.target_state + ' is NOT eventually reached!\n' + self.counter_example.ToString())
             elif self.property == 'deterministic':
                 print('The cP system is nondeterministic!')
             elif self.property == 'deadlockfree':
@@ -236,7 +236,7 @@ class CPVerifier:
                 print('The target state ' + self.target_state + ' is reached in a halting configuration!\n' + self.counter_example.ToString())
                 print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
             elif self.property == 'state_in_all_halting':
-                print('The target state ' + self.target_state + ' is NOT reached in all halting configurations!\n' + self.counter_example.ToString())
+                print('The target state ' + self.target_state + ' is NOT eventually reached!\n' + self.counter_example.ToString())
                 print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
             elif self.property == 'deterministic':
                 print('The cP system is nondeterministic!')
@@ -275,7 +275,7 @@ class CPVerifier:
             elif self.property == 'state_in_one_halting':
                 print('The target state ' + self.target_state + ' is NOT reached in any halting configuration!')
             elif self.property == 'state_in_all_halting':
-                print('The target state ' + self.target_state + ' is reached in all halting configurations!\n')
+                print('The target state ' + self.target_state + ' is eventually reached!\n')
             elif self.property == 'deterministic':
                 print('The cP system is deterministic!')
             elif self.property == 'deadlockfree':
