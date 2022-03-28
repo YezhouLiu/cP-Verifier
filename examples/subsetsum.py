@@ -35,8 +35,15 @@ def CPSubsetSum(original_set, target_number):
 
     #sys.Run()
     v1 = CPVerifier(sys)
-    v1.Verify(9, 900)
+    v1.SetTerminations(['s2','s3'])
+    v1.SetTargetState('s2')
+    v1.Verify(0)
+    #v1.Verify(1)
+    #v1.Verify(2)
+    #v1.Verify(9)
+    #v1.Verify(5)
     
     
-CPSubsetSum({1,2,3,4,5,6},80)
+CPSubsetSum({1,2},3)
+#CPSubsetSum({1,2,3,4},10)
 

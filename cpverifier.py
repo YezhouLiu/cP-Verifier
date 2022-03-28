@@ -12,7 +12,7 @@ from typing import List, OrderedDict
 import heapq
 import time
 
-VERSION = 1.0
+VERSION = 1.1
 
 class CPNode:
     def __init__(self):
@@ -102,13 +102,13 @@ class CPVerifier:
         self.expected_terminations = []
         self.search_method = 'Priority Search'
         self.state_limit = 10000
-        self.state_checked = 0
+        self.nodes_checked = 0
         self.property = 'deadlock'
         self.counter_example_found = False
         self.counter_example = CPNode()
         self.target = {}
         self.target_state = ''
-        self.termination_set = set()
+        self.termination_set = set() #only used for Church-Rosser property check
         self.step_limit = 100
         #self.target_until_1 = {} #some terms are in the system
         #self.target_until_2 = {} #until others are in the system
@@ -182,10 +182,11 @@ class CPVerifier:
         self.target_state = target
 
     def Verify(self, property_code = 0, state_limit = 10000, step_limit = 100):
-        try:
-            self.CheckProperties(property_code, state_limit, step_limit)
-        except BaseException as err:
-            print("Unexpected {err=}, {type(err)=}")
+        self.CheckProperties(property_code, state_limit, step_limit)
+        # try:
+        #     self.CheckProperties(property_code, state_limit, step_limit)
+        # except BaseException as err:
+        #     print("Unexpected {err=}, {type(err)=}")
     
     def CheckProperties(self, property_code = 0, state_limit = 10000, step_limit = 100):
         self.state_limit = state_limit
@@ -195,7 +196,8 @@ class CPVerifier:
         time_start = time.perf_counter()
         self.Next()
         time_end = time.perf_counter()
-        print('The cP system verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.state_checked) + ' states were checked.')
+        print('The verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.nodes_checked) + 
+              ' cP system configurations were checked.' )
         print('The search method is ' + self.search_method + '.')
         
         if self.counter_example_found and self.detail_level == 0:
@@ -298,7 +300,7 @@ class CPVerifier:
         if self.counter_example_found:
             return True
         
-        if self.state_checked >= self.state_limit: #verfication limit reached
+        if self.nodes_checked >= self.state_limit: #verfication limit reached
             if self.property == 'terminating':
                 self.counter_example_found = True
                 return True
@@ -316,8 +318,8 @@ class CPVerifier:
         elif self.search_method == 'BFS':
             conf1 = self.node_list[0]
         else: #DFS
-            conf1 = self.node_list[nodes_left-1]
-        self.state_checked += 1
+            conf1 = self.node_list[-1]
+        self.nodes_checked += 1
         
         state = conf1.state
         terms = conf1.terms
@@ -332,14 +334,11 @@ class CPVerifier:
         step = conf1.step
         terminated = conf1.terminated
         
-        if self.search_method == 'Priority Search':
-            self.node_list.pop(0)
-        elif self.search_method == 'BFS':
-            self.node_list.pop(0)
-        else: #DFS
-            self.node_list.pop()
+        # If I do this somewhere else, it may be error-prune, however, it can improve the performance a lot.
+        #self.DeleteCurrentNode()
             
         if step > self.step_limit:
+            self.DeleteCurrentNode()
             self.Next()
             return False
         
@@ -395,12 +394,12 @@ class CPVerifier:
             elif (self.property == 'deadlockfree') and (not state in self.expected_terminations):
                 self.counter_example = conf1
                 self.counter_example_found = True
-                return True  
-            self.Next()
+                return True 
             return False
             
         #1
         if (r1.LState() != state) or (is_committed and r1.RState() != committed_state): #rule is not applicable, go to next rule
+            #inline processing the top node - conf1, which is a shallow copy
             if next_rule_index == 0:
                 is_committed = False
                 state = committed_state
@@ -412,9 +411,15 @@ class CPVerifier:
                 products = {}  
                 if rules_skipped >= len(self.rules) - 1:
                     terminated = True
-            new_node = CPNode()
-            new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-            self.PushCPNode(new_node)
+                    
+            conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+            
+            #old_node = CPNode()
+            #old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+            #self.PushOldCPNode(old_node)
+            
+            self.nodes_checked += 1
+            
             if next_rule_index == 0:
                 self.Next()
             else:
@@ -436,9 +441,17 @@ class CPVerifier:
                     else:
                         terms[item1] = products[item1]
                 products = {}
+                
+            if self.search_method == 'Priority Search':
+                heapq.heappop(self.node_list)
+            elif self.search_method == 'BFS':
+                self.node_list.pop(0)
+            else: #DFS
+                self.node_list.pop()
+            
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-            self.PushCPNode(new_node)
+            self.PushNewCPNode(new_node)
             self.Next()
         
         #3
@@ -461,9 +474,11 @@ class CPVerifier:
                             else:
                                 terms[item1] = products[item1]
                         products = {}
+                        
+                    self.DeleteCurrentNode()  
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    self.PushCPNode(new_node)
+                    self.PushNewCPNode(new_node)
                     self.Next()
                     
                 else: #rule not applicable
@@ -478,9 +493,15 @@ class CPVerifier:
                         products = {}
                         if rules_skipped >= len(self.rules) - 1:
                             terminated = True
-                    new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    self.PushCPNode(new_node)
+                            
+                    conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                            
+                    #old_node = CPNode()
+                    #old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                    #self.PushOldCPNode(old_node)
+                    
+                    self.nodes_checked += 1
+                    
                     if next_rule_index == 0:
                         self.Next()
                     else:
@@ -505,9 +526,15 @@ class CPVerifier:
                         products = {}
                         if rules_skipped >= len(self.rules) - 1:
                             terminated = True
-                    new_node = CPNode()
-                    new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    self.PushCPNode(new_node)
+                            
+                    conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                     
+                    # old_node = CPNode()
+                    # old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                    # self.PushOldCPNode(old_node)
+                    
+                    self.nodes_checked += 1
+                    
                     if next_rule_index == 0:
                         self.Next()
                     else:
@@ -528,10 +555,13 @@ class CPVerifier:
                                 terms[item1] += products[item1]
                             else:
                                 terms[item1] = products[item1]
-                        products = {}
+                        products = {} 
+                        
+                    self.DeleteCurrentNode()
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    self.PushCPNode(new_node)
+                    self.PushNewCPNode(new_node)
+                    
                     self.Next()
         
         #4           
@@ -560,9 +590,15 @@ class CPVerifier:
                     products = {}
                     if rules_skipped >= len(self.rules) - 1:
                         terminated = True
-                new_node = CPNode()
-                new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                self.PushCPNode(new_node)
+                    
+                conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                        
+                # old_node = CPNode()
+                # old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                # self.PushOldCPNode(old_node)
+                
+                self.nodes_checked += 1
+                
                 if next_rule_index == 0:
                     self.Next()
                 else:
@@ -605,9 +641,12 @@ class CPVerifier:
                                         else:
                                             terms2[item1] = products2[item1]
                                     products2 = {}
+                                    
+                                self.DeleteCurrentNode()
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
-                                self.PushCPNode(new_node)
+                                self.PushNewCPNode(new_node)
+                                
                                 self.Next()
                             else: #fail
                                 return False
@@ -617,6 +656,8 @@ class CPVerifier:
                     #self.PrintP_SS(p_SS)
                     duplicated = set()
                     rule_applied = False
+                    delete_once = True
+                    
                     for s_SS in p_SS: #a permutation of all the unifiers, which do not have to be compatible
                         gruleset = []
                         for unifier in s_SS:
@@ -658,17 +699,29 @@ class CPVerifier:
                                     else:
                                         terms2[item1] = products2[item1]
                                 products2 = {}
-                            
+                            if delete_once:
+                                self.DeleteCurrentNode()
+                                delete_once = False
                             new_node = CPNode()
                             new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
+                            
                             if not new_node.ToString() in duplicated:
-                                self.PushCPNode(new_node)
+                                self.PushNewCPNode(new_node)
                                 duplicated.add(new_node.ToString())
+                                
                                 self.Next() 
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
                     return False
         return True
+    
+    def DeleteCurrentNode(self):
+        if self.search_method == 'Priority Search':
+            heapq.heappop(self.node_list)
+        elif self.search_method == 'BFS':
+            self.node_list.pop(0)
+        else: #DFS
+            self.node_list.pop()
             
     def VConsumeTerm(self, terms, t1, count = 1): #terms passed by reference
         if count < 1:
@@ -705,9 +758,17 @@ class CPVerifier:
             mult = m1[t1]
             self.VProduceTerm(products, t1, mult)
             
-    def PushCPNode(self, node1):
+    def PushNewCPNode(self, node1):
         if self.search_method == 'Priority Search':
             heapq.heappush(self.node_list, node1)
+        else:
+            self.node_list.append(node1)
+            
+    def PushOldCPNode(self, node1):
+        if self.search_method == 'Priority Search':
+            heapq.heappush(self.node_list, node1)
+        elif self.search_method == 'BFS':
+            self.node_list.insert(0, node1)
         else:
             self.node_list.append(node1)
             
