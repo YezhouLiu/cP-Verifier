@@ -44,6 +44,6 @@ def CPSubsetSum(original_set, target_number):
     #v1.Verify(5)
     
     
-CPSubsetSum({1,2},3)
-#CPSubsetSum({1,2,3,4},10)
+#CPSubsetSum({1,2},3)
+CPSubsetSum({1,2,3,4},10)
 

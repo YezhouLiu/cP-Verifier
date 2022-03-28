@@ -7,7 +7,6 @@ from term import Term
 import random as rd
 import lnmu
 from cpsystemsupport import ValidSystemTerm
-import itertools
 from typing import List, OrderedDict
 import heapq
 import time
@@ -185,7 +184,7 @@ class CPVerifier:
         try:
             self.CheckProperties(property_code, state_limit, step_limit)
         except BaseException as err:
-            print("Unexpected {err=}, {type(err)=}")
+            print("Unexpected {err=}", type(err))
     
     def CheckProperties(self, property_code = 0, state_limit = 10000, step_limit = 100):
         self.state_limit = state_limit
@@ -196,7 +195,7 @@ class CPVerifier:
         self.Next()
         time_end = time.perf_counter()
         print('The verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.states_checked) + 
-              ' internal states were checked.' )
+              ' cP system nodes were checked.' )
         print('The search method is ' + self.search_method + '.')
         
         if self.counter_example_found and self.detail_level == 0:
@@ -302,7 +301,7 @@ class CPVerifier:
                 self.counter_example_found = True
                 return True
             else:
-                print("Verification limit reached!")
+                print("The statespace limit is reached!")
                 return False
         
         nodes_left = len(self.node_list)
@@ -416,9 +415,7 @@ class CPVerifier:
             old_node = CPNode()
             old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
             self.PushOldCPNode(old_node)
-            
             self.states_checked += 1
-            
             if next_rule_index == 0:
                 self.Next()
             else:
@@ -440,11 +437,9 @@ class CPVerifier:
                     else:
                         terms[item1] = products[item1]
                 products = {}
-            
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
             self.PushNewCPNode(new_node)
-            
             self.Next()
         
         #3
@@ -467,11 +462,9 @@ class CPVerifier:
                             else:
                                 terms[item1] = products[item1]
                         products = {}
-                         
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    self.PushNewCPNode(new_node)
-                    
+                    self.PushNewCPNode(new_node)  
                     self.Next()
                     
                 else: #rule not applicable
@@ -486,11 +479,9 @@ class CPVerifier:
                         products = {}
                         if rules_skipped >= len(self.rules) - 1:
                             terminated = True
-                            
                     old_node = CPNode()
                     old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushOldCPNode(old_node)
-                    
                     if next_rule_index == 0:
                         self.Next()
                     else:
@@ -515,11 +506,9 @@ class CPVerifier:
                         products = {}
                         if rules_skipped >= len(self.rules) - 1:
                             terminated = True
-                        
                     old_node = CPNode()
                     old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushOldCPNode(old_node)
-                    
                     if next_rule_index == 0:
                         self.Next()
                     else:
@@ -541,11 +530,9 @@ class CPVerifier:
                             else:
                                 terms[item1] = products[item1]
                         products = {} 
-                        
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushNewCPNode(new_node)
-                    
                     self.Next()
         
         #4           
@@ -561,7 +548,6 @@ class CPVerifier:
                 if self.property == 'deterministic':
                     self.counter_example_found = True
                     return True
-            
             if len(SS) == 0: #unification failed
                 if next_rule_index == 0:
                     is_committed = False
@@ -574,16 +560,13 @@ class CPVerifier:
                     products = {}
                     if rules_skipped >= len(self.rules) - 1:
                         terminated = True
-                    
                 old_node = CPNode()
                 old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                 self.PushOldCPNode(old_node)
-                
                 if next_rule_index == 0:
                     self.Next()
                 else:
                     self.Next(rules_skipped + 1)
-                
             else:
                 if r1.Model() == '1': #exact-once model, non-deterministically apply it once
                     for unifier in SS:
@@ -618,14 +601,11 @@ class CPVerifier:
                                         else:
                                             terms2[item1] = products2[item1]
                                     products2 = {}
-                                    
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
                                 self.PushNewCPNode(new_node)
                         
                 elif r1.Model() == '+': #max-parallel model
-                    orders = list(itertools.permutations(range(len(SS))))
-                    duplicated = set()
                     gruleset = []
                     for unifier in SS:
                         lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
@@ -637,28 +617,46 @@ class CPVerifier:
                         r2.SetPMT(pmt2)
                         if r2.IsGround():
                             gruleset.append(r2)
-                            
-                    self.states_checked += len(orders) - 1 #rule attempts
-                    
-                    for ord1 in orders: #a permutation of all the unifiers, which do not have to be compatible
+                    total = pow(2, len(SS)) - 1
+                    self.states_checked += total
+                    applied_unifiers = []
+                    for x in range(total,-1,-1): #using binary to enumerate c(n,1), c(n,2)... c(n,n) max-compatible unifiers
+                        needed = True
+                        for x1 in applied_unifiers:
+                            if self.IsSubset(x, x1):
+                                needed = False
+                                break
+                        if not needed:
+                            continue  
+                        
                         terms2 = deepcopy(terms)
                         products2 = deepcopy(products)
                         is_committed2 = is_committed
                         committed_state2 = committed_state
                         state2 = state
                         step2 = step
-                        applied = False
-                        rules_applied = []
-                                
-                        for i in ord1:
+                               
+                        y = x
+                        unifier_ids = []       
+                        position = len(SS) - 1
+                        while position >= 0:
+                            if y % 2 == 1:
+                                unifier_ids.append(position)
+                            position -= 1
+                            y = int(y / 2)
+                            
+                        all_applied = True
+                        for i in unifier_ids:
                             ms_to_check = lnmu.MultisetUnion(gruleset[i].PMT(), gruleset[i].LHS())
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
                                 self.VConsumeMultiset(terms2, gruleset[i].LHS())
                                 self.VProduceMultiset(products2, gruleset[i].RHS())
-                                applied = True
-                                rules_applied.append(i)
+                            else:
+                                all_applied = False
+                                break
                                        
-                        if applied: 
+                        if all_applied: 
+                            applied_unifiers.append(x)
                             if not is_committed2:
                                 is_committed2 = True
                                 committed_state2 = r1.RState()
@@ -673,16 +671,9 @@ class CPVerifier:
                                         terms2[item1] = products2[item1]
                                 products2 = {}
                             
-                            rules_applied.sort()
-                            str1 = ''
-                            for i1 in rules_applied:
-                                str1 += str(i1) + '-'
-                            
-                            if not str1 in duplicated:
-                                duplicated.add(str1)
-                                new_node = CPNode()
-                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
-                                self.PushNewCPNode(new_node)
+                            new_node = CPNode()
+                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
+                            self.PushNewCPNode(new_node)
                           
                 else: #currently cP systems only support 2 application models, '1' and '+'
                     print('Incorrect application model!')
@@ -691,6 +682,16 @@ class CPVerifier:
                 self.Next() 
                 
         return True
+    
+    def IsSubset(self, child, parent):
+        if parent < child:
+            return False
+        elif parent == child:
+            return True
+        if parent % 2 == 0 and child % 2 == 1:
+            return False
+        else:
+            return self.IsSubset(int(child / 2), int(parent / 2))
             
     def VConsumeTerm(self, terms, t1, count = 1): #terms passed by reference
         if count < 1:
