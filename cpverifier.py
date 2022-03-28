@@ -102,7 +102,7 @@ class CPVerifier:
         self.expected_terminations = []
         self.search_method = 'Priority Search'
         self.state_limit = 10000
-        self.nodes_checked = 0
+        self.states_checked = 0
         self.property = 'deadlock'
         self.counter_example_found = False
         self.counter_example = CPNode()
@@ -195,8 +195,8 @@ class CPVerifier:
         time_start = time.perf_counter()
         self.Next()
         time_end = time.perf_counter()
-        print('The verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.nodes_checked) + 
-              ' cP system configurations were checked.' )
+        print('The verification is finished in ' + str(round(time_end - time_start, 4)) + ' second(s), ' + str(self.states_checked) + 
+              ' internal states were checked.' )
         print('The search method is ' + self.search_method + '.')
         
         if self.counter_example_found and self.detail_level == 0:
@@ -297,7 +297,7 @@ class CPVerifier:
         if self.counter_example_found:
             return True
         
-        if self.nodes_checked >= self.state_limit: #verfication limit reached
+        if self.states_checked >= self.state_limit: #verfication limit reached
             if self.property == 'terminating':
                 self.counter_example_found = True
                 return True
@@ -316,7 +316,7 @@ class CPVerifier:
             conf1 = self.node_list[0] #a shallow copy
         else: #DFS
             conf1 = self.node_list[-1] #a shallow copy
-        self.nodes_checked += 1
+        self.states_checked += 1
         
         state = conf1.state
         terms = conf1.terms
@@ -417,7 +417,7 @@ class CPVerifier:
             old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
             self.PushOldCPNode(old_node)
             
-            self.nodes_checked += 1
+            self.states_checked += 1
             
             if next_rule_index == 0:
                 self.Next()
@@ -624,61 +624,72 @@ class CPVerifier:
                                 self.PushNewCPNode(new_node)
                         
                 elif r1.Model() == '+': #max-parallel model
-                    p_SS = list(itertools.permutations(SS))
-                    #self.PrintP_SS(p_SS)
+                    orders = list(itertools.permutations(range(len(SS))))
                     duplicated = set()
+                    gruleset = []
+                    for unifier in SS:
+                        lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
+                        rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
+                        pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
+                        r2 = Rule(r1.LState(), r1.RState(), '+') #a unified, ground rule
+                        r2.SetLHS(lhs2)
+                        r2.SetRHS(rhs2)
+                        r2.SetPMT(pmt2)
+                        if r2.IsGround():
+                            gruleset.append(r2)
+                            
+                    self.states_checked += len(orders) - 1 #rule attempts
                     
-                    for s_SS in p_SS: #a permutation of all the unifiers, which do not have to be compatible
-                        gruleset = []
-                        for unifier in s_SS:
-                            lhs2 = lnmu.ApplyBindingMultiset(r1.LHS(), unifier)
-                            rhs2 = lnmu.ApplyBindingMultiset(r1.RHS(), unifier)
-                            pmt2 = lnmu.ApplyBindingMultiset(r1.PMT(), unifier)
-                            r2 = Rule(r1.LState(), r1.RState(), '+') #a unified, ground rule
-                            r2.SetLHS(lhs2)
-                            r2.SetRHS(rhs2)
-                            r2.SetPMT(pmt2)
-                            if r2.IsGround():
-                                gruleset.append(r2) #a virtual ground rule 
-
+                    for ord1 in orders: #a permutation of all the unifiers, which do not have to be compatible
                         terms2 = deepcopy(terms)
                         products2 = deepcopy(products)
                         is_committed2 = is_committed
                         committed_state2 = committed_state
                         state2 = state
-                        step2 = step    
+                        step2 = step
+                        applied = False
+                        rules_applied = []
                                 
-                        for r3 in gruleset:
-                            ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
+                        for i in ord1:
+                            ms_to_check = lnmu.MultisetUnion(gruleset[i].PMT(), gruleset[i].LHS())
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
-                                self.VConsumeMultiset(terms2, r3.LHS())
-                                self.VProduceMultiset(products2, r3.RHS())            
-                                if not is_committed2:
-                                    is_committed2 = True
-                                    committed_state2 = r2.RState()
-                                    step2 += 1
-                                if next_rule_index == 0:
-                                    is_committed2 = False
-                                    state2 = committed_state2
-                                    for item1 in products2:
-                                        if item1 in terms2:
-                                            terms2[item1] += products2[item1]
-                                        else:
-                                            terms2[item1] = products2[item1]
-                                    products2 = {}
-                                
-                        new_node = CPNode()
-                        new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
+                                self.VConsumeMultiset(terms2, gruleset[i].LHS())
+                                self.VProduceMultiset(products2, gruleset[i].RHS())
+                                applied = True
+                                rules_applied.append(i)
+                                       
+                        if applied: 
+                            if not is_committed2:
+                                is_committed2 = True
+                                committed_state2 = r1.RState()
+                                step2 += 1
+                            if next_rule_index == 0:
+                                is_committed2 = False
+                                state2 = committed_state2
+                                for item1 in products2:
+                                    if item1 in terms2:
+                                        terms2[item1] += products2[item1]
+                                    else:
+                                        terms2[item1] = products2[item1]
+                                products2 = {}
                             
-                        if not new_node.ToString() in duplicated:
-                            self.PushNewCPNode(new_node)
-                            duplicated.add(new_node.ToString())
-                                
-                else: #currently cP systems only have 2 major models, '1' and '+'
+                            rules_applied.sort()
+                            str1 = ''
+                            for i1 in rules_applied:
+                                str1 += str(i1) + '-'
+                            
+                            if not str1 in duplicated:
+                                duplicated.add(str1)
+                                new_node = CPNode()
+                                new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
+                                self.PushNewCPNode(new_node)
+                          
+                else: #currently cP systems only support 2 application models, '1' and '+'
                     print('Incorrect application model!')
                     return False
                 
                 self.Next() 
+                
         return True
             
     def VConsumeTerm(self, terms, t1, count = 1): #terms passed by reference

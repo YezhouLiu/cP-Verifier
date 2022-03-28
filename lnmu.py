@@ -297,6 +297,16 @@ def MultisetTimes(ms1: OrderedDict, times = 1): #ms1 * 7
 def MultisetEmpty(ms: OrderedDict):
     return len(ms) == 0
 
+def MultisetToString(ms1: OrderedDict):
+    s = ''
+    for item in ms1:
+        mult = ms1[item]
+        if isinstance(item, Term):
+            s += item.ToString() + ':' + str(mult) + ' '
+        else:
+            s += item + ':' + str(mult) + ' '
+    return s
+    
 def PrintMultiset(ms1: OrderedDict):
     for item in ms1:
         mult = ms1[item]
