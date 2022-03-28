@@ -416,13 +416,13 @@ class Ui_MainWindow(object):
         self.ReloadcPSystem()
         self.ve = CPVerifier(self.sys)
         self.ve.SetDetailLevel(self.comboBox_detail.currentIndex())
-        state_limit = 10000000
+        state_limit = 1000000
         try:
             state_limit = int(self.textEdit_state_limit.toPlainText())
             if state_limit < 0:
-                state_limit = 10000000
+                state_limit = 1000000
         except:
-            state_limit = 10000000
+            state_limit = 1000000
         step_limit = 100
         try:
             step_limit = int(self.textEdit_step_limit.toPlainText())
@@ -619,7 +619,7 @@ class Ui_MainWindow(object):
         self.textEdit_rules.setText('')
         self.textBrowser_result.setText('')
         self.textEdit_spec.setText('')
-        self.textEdit_state_limit.setText('10000000')
+        self.textEdit_state_limit.setText('1000000')
         self.textEdit_halting_states.setText('')
         self.textEdit_step_limit.setText('100')
         
@@ -677,7 +677,7 @@ class Ui_MainWindow(object):
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:\'Times New Roman\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">10000000</p></body></html>"))
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">1000000</p></body></html>"))
         self.label_9.setText(_translate("MainWindow", "Expected halting states:"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.textEdit_halting_states.setHtml(_translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
