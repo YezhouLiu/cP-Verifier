@@ -182,11 +182,10 @@ class CPVerifier:
         self.target_state = target
 
     def Verify(self, property_code = 0, state_limit = 10000, step_limit = 100):
-        self.CheckProperties(property_code, state_limit, step_limit)
-        # try:
-        #     self.CheckProperties(property_code, state_limit, step_limit)
-        # except BaseException as err:
-        #     print("Unexpected {err=}, {type(err)=}")
+        try:
+            self.CheckProperties(property_code, state_limit, step_limit)
+        except BaseException as err:
+            print("Unexpected {err=}, {type(err)=}")
     
     def CheckProperties(self, property_code = 0, state_limit = 10000, step_limit = 100):
         self.state_limit = state_limit
@@ -266,9 +265,7 @@ class CPVerifier:
                 print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
             elif self.property == 'state_in_one':
                 print('The target state is reachable!\n' + self.counter_example.ToString())
-                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())
-            
-            
+                print('*******************************************\nTrace:\n' + self.counter_example.AncestorsToString())      
         else:
             if self.property == 'terms_in_one_halting':
                 print('The target terms are NOT included by any halting configuration!')
@@ -314,11 +311,11 @@ class CPVerifier:
         
         conf1 = CPNode()
         if self.search_method == 'Priority Search':
-            conf1 = self.node_list[0]
+            conf1 = self.node_list[0] #a shallow copy
         elif self.search_method == 'BFS':
-            conf1 = self.node_list[0]
+            conf1 = self.node_list[0] #a shallow copy
         else: #DFS
-            conf1 = self.node_list[-1]
+            conf1 = self.node_list[-1] #a shallow copy
         self.nodes_checked += 1
         
         state = conf1.state
@@ -334,11 +331,15 @@ class CPVerifier:
         step = conf1.step
         terminated = conf1.terminated
         
-        # If I do this somewhere else, it may be error-prune, however, it can improve the performance a lot.
-        #self.DeleteCurrentNode()
+        # If I do this somewhere else to allow some inline modifications to the objects, it may be error-prune, however, it can improve the performance.
+        if self.search_method == 'Priority Search':
+            heapq.heappop(self.node_list)
+        elif self.search_method == 'BFS':
+            self.node_list.pop(0)
+        else: #DFS
+            self.node_list.pop()
             
         if step > self.step_limit:
-            self.DeleteCurrentNode()
             self.Next()
             return False
         
@@ -395,11 +396,11 @@ class CPVerifier:
                 self.counter_example = conf1
                 self.counter_example_found = True
                 return True 
+            self.Next()
             return False
             
         #1
         if (r1.LState() != state) or (is_committed and r1.RState() != committed_state): #rule is not applicable, go to next rule
-            #inline processing the top node - conf1, which is a shallow copy
             if next_rule_index == 0:
                 is_committed = False
                 state = committed_state
@@ -411,12 +412,10 @@ class CPVerifier:
                 products = {}  
                 if rules_skipped >= len(self.rules) - 1:
                     terminated = True
-                    
-            conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-            
-            #old_node = CPNode()
-            #old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-            #self.PushOldCPNode(old_node)
+                
+            old_node = CPNode()
+            old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+            self.PushOldCPNode(old_node)
             
             self.nodes_checked += 1
             
@@ -441,17 +440,11 @@ class CPVerifier:
                     else:
                         terms[item1] = products[item1]
                 products = {}
-                
-            if self.search_method == 'Priority Search':
-                heapq.heappop(self.node_list)
-            elif self.search_method == 'BFS':
-                self.node_list.pop(0)
-            else: #DFS
-                self.node_list.pop()
             
             new_node = CPNode()
             new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
             self.PushNewCPNode(new_node)
+            
             self.Next()
         
         #3
@@ -474,11 +467,11 @@ class CPVerifier:
                             else:
                                 terms[item1] = products[item1]
                         products = {}
-                        
-                    self.DeleteCurrentNode()  
+                         
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushNewCPNode(new_node)
+                    
                     self.Next()
                     
                 else: #rule not applicable
@@ -494,13 +487,9 @@ class CPVerifier:
                         if rules_skipped >= len(self.rules) - 1:
                             terminated = True
                             
-                    conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                            
-                    #old_node = CPNode()
-                    #old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    #self.PushOldCPNode(old_node)
-                    
-                    self.nodes_checked += 1
+                    old_node = CPNode()
+                    old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                    self.PushOldCPNode(old_node)
                     
                     if next_rule_index == 0:
                         self.Next()
@@ -526,14 +515,10 @@ class CPVerifier:
                         products = {}
                         if rules_skipped >= len(self.rules) - 1:
                             terminated = True
-                            
-                    conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                     
-                    # old_node = CPNode()
-                    # old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                    # self.PushOldCPNode(old_node)
-                    
-                    self.nodes_checked += 1
+                        
+                    old_node = CPNode()
+                    old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                    self.PushOldCPNode(old_node)
                     
                     if next_rule_index == 0:
                         self.Next()
@@ -557,7 +542,6 @@ class CPVerifier:
                                 terms[item1] = products[item1]
                         products = {} 
                         
-                    self.DeleteCurrentNode()
                     new_node = CPNode()
                     new_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
                     self.PushNewCPNode(new_node)
@@ -591,13 +575,9 @@ class CPVerifier:
                     if rules_skipped >= len(self.rules) - 1:
                         terminated = True
                     
-                conf1.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                        
-                # old_node = CPNode()
-                # old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
-                # self.PushOldCPNode(old_node)
-                
-                self.nodes_checked += 1
+                old_node = CPNode()
+                old_node.ReadContent(terms, products, state, committed_state, is_committed, next_rule_index, step, ancestors, terminated)
+                self.PushOldCPNode(old_node)
                 
                 if next_rule_index == 0:
                     self.Next()
@@ -618,7 +598,6 @@ class CPVerifier:
                             terms2 = deepcopy(terms)
                             products2 = deepcopy(products)
                             ms_to_check = lnmu.MultisetUnion(r2.PMT(), r2.LHS())
-                            rule_applied = False
                             is_committed2 = is_committed
                             committed_state2 = committed_state
                             state2 = state
@@ -626,8 +605,6 @@ class CPVerifier:
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
                                 self.VConsumeMultiset(terms2, r2.LHS())
                                 self.VProduceMultiset(products2, r2.RHS())
-                                rule_applied = True      
-                            if rule_applied:
                                 if not is_committed2:
                                     is_committed2 = True
                                     committed_state2 = r2.RState()
@@ -642,21 +619,14 @@ class CPVerifier:
                                             terms2[item1] = products2[item1]
                                     products2 = {}
                                     
-                                self.DeleteCurrentNode()
                                 new_node = CPNode()
                                 new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
                                 self.PushNewCPNode(new_node)
-                                
-                                self.Next()
-                            else: #fail
-                                return False
                         
                 elif r1.Model() == '+': #max-parallel model
                     p_SS = list(itertools.permutations(SS))
                     #self.PrintP_SS(p_SS)
                     duplicated = set()
-                    rule_applied = False
-                    delete_once = True
                     
                     for s_SS in p_SS: #a permutation of all the unifiers, which do not have to be compatible
                         gruleset = []
@@ -669,8 +639,8 @@ class CPVerifier:
                             r2.SetRHS(rhs2)
                             r2.SetPMT(pmt2)
                             if r2.IsGround():
-                                gruleset.append(r2) #a virtual ground rule
-                        
+                                gruleset.append(r2) #a virtual ground rule 
+
                         terms2 = deepcopy(terms)
                         products2 = deepcopy(products)
                         is_committed2 = is_committed
@@ -681,47 +651,35 @@ class CPVerifier:
                         for r3 in gruleset:
                             ms_to_check = lnmu.MultisetUnion(r3.PMT(), r3.LHS())
                             if lnmu.MultisetIn(ms_to_check, terms2): #rule applicable
-                                rule_applied = True
                                 self.VConsumeMultiset(terms2, r3.LHS())
-                                self.VProduceMultiset(products2, r3.RHS())
-                        
-                        if rule_applied:               
-                            if not is_committed2:
-                                is_committed2 = True
-                                committed_state2 = r2.RState()
-                                step2 += 1
-                            if next_rule_index == 0:
-                                is_committed2 = False
-                                state2 = committed_state2
-                                for item1 in products2:
-                                    if item1 in terms2:
-                                        terms2[item1] += products2[item1]
-                                    else:
-                                        terms2[item1] = products2[item1]
-                                products2 = {}
-                            if delete_once:
-                                self.DeleteCurrentNode()
-                                delete_once = False
-                            new_node = CPNode()
-                            new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
-                            
-                            if not new_node.ToString() in duplicated:
-                                self.PushNewCPNode(new_node)
-                                duplicated.add(new_node.ToString())
+                                self.VProduceMultiset(products2, r3.RHS())            
+                                if not is_committed2:
+                                    is_committed2 = True
+                                    committed_state2 = r2.RState()
+                                    step2 += 1
+                                if next_rule_index == 0:
+                                    is_committed2 = False
+                                    state2 = committed_state2
+                                    for item1 in products2:
+                                        if item1 in terms2:
+                                            terms2[item1] += products2[item1]
+                                        else:
+                                            terms2[item1] = products2[item1]
+                                    products2 = {}
                                 
-                                self.Next() 
+                        new_node = CPNode()
+                        new_node.ReadContent(terms2, products2, state2, committed_state2, is_committed2, next_rule_index, step2, ancestors, terminated)
+                            
+                        if not new_node.ToString() in duplicated:
+                            self.PushNewCPNode(new_node)
+                            duplicated.add(new_node.ToString())
+                                
                 else: #currently cP systems only have 2 major models, '1' and '+'
                     print('Incorrect application model!')
                     return False
+                
+                self.Next() 
         return True
-    
-    def DeleteCurrentNode(self):
-        if self.search_method == 'Priority Search':
-            heapq.heappop(self.node_list)
-        elif self.search_method == 'BFS':
-            self.node_list.pop(0)
-        else: #DFS
-            self.node_list.pop()
             
     def VConsumeTerm(self, terms, t1, count = 1): #terms passed by reference
         if count < 1:
