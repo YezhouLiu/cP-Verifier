@@ -1,7 +1,0 @@
-{
- "ruleset": ["s1 ->1 s2 x(YZ) | y(Y) z(Z) "],
-"terms": {"y(87)":1,
-"z(88)":1},
-"state": "s1",
-"name": "ADD"
-}

@@ -1,8 +1,0 @@
-{
- "ruleset": ["s1 b(X) ->1 s2 o(X) | a(XY) ",
-"s1 a(X) ->+ s1 a(X1) a(X1) "],
-"terms": {"a(1)":1,
-"b(10)":1},
-"state": "s1",
-"name": "EXP"
-}
